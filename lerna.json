@@ -1,0 +1,15 @@
+{
+  "packages": ["packages/*"],
+  "version": "independent",
+  "npmClient": "pnpm",
+  "command": {
+    "version": {
+      "allowBranch": ["main", "hotfix/*"],
+      "conventionalCommits": true,
+      "message": "chore(release): publish",
+      "preid": "beta",
+      "exact": true,
+    }
+  },
+  "$schema": "node_modules/lerna/schemas/lerna-schema.json"
+}

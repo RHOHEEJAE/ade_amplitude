@@ -1,0 +1,809 @@
+import * as analyticsCoreModule from '@amplitude/analytics-core';
+import {
+  getAttributionTrackingConfig,
+  getElementInteractionsConfig,
+  getFormInteractionsConfig,
+  getFrustrationInteractionsConfig,
+  getNetworkTrackingConfig,
+  getPageViewTrackingConfig,
+  getPerformanceTrackingConfig,
+  isAttributionTrackingEnabled,
+  isCustomEnrichmentEnabled,
+  isElementInteractionsEnabled,
+  isFileDownloadTrackingEnabled,
+  isFormInteractionTrackingEnabled,
+  isFrustrationInteractionsEnabled,
+  isNetworkTrackingEnabled,
+  isPageUrlEnrichmentEnabled,
+  isPageViewTrackingEnabled,
+  isPerformanceTrackingEnabled,
+  isSessionTrackingEnabled,
+  isWebVitalsEnabled,
+} from '../src/default-tracking';
+
+describe('isCustomEnrichmentEnabled', () => {
+  test('should return false when customEnrichment is undefined', () => {
+    expect(isCustomEnrichmentEnabled(undefined)).toBe(false);
+  });
+
+  test('should return true when customEnrichment is an object with enabled=true', () => {
+    expect(isCustomEnrichmentEnabled({ enabled: true, body: 'test' })).toBe(true);
+  });
+
+  test('should return false when customEnrichment is an object with enabled=false', () => {
+    expect(isCustomEnrichmentEnabled({ enabled: false, body: 'test' })).toBe(false);
+  });
+
+  test('should return true when customEnrichment is true (from translated remote config)', () => {
+    expect(isCustomEnrichmentEnabled(true)).toBe(true);
+  });
+
+  test('should return false when customEnrichment is false (from translated remote config)', () => {
+    expect(isCustomEnrichmentEnabled(false)).toBe(false);
+  });
+
+  test('should return true when customEnrichment is an object without enabled (from translated remote config)', () => {
+    expect(isCustomEnrichmentEnabled({ body: 'test' })).toBe(true);
+  });
+
+  test('should return false when customEnrichment is null', () => {
+    expect(isCustomEnrichmentEnabled(null as unknown as undefined)).toBe(false);
+  });
+});
+
+describe('isWebVitalsEnabled', () => {
+  describe('is true when', () => {
+    test('autocapture=true', () => {
+      expect(isWebVitalsEnabled(true)).toBe(true);
+    });
+
+    test('autocapture.webVitals=true', () => {
+      expect(isWebVitalsEnabled({ webVitals: true })).toBe(true);
+    });
+  });
+
+  describe('is false when', () => {
+    test('autocapture=false', () => {
+      expect(isWebVitalsEnabled(false)).toBe(false);
+    });
+
+    test('autocapture.webVitals=false', () => {
+      expect(isWebVitalsEnabled({ webVitals: false })).toBe(false);
+    });
+
+    test('autocapture.webVitals is undefined', () => {
+      expect(isWebVitalsEnabled({ networkTracking: true })).toBe(false);
+    });
+  });
+});
+
+describe('isFrustrationInteractionsEnabled', () => {
+  test('should return true when autocapture=true', () => {
+    expect(isFrustrationInteractionsEnabled(true)).toBe(true);
+  });
+
+  test('should return false with undefined parameter', () => {
+    expect(isFrustrationInteractionsEnabled(undefined)).toBe(false);
+  });
+
+  test('should return false with false parameter', () => {
+    expect(isFrustrationInteractionsEnabled(false)).toBe(false);
+  });
+
+  test('should return true with object parameter', () => {
+    expect(isFrustrationInteractionsEnabled({ frustrationInteractions: true })).toBe(true);
+  });
+
+  test('should return false with object parameter', () => {
+    expect(isFrustrationInteractionsEnabled({ frustrationInteractions: false })).toBe(false);
+  });
+
+  test('should get frustration interactions config', () => {
+    const config = getFrustrationInteractionsConfig({
+      autocapture: {
+        frustrationInteractions: {
+          deadClicks: {
+            cssSelectorAllowlist: ['button'],
+          },
+          rageClicks: {
+            cssSelectorAllowlist: ['button'],
+          },
+        },
+      },
+    });
+    expect(config).toEqual({
+      deadClicks: {
+        cssSelectorAllowlist: ['button'],
+      },
+      rageClicks: {
+        cssSelectorAllowlist: ['button'],
+      },
+    });
+  });
+
+  test('should get undefined frustration interactions config when autocapture is true', () => {
+    const config = getFrustrationInteractionsConfig({
+      autocapture: true,
+    });
+    expect(config).toBeUndefined();
+  });
+});
+
+describe('isPerformanceTrackingEnabled', () => {
+  test('should return false with undefined parameter', () => {
+    expect(isPerformanceTrackingEnabled(undefined)).toBe(false);
+  });
+
+  test('should return false when autocapture=true', () => {
+    expect(isPerformanceTrackingEnabled(true)).toBe(false);
+  });
+
+  test('should return false when autocapture=false', () => {
+    expect(isPerformanceTrackingEnabled(false)).toBe(false);
+  });
+
+  test('should return true with performanceTracking=true', () => {
+    expect(isPerformanceTrackingEnabled({ performanceTracking: true })).toBe(true);
+  });
+
+  test('should return true with performanceTracking as object', () => {
+    expect(isPerformanceTrackingEnabled({ performanceTracking: { mainThreadBlock: true } })).toBe(true);
+  });
+
+  test('should return false with performanceTracking=false', () => {
+    expect(isPerformanceTrackingEnabled({ performanceTracking: false })).toBe(false);
+  });
+
+  test('should return false when performanceTracking is undefined', () => {
+    expect(isPerformanceTrackingEnabled({ webVitals: true })).toBe(false);
+  });
+});
+
+describe('getPerformanceTrackingConfig', () => {
+  test('should return config when performanceTracking is an object', () => {
+    const config = getPerformanceTrackingConfig({
+      autocapture: {
+        performanceTracking: {
+          mainThreadBlock: { durationThreshold: 200 },
+        },
+      },
+    });
+    expect(config).toEqual({ mainThreadBlock: { durationThreshold: 200 } });
+  });
+
+  test('should return undefined when autocapture is true', () => {
+    expect(getPerformanceTrackingConfig({ autocapture: true })).toBeUndefined();
+  });
+
+  test('should return mainThreadBlock true when performanceTracking=true (explicit autocapture opt-in)', () => {
+    expect(getPerformanceTrackingConfig({ autocapture: { performanceTracking: true } })).toEqual({
+      mainThreadBlock: true,
+    });
+  });
+
+  test('should return undefined when performanceTracking is disabled', () => {
+    expect(getPerformanceTrackingConfig({ autocapture: { performanceTracking: false } })).toBeUndefined();
+  });
+});
+
+describe('isFileDownloadTrackingEnabled', () => {
+  test('should return true with true parameter', () => {
+    expect(isFileDownloadTrackingEnabled(true)).toBe(true);
+  });
+
+  test('should return true with undefined parameter', () => {
+    expect(isFileDownloadTrackingEnabled(undefined)).toBe(true);
+  });
+
+  test('should return false with false parameter', () => {
+    expect(isFileDownloadTrackingEnabled(false)).toBe(false);
+  });
+
+  test('should return true with object parameter', () => {
+    expect(
+      isFileDownloadTrackingEnabled({
+        fileDownloads: true,
+      }),
+    ).toBe(true);
+  });
+
+  test('should return false with object parameter', () => {
+    expect(
+      isFileDownloadTrackingEnabled({
+        fileDownloads: false,
+      }),
+    ).toBe(false);
+  });
+});
+
+describe('isFormInteractionTrackingEnabled', () => {
+  test('should return true with true parameter', () => {
+    expect(isFormInteractionTrackingEnabled(true)).toBe(true);
+  });
+
+  test('should return true with undefined parameter', () => {
+    expect(isFormInteractionTrackingEnabled(undefined)).toBe(true);
+  });
+
+  test('should return false with false parameter', () => {
+    expect(isFormInteractionTrackingEnabled(false)).toBe(false);
+  });
+
+  test('should return true with object parameter', () => {
+    expect(
+      isFormInteractionTrackingEnabled({
+        formInteractions: true,
+      }),
+    ).toBe(true);
+  });
+
+  test('should return false with object parameter', () => {
+    expect(
+      isFormInteractionTrackingEnabled({
+        formInteractions: false,
+      }),
+    ).toBe(false);
+  });
+});
+
+describe('getFormInteractionsConfig', () => {
+  test('should return undefined when defaultTracking is undefined', () => {
+    const config = getFormInteractionsConfig({});
+    expect(config).toBeUndefined();
+  });
+
+  test('should return undefined when defaultTracking is true', () => {
+    const config = getFormInteractionsConfig({
+      defaultTracking: true,
+    });
+    expect(config).toBeUndefined();
+  });
+
+  test('should return undefined when defaultTracking is false', () => {
+    const config = getFormInteractionsConfig({
+      defaultTracking: false,
+    });
+    expect(config).toBeUndefined();
+  });
+
+  test('should return undefined when formInteractions is true', () => {
+    const config = getFormInteractionsConfig({
+      defaultTracking: {
+        formInteractions: true,
+      },
+    });
+    expect(config).toBeUndefined();
+  });
+
+  test('should return undefined when formInteractions is false', () => {
+    const config = getFormInteractionsConfig({
+      defaultTracking: {
+        formInteractions: false,
+      },
+    });
+    expect(config).toBeUndefined();
+  });
+
+  test('should return config with shouldTrackSubmit callback', () => {
+    const shouldTrackSubmit = jest.fn(() => true);
+    const config = getFormInteractionsConfig({
+      defaultTracking: {
+        formInteractions: {
+          shouldTrackSubmit,
+        },
+      },
+    });
+
+    expect(config).toBeDefined();
+    expect(config?.shouldTrackSubmit).toBe(shouldTrackSubmit);
+  });
+
+  test('should return empty config object when formInteractions is empty object', () => {
+    const config = getFormInteractionsConfig({
+      defaultTracking: {
+        formInteractions: {},
+      },
+    });
+
+    expect(config).toEqual({});
+  });
+});
+
+describe('isPageViewTrackingEnabled', () => {
+  test('should return true with true parameter', () => {
+    expect(isPageViewTrackingEnabled(true)).toBe(true);
+  });
+
+  test('should return true with undefined parameter', () => {
+    expect(isPageViewTrackingEnabled(undefined)).toBe(true);
+  });
+
+  test('should return true with false parameter', () => {
+    expect(isPageViewTrackingEnabled(false)).toBe(false);
+  });
+
+  test('should return true with object parameter', () => {
+    expect(
+      isPageViewTrackingEnabled({
+        pageViews: true,
+      }),
+    ).toBe(true);
+  });
+
+  test('should return false with object parameter', () => {
+    expect(
+      isPageViewTrackingEnabled({
+        pageViews: false,
+      }),
+    ).toBe(false);
+  });
+
+  test('should return true with nested object parameter', () => {
+    expect(
+      isPageViewTrackingEnabled({
+        pageViews: {},
+      }),
+    ).toBe(true);
+  });
+});
+
+describe('isSessionTrackingEnabled', () => {
+  test('should return true with true parameter', () => {
+    expect(isSessionTrackingEnabled(true)).toBe(true);
+  });
+
+  test('should return true with undefined parameter', () => {
+    expect(isSessionTrackingEnabled(undefined)).toBe(true);
+  });
+
+  test('should return false with false parameter', () => {
+    expect(isSessionTrackingEnabled(false)).toBe(false);
+  });
+
+  test('should return true with object parameter', () => {
+    expect(
+      isSessionTrackingEnabled({
+        sessions: true,
+      }),
+    ).toBe(true);
+  });
+
+  test('should return false with object parameter', () => {
+    expect(
+      isSessionTrackingEnabled({
+        sessions: false,
+      }),
+    ).toBe(false);
+  });
+
+  describe('when environment is a Chrome extension', () => {
+    beforeEach(() => {
+      jest.spyOn(analyticsCoreModule, 'isChromeExtension').mockReturnValue(true);
+    });
+
+    test('should return false if not set', () => {
+      expect(isSessionTrackingEnabled(undefined)).toBe(false);
+    });
+
+    test('should return true if set to true', () => {
+      expect(isSessionTrackingEnabled({ sessions: true })).toBe(true);
+    });
+  });
+});
+
+describe('isAttributionTrackingEnabled', () => {
+  test('should return true with true parameter', () => {
+    expect(isAttributionTrackingEnabled(true)).toBe(true);
+  });
+
+  test('should return true with undefined parameter', () => {
+    expect(isAttributionTrackingEnabled(undefined)).toBe(true);
+  });
+
+  test('should return false with false parameter', () => {
+    expect(isAttributionTrackingEnabled(false)).toBe(false);
+  });
+
+  test('should return true with object parameter', () => {
+    expect(
+      isAttributionTrackingEnabled({
+        attribution: true,
+      }),
+    ).toBe(true);
+  });
+
+  test('should return false with object parameter', () => {
+    expect(
+      isAttributionTrackingEnabled({
+        attribution: false,
+      }),
+    ).toBe(false);
+  });
+});
+
+describe('isNetworkTrackingEnabled', () => {
+  test('should return false when autocapture is false', () => {
+    expect(isNetworkTrackingEnabled(false)).toBe(false);
+  });
+
+  test('should return false when autocapture is undefined', () => {
+    expect(isNetworkTrackingEnabled(undefined)).toBe(false);
+  });
+
+  test('should return true when autocapture is true', () => {
+    expect(isNetworkTrackingEnabled(true)).toBe(true);
+  });
+
+  test('should return true when autocapture.networkTracking is true', () => {
+    expect(
+      isNetworkTrackingEnabled({
+        networkTracking: true,
+      }),
+    ).toBe(true);
+  });
+
+  test('should return true when autocapture.networkTracking is an object', () => {
+    expect(
+      isNetworkTrackingEnabled({
+        networkTracking: {},
+      }),
+    ).toBe(true);
+  });
+
+  test('should return false when autocapture.networkTracking is false', () => {
+    expect(
+      isNetworkTrackingEnabled({
+        networkTracking: false,
+      }),
+    ).toBe(false);
+  });
+
+  test('should return false when autocapture.networkTracking is undefined', () => {
+    expect(
+      isNetworkTrackingEnabled({
+        sessions: true,
+        pageViews: true,
+        networkTracking: undefined,
+      }),
+    ).toBe(false);
+  });
+});
+
+describe('isElementInteractionsEnabled', () => {
+  test('should return true with true parameter', () => {
+    expect(isElementInteractionsEnabled(true)).toBe(true);
+  });
+
+  test('should return false with undefined parameter', () => {
+    expect(isElementInteractionsEnabled(undefined)).toBe(false);
+  });
+
+  test('should return false with false parameter', () => {
+    expect(isElementInteractionsEnabled(false)).toBe(false);
+  });
+
+  test('should return true with object parameter', () => {
+    expect(
+      isElementInteractionsEnabled({
+        elementInteractions: true,
+      }),
+    ).toBe(true);
+  });
+
+  test('should return false with object parameter', () => {
+    expect(
+      isElementInteractionsEnabled({
+        elementInteractions: false,
+      }),
+    ).toBe(false);
+  });
+
+  test('should return false with object parameter undefined', () => {
+    expect(
+      isElementInteractionsEnabled({
+        elementInteractions: undefined,
+      }),
+    ).toBe(false);
+  });
+});
+
+describe('getPageViewTrackingConfig', () => {
+  test('should return undefined trackOn config', () => {
+    const config = getPageViewTrackingConfig({
+      defaultTracking: {
+        pageViews: true,
+      },
+    });
+
+    expect(config.trackOn).toBe(undefined);
+  });
+
+  test('should return trackOn config returning false', () => {
+    const config = getPageViewTrackingConfig({
+      defaultTracking: {
+        pageViews: false,
+      },
+    });
+
+    expect(typeof config.trackOn).toBe('function');
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore asserts that track on is a function that returns a boolean
+    expect(config.trackOn()).toBe(false);
+  });
+
+  test('should return advanced options', () => {
+    const config = getPageViewTrackingConfig({
+      defaultTracking: {
+        pageViews: {
+          trackOn: 'attribution',
+          trackHistoryChanges: 'all',
+          eventType: 'Page View',
+        },
+      },
+    });
+
+    expect(typeof config.trackOn).toBe('string');
+    expect(config.trackOn).toBe('attribution');
+    expect(config.trackHistoryChanges).toBe('all');
+    expect(config.eventType).toBe('Page View');
+  });
+});
+
+describe('getAttributionTrackingConfig', () => {
+  test('should return disabled config', () => {
+    const config = getAttributionTrackingConfig({
+      defaultTracking: {
+        attribution: false,
+      },
+    });
+    expect(config).toEqual({
+      excludeReferrers: undefined,
+      initialEmptyValue: undefined,
+      resetSessionOnNewCampaign: undefined,
+    });
+  });
+
+  test('should return default config', () => {
+    const config = getAttributionTrackingConfig({
+      defaultTracking: {
+        attribution: {},
+      },
+    });
+    expect(config).toEqual({
+      excludeReferrers: undefined,
+      initialEmptyValue: undefined,
+      resetSessionOnNewCampaign: undefined,
+    });
+  });
+
+  test('should return custom config', () => {
+    const config = getAttributionTrackingConfig({
+      defaultTracking: {
+        attribution: {
+          excludeReferrers: [],
+          initialEmptyValue: 'EMPTY',
+          resetSessionOnNewCampaign: true,
+        },
+      },
+    });
+    expect(config).toEqual({
+      excludeReferrers: [],
+      initialEmptyValue: 'EMPTY',
+      resetSessionOnNewCampaign: true,
+    });
+  });
+});
+
+describe('getNetworkTrackingConfig', () => {
+  test('should return autocapture.networkTracking if it is an object', () => {
+    const autocapture = {
+      networkTracking: {
+        ignoreAmplitudeRequests: true,
+        ignoreHosts: ['example.com'],
+        captureRules: [
+          {
+            hosts: ['example.com'],
+            statusCodeRange: '500-599',
+          },
+        ],
+      },
+    };
+    const config = getNetworkTrackingConfig({
+      autocapture,
+    });
+    expect(typeof config).toBe('object');
+    expect(config).toEqual(autocapture.networkTracking);
+  });
+
+  test('should return "networkTrackingOptions" if is defined and autocapture.networkTracking=true (deprecated)', () => {
+    const autocapture = {
+      networkTracking: true,
+    };
+    const networkTrackingOptions = {
+      ignoreAmplitudeRequests: true,
+      ignoreHosts: ['example.com'],
+      captureRules: [
+        {
+          hosts: ['example.com'],
+          statusCodeRange: '500-599',
+        },
+      ],
+    };
+    const config = getNetworkTrackingConfig({
+      autocapture,
+      networkTrackingOptions,
+    });
+    expect(typeof config).toBe('object');
+    expect(config).toEqual(networkTrackingOptions);
+  });
+
+  test('should return undefined when autocapture is not defined', () => {
+    const autocapture = undefined;
+    const networkTrackingOptions = {};
+    const config = getNetworkTrackingConfig({
+      autocapture,
+      networkTrackingOptions,
+    });
+    expect(config).toBeUndefined();
+  });
+
+  test('should return undefined when autocapture.networkTracking is undefined', () => {
+    const config = getNetworkTrackingConfig({
+      autocapture: {
+        elementInteractions: true,
+        sessions: true,
+      },
+      networkTrackingOptions: {
+        ignoreAmplitudeRequests: true,
+        ignoreHosts: ['example.com'],
+        captureRules: [
+          {
+            hosts: ['example.com'],
+            statusCodeRange: '500-599',
+          },
+        ],
+      },
+    });
+    expect(config).toBeUndefined();
+  });
+
+  describe('captureRules.urls and .hosts combinations', () => {
+    const networkTracking = {
+      captureRules: [
+        { urls: ['https://example.com/path', /path\/to/], hosts: ['example.com'] },
+        { hosts: ['example.com', 'helloworld.com'] },
+        { urls: ['https://example.com'] },
+      ],
+    };
+
+    test('should ignore hosts if urls are set', () => {
+      const captureRules =
+        getNetworkTrackingConfig({
+          autocapture: { networkTracking },
+        })?.captureRules || [];
+      const ruleWithBothSet = captureRules[0];
+      expect(ruleWithBothSet.hosts).toBeUndefined();
+      expect(ruleWithBothSet.urls).toEqual(['https://example.com/path', /path\/to/]);
+    });
+
+    test('should keep hosts if urls are not set', () => {
+      const captureRules =
+        getNetworkTrackingConfig({
+          autocapture: { networkTracking },
+        })?.captureRules || [];
+      const ruleWithOnlyHosts = captureRules[1];
+      expect(ruleWithOnlyHosts.hosts).toEqual(['example.com', 'helloworld.com']);
+      expect(ruleWithOnlyHosts.urls).toBeUndefined();
+    });
+
+    test('should ignore hosts if urls are set and hosts is undefined', () => {
+      const captureRules =
+        getNetworkTrackingConfig({
+          autocapture: { networkTracking },
+        })?.captureRules || [];
+      const ruleWithBothSet = captureRules[2];
+      expect(ruleWithBothSet.hosts).toBeUndefined();
+      expect(ruleWithBothSet.urls).toEqual(['https://example.com']);
+    });
+
+    test('should not do anything if captureRules is not set', () => {
+      const config = getNetworkTrackingConfig({
+        autocapture: { networkTracking: {} },
+      });
+      expect(config?.captureRules).toBeUndefined();
+    });
+
+    test('should apply captureRules to networkTrackingOptions', () => {
+      const networkTrackingOptions = {
+        captureRules: [{ urls: ['https://example.com/path', /path\/to/], hosts: ['example.com'] }],
+      };
+      const config = getNetworkTrackingConfig({
+        autocapture: { networkTracking: true },
+        networkTrackingOptions,
+      });
+      const ruleWithBothSet = config?.captureRules?.[0];
+      expect(ruleWithBothSet?.urls).toEqual(['https://example.com/path', /path\/to/]);
+      expect(ruleWithBothSet?.hosts).toBeUndefined();
+    });
+  });
+});
+
+describe('getElementInteractionsConfig', () => {
+  test('should return an empty object when autocapture is true', () => {
+    const config = getElementInteractionsConfig({
+      autocapture: true,
+    });
+
+    expect(config).toBeUndefined();
+  });
+
+  test('should return an empty object when userInteraction is true', () => {
+    const config = getElementInteractionsConfig({
+      autocapture: {
+        elementInteractions: true,
+      },
+    });
+
+    expect(config).toBeUndefined();
+  });
+
+  test('should return advanced options', () => {
+    const testCssSelectorAllowlist = ['button'];
+    const testPageUrlAllowlist = ['example.com'];
+    const mockedShouldTrackEventResolver = jest.fn(() => true);
+    const testDataAttributePrefix = 'data-amp-track';
+    const config = getElementInteractionsConfig({
+      autocapture: {
+        elementInteractions: {
+          cssSelectorAllowlist: testCssSelectorAllowlist,
+          pageUrlAllowlist: testPageUrlAllowlist,
+          shouldTrackEventResolver: mockedShouldTrackEventResolver,
+          dataAttributePrefix: testDataAttributePrefix,
+        },
+      },
+    });
+
+    expect(config?.cssSelectorAllowlist).toBe(testCssSelectorAllowlist);
+    expect(config?.pageUrlAllowlist).toBe(testPageUrlAllowlist);
+    expect(config?.shouldTrackEventResolver).toBe(mockedShouldTrackEventResolver);
+    expect(config?.dataAttributePrefix).toBe(testDataAttributePrefix);
+  });
+});
+
+describe('isPageUrlEnrichmentEnabled', () => {
+  test('should return true with true parameter', () => {
+    expect(isPageUrlEnrichmentEnabled(true)).toBe(true);
+  });
+
+  test('should return true with undefined parameter', () => {
+    expect(isPageUrlEnrichmentEnabled(undefined)).toBe(true);
+  });
+
+  test('should return false with false parameter', () => {
+    expect(isPageUrlEnrichmentEnabled(false)).toBe(false);
+  });
+
+  test('should return true with object parameter set to true', () => {
+    expect(
+      isPageUrlEnrichmentEnabled({
+        pageUrlEnrichment: true,
+      }),
+    ).toBe(true);
+  });
+
+  test('should return false with object parameter set to false', () => {
+    expect(
+      isPageUrlEnrichmentEnabled({
+        pageUrlEnrichment: false,
+      }),
+    ).toBe(false);
+  });
+
+  test('should return true with object parameter undefined', () => {
+    expect(
+      isPageUrlEnrichmentEnabled({
+        pageUrlEnrichment: undefined,
+      }),
+    ).toBe(true);
+  });
+});

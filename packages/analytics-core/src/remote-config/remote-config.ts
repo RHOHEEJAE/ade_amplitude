@@ -1,0 +1,494 @@
+import { ServerZoneType } from '../types/server-zone';
+import { ILogger } from '../logger';
+import { RemoteConfigLocalStorage } from './remote-config-localstorage';
+import { UUID } from '../utils/uuid';
+
+/**
+ * Modes for receiving remote config updates:
+ * - `'all'` – Optimized for both speed and freshness. Returns the fastest response first
+ *   (cache or remote), then always waits for and returns the remote response to ensure
+ *   the most up-to-date config. Callback may be called once (if remote wins) or twice
+ *   (cache first, then remote).
+ * - `{ timeout: number }` – Prefers remote data but with a fallback strategy. Waits for
+ *   a remote response until the specified timeout (in milliseconds), then falls back to
+ *   cached data if available. Callback is called exactly once.
+ */
+export type DeliveryMode = 'all' | { timeout: number };
+
+/**
+ * Sources of returned remote config:
+ * - `cache` - Fetched from local storage.
+ * - `remote` - Fetched from remote.
+ */
+export type Source = 'cache' | 'remote';
+
+/**
+ * The fully-formed remote-config request handed to a custom transport. Consumers that need to
+ * own the network call (e.g. to attach auth headers and route through a proxy) supply a
+ * {@link RemoteConfigCustomFetch} via the client constructor; the client builds this request
+ * (resolved URL, headers, abort signal) and the callback executes it.
+ */
+export interface RemoteConfigFetchRequest {
+  url: string;
+  method: 'GET';
+  headers: Record<string, string>;
+  /** Abort signal the client uses to enforce the fetch timeout; honor it in your fetch call. */
+  signal?: AbortSignal;
+}
+
+/**
+ * Custom transport for the remote-config fetch. Must return a `Response`. Retry/backoff stays
+ * in the client around this callback, so it is invoked once per attempt.
+ */
+export type RemoteConfigCustomFetch = (request: RemoteConfigFetchRequest) => Promise<Response>;
+
+/**
+ * Settles with `promise`, but rejects with an AbortError when `signal` fires. The request-timeout
+ * signal is handed to customFetch, but a transport that ignores it would block the await (and the
+ * retry loop) indefinitely; racing the abort guarantees the client-side timeout always applies.
+ * The transport's own promise keeps running — we can't cancel it — we just stop awaiting it.
+ */
+function abortableFetch(promise: Promise<Response>, signal: AbortSignal): Promise<Response> {
+  return new Promise<Response>((resolve, reject) => {
+    const onAbort = () => {
+      // Match how a native aborted fetch rejects (name 'AbortError') so fetch()'s catch logs it
+      // as a timeout; either way the loop retries since the abort doesn't clear shouldRetry.
+      const err = new Error('Remote config custom fetch aborted by timeout');
+      err.name = 'AbortError';
+      reject(err);
+    };
+    signal.addEventListener('abort', onAbort, { once: true });
+    promise.then(
+      (value) => {
+        signal.removeEventListener('abort', onAbort);
+        resolve(value);
+      },
+      (err) => {
+        signal.removeEventListener('abort', onAbort);
+        reject(err);
+      },
+    );
+  });
+}
+
+export const US_SERVER_URL = 'https://sr-client-cfg.amplitude.com/config';
+export const EU_SERVER_URL = 'https://sr-client-cfg.eu.amplitude.com/config';
+export const DEFAULT_MAX_RETRIES = 3;
+const CODE_STATUS = {
+  INVALID_API_KEY: 401,
+  FORBIDDEN: 403,
+  RATE_LIMIT: 429,
+} as const;
+
+/**
+ * The default timeout for fetch in milliseconds.
+ * Linear backoff policy: timeout / retry times is the interval between fetch retry.
+ */
+const DEFAULT_TIMEOUT = 1000;
+
+/**
+ * The minimum time between fetches in milliseconds.
+ * This prevents too many requests from being sent in a short period of time.
+ */
+const DEFAULT_MIN_TIME_BETWEEN_FETCHES = 5 * 60 * 1000; // 5 minutes
+
+export interface RemoteConfig {
+  [key: string]: any;
+}
+
+export interface RemoteConfigInfo {
+  remoteConfig: RemoteConfig | null;
+  // Timestamp of when the remote config was fetched.
+  lastFetch: Date;
+}
+
+export interface RemoteConfigStorage {
+  /**
+   * Fetch remote config from storage asynchronously.
+   */
+  fetchConfig(): Promise<RemoteConfigInfo>;
+
+  /**
+   * Set remote config to storage asynchronously.
+   */
+  setConfig(config: RemoteConfigInfo): Promise<boolean>;
+}
+
+/**
+ * Information about each callback registered by `RemoteConfigClient.subscribe()`,
+ * managed internally by `RemoteConfigClient`.
+ */
+export interface CallbackInfo {
+  id: string;
+  key?: string;
+  deliveryMode: DeliveryMode;
+  callback: RemoteConfigCallback;
+  lastCallback?: Date;
+}
+
+/**
+ * Callback used in `RemoteConfigClient.subscribe()`.
+ * This function is called when the remote config is fetched.
+ */
+type RemoteConfigCallback = (remoteConfig: RemoteConfig | null, source: Source, lastFetch: Date) => void;
+
+export interface IRemoteConfigClient {
+  /**
+   * Subscribe for updates to remote config.
+   * Callback is guaranteed to be called at least once,
+   * Whether we are able to fetch a config or not.
+   *
+   * @param key - a string containing a series of period delimited keys to filter the returned config.
+   * Ie, {a: {b: {c: ...}}} would return {b: {c: ...}} for "a" or {c: ...} for "a.b".
+   * Set to `undefined` to subscribe all keys.
+   * @param deliveryMode - how the initial callback is sent.
+   * @param callback - a block that will be called when remote config is fetched.
+   * @return id - identification of the subscribe and can be used to unsubscribe from updates.
+   */
+  subscribe(key: string | undefined, deliveryMode: DeliveryMode, callback: RemoteConfigCallback): string;
+
+  /**
+   * Unsubscribe a callback from receiving future updates.
+   *
+   * @param id - identification of the callback that you want to unsubscribe.
+   * It's the return value of subscribe().
+   * @return boolean - whether the callback is removed.
+   */
+  unsubscribe(id: string): boolean;
+
+  /**
+   * Request the remote config client to fetch from remote, update cache, and callback.
+   */
+  updateConfigs(): void;
+}
+
+export class RemoteConfigClient implements IRemoteConfigClient {
+  static readonly CONFIG_GROUP = 'browser';
+
+  readonly apiKey: string;
+  readonly serverUrl: string;
+  readonly logger: ILogger;
+  readonly storage: RemoteConfigStorage;
+  // Registered callbackInfos by subscribe().
+  callbackInfos: CallbackInfo[] = [];
+  // Track the last successful fetch time for throttling (timestamp in milliseconds).
+  lastSuccessfulFetch: number | null = null;
+  // Store the in-flight fetch promise for deduplication.
+  fetchPromise: Promise<RemoteConfigInfo> | null = null;
+  // Used to skip periodic updateConfigs calls when API key is invalid.
+  isLastFetchInvalidApiKey = false;
+  // Optional custom transport. When provided, it replaces the internal fetch for the config GET
+  // (e.g. to attach auth and route through a proxy). Retry stays in the client around it.
+  readonly customFetch?: RemoteConfigCustomFetch;
+
+  constructor(
+    apiKey: string,
+    logger: ILogger,
+    serverZone: ServerZoneType = 'US',
+    serverUrl?: string,
+    customFetch?: RemoteConfigCustomFetch,
+  ) {
+    this.apiKey = apiKey;
+    this.serverUrl = serverUrl || (serverZone === 'US' ? US_SERVER_URL : EU_SERVER_URL);
+    this.logger = logger;
+    this.storage = new RemoteConfigLocalStorage(apiKey, logger);
+    this.customFetch = customFetch;
+  }
+
+  subscribe(key: string | undefined, deliveryMode: DeliveryMode, callback: RemoteConfigCallback): string {
+    const id = UUID();
+    const callbackInfo = {
+      id: id,
+      key: key,
+      deliveryMode: deliveryMode,
+      callback: callback,
+    };
+    this.callbackInfos.push(callbackInfo);
+
+    if (deliveryMode === 'all') {
+      void this.subscribeAll(callbackInfo);
+    } else {
+      void this.subscribeWaitForRemote(callbackInfo, deliveryMode.timeout);
+    }
+
+    return id;
+  }
+
+  unsubscribe(id: string): boolean {
+    const index = this.callbackInfos.findIndex((callbackInfo) => callbackInfo.id === id);
+    if (index === -1) {
+      this.logger.debug(`Remote config client unsubscribe failed because callback with id ${id} doesn't exist.`);
+      return false;
+    }
+
+    this.callbackInfos.splice(index, 1);
+    this.logger.debug(`Remote config client unsubscribe succeeded removing callback with id ${id}.`);
+    return true;
+  }
+
+  async updateConfigs() {
+    // Check if we need to throttle based on last successful fetch time
+    if (this.lastSuccessfulFetch) {
+      const timeSinceLastFetch = Date.now() - this.lastSuccessfulFetch;
+      if (timeSinceLastFetch < DEFAULT_MIN_TIME_BETWEEN_FETCHES) {
+        this.logger.debug('Remote config client skipping updateConfigs: Too recent');
+        return;
+      }
+    }
+
+    const result = await this.getOrCreateFetchPromise();
+    void this.storage.setConfig(result);
+    this.callbackInfos.forEach((callbackInfo) => {
+      this.sendCallback(callbackInfo, result, 'remote');
+    });
+  }
+
+  /**
+   * Get the in-flight fetch promise or create a new one.
+   * This ensures multiple subscribe calls share the same network request.
+   */
+  getOrCreateFetchPromise(): Promise<RemoteConfigInfo> {
+    if (this.fetchPromise) {
+      return this.fetchPromise;
+    }
+
+    if (this.isLastFetchInvalidApiKey) {
+      this.logger.debug('Remote config client skipping fetch: Invalid API key');
+      this.fetchPromise = Promise.resolve({
+        remoteConfig: null,
+        lastFetch: new Date(),
+      }).finally(() => {
+        this.fetchPromise = null;
+      });
+      return this.fetchPromise;
+    }
+
+    this.fetchPromise = this.fetch()
+      .then((result) => {
+        // Update last successful fetch time if we got a valid config
+        if (result.remoteConfig !== null) {
+          this.lastSuccessfulFetch = Date.now();
+        }
+        return result;
+      })
+      .finally(() => {
+        // Clear the promise after it settles (success or failure)
+        this.fetchPromise = null;
+      });
+
+    return this.fetchPromise;
+  }
+
+  /**
+   * Send remote first. If it's already complete, we can skip the cached response.
+   * - if remote is fetched first, no cache fetch.
+   * - if cache is fetched first, still fetching remote.
+   */
+  async subscribeAll(callbackInfo: CallbackInfo) {
+    const remotePromise = this.getOrCreateFetchPromise().then((result) => {
+      this.logger.debug(`Remote config client subscription all mode fetched from remote: ${JSON.stringify(result)}`);
+      this.sendCallback(callbackInfo, result, 'remote');
+      void this.storage.setConfig(result);
+    });
+
+    const cachePromise = this.storage.fetchConfig().then((result) => {
+      return result;
+    });
+
+    // Wait for the first result to resolve
+    const result = await Promise.race([remotePromise, cachePromise]);
+
+    // If cache is fetched first, wait for remote.
+    if (result !== undefined) {
+      this.logger.debug(`Remote config client subscription all mode fetched from cache: ${JSON.stringify(result)}`);
+      // Skip sending callback if cache is empty (first time user).
+      if (result.remoteConfig !== null) {
+        this.sendCallback(callbackInfo, result, 'cache');
+      } else {
+        this.logger.debug('Remote config client skips sending callback because cache is empty (first time user).');
+      }
+    }
+    await remotePromise;
+  }
+
+  /**
+   * Waits for a remote response until the given timeout, then return a cached copy, if available.
+   */
+  async subscribeWaitForRemote(callbackInfo: CallbackInfo, timeout: number) {
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => {
+        reject('Timeout exceeded');
+      }, timeout);
+    });
+
+    try {
+      const result: RemoteConfigInfo = (await Promise.race([
+        this.getOrCreateFetchPromise(),
+        timeoutPromise,
+      ])) as RemoteConfigInfo;
+
+      this.logger.debug('Remote config client subscription wait for remote mode returns from remote.');
+      this.sendCallback(callbackInfo, result, 'remote');
+      void this.storage.setConfig(result);
+    } catch (error) {
+      this.logger.debug(
+        'Remote config client subscription wait for remote mode exceeded timeout. Try to fetch from cache.',
+      );
+      const result = await this.storage.fetchConfig();
+      if (result.remoteConfig !== null) {
+        this.logger.debug('Remote config client subscription wait for remote mode returns a cached copy.');
+        this.sendCallback(callbackInfo, result, 'cache');
+      } else {
+        this.logger.debug('Remote config client subscription wait for remote mode failed to fetch cache.');
+        this.sendCallback(callbackInfo, result, 'remote');
+      }
+    }
+  }
+
+  /**
+   * Call the callback with filtered remote config based on key.
+   * @param remoteConfigInfo - the whole remote config object without filtering by key.
+   */
+  sendCallback(callbackInfo: CallbackInfo, remoteConfigInfo: RemoteConfigInfo, source: Source) {
+    callbackInfo.lastCallback = new Date();
+
+    let filteredConfig: RemoteConfig | null;
+    if (callbackInfo.key) {
+      // Filter remote config by key.
+      // For example, if remote config is {a: {b: {c: 1}}},
+      // if key = 'a', filter result is {b: {c: 1}};
+      // if key = 'a.b', filter result is {c: 1}
+      filteredConfig = callbackInfo.key.split('.').reduce((config, key) => {
+        if (config === null) {
+          return config;
+        }
+
+        return key in config ? (config[key] as RemoteConfig) : null;
+      }, remoteConfigInfo.remoteConfig);
+    } else {
+      filteredConfig = remoteConfigInfo.remoteConfig;
+    }
+
+    callbackInfo.callback(filteredConfig, source, remoteConfigInfo.lastFetch);
+  }
+
+  /**
+   * Fetch remote config from remote.
+   * @param retries - the number of retries. default is 3.
+   * @param timeout - the timeout in milliseconds. Default is 1000.
+   * This timeout serves two purposes:
+   * 1. It determines how long to wait for each remote config fetch request before aborting it.
+   *    If the fetch does not complete within the specified timeout, the request is cancelled using AbortController,
+   *    and the attempt is considered failed (and may be retried if retries remain).
+   * 2. It is also used to calculate the interval between retries. The total timeout is divided by the number of retries,
+   *    so each retry waits for (timeout / retries) milliseconds before the next attempt (linear backoff).
+   * Retry behavior by status code:
+   * - 401: invalid API key (stop retries and disable future updateConfigs calls).
+   * - 429: retry up to max retries.
+   * - other 4xx: no retry.
+   * - 5xx and network failures: retry up to max retries.
+   * @returns the remote config info. null if failed to fetch or the response is not valid JSON.
+   */
+  async fetch(retries: number = DEFAULT_MAX_RETRIES, timeout: number = DEFAULT_TIMEOUT): Promise<RemoteConfigInfo> {
+    const interval = timeout / retries;
+    const failedRemoteConfigInfo: RemoteConfigInfo = {
+      remoteConfig: null,
+      lastFetch: new Date(),
+    };
+
+    for (let attempt = 0; attempt < retries; attempt++) {
+      let shouldRetry = true;
+      // Create AbortController for request timeout
+      const abortController = new AbortController();
+      const timeoutId = setTimeout(() => abortController.abort(), timeout);
+
+      try {
+        const url = this.getUrlParams();
+        const headers: Record<string, string> = { Accept: '*/*' };
+        // When a custom transport is configured, hand it the fully-formed request and let it own
+        // the network call; otherwise use the built-in fetch. Retry/response handling is identical.
+        // The built-in fetch cancels directly on the signal; the custom transport can't be
+        // cancelled, so race it against the abort (abortableFetch) to enforce the timeout even if
+        // the transport ignores the signal — otherwise a hung transport would block every retry.
+        const res = this.customFetch
+          ? await abortableFetch(
+              this.customFetch({ url, method: 'GET', headers, signal: abortController.signal }),
+              abortController.signal,
+            )
+          : await fetch(url, {
+              method: 'GET',
+              headers,
+              signal: abortController.signal,
+            });
+
+        // Treat a 2xx status as success even when `res.ok` is absent. A custom transport may return
+        // a Response-like object that sets `status`/`text()`/`json()` but not `ok` (e.g. an axios
+        // adapter); falling back to the status range keeps the config path consistent with the
+        // event-upload path while still honoring native fetch's `ok`.
+        const isSuccess = res.ok || (res.status >= 200 && res.status < 300);
+        // Handle unsuccessful fetch
+        if (!isSuccess) {
+          const body = await res.text();
+          this.logger.debug(`Remote config client fetch with retry time ${retries} failed with ${res.status}: ${body}`);
+
+          if (res.status === CODE_STATUS.INVALID_API_KEY || res.status === CODE_STATUS.FORBIDDEN) {
+            this.logger.error(
+              `Remote config client fetch failed with ${res.status}. Invalid API key; future fetches will be skipped.`,
+            );
+            this.isLastFetchInvalidApiKey = true;
+            shouldRetry = false;
+          } else if (res.status >= 400 && res.status < 500 && res.status !== CODE_STATUS.RATE_LIMIT) {
+            shouldRetry = false;
+          }
+        } else {
+          // Handle successful fetch
+          const remoteConfig: RemoteConfig = (await res.json()) as RemoteConfig;
+          return {
+            remoteConfig: remoteConfig,
+            lastFetch: new Date(),
+          };
+        }
+      } catch (error) {
+        // Handle rejects when the request fails, for example, a network error or timeout
+        if (error instanceof Error && error.name === 'AbortError') {
+          this.logger.debug(`Remote config client fetch with retry time ${retries} timed out after ${timeout}ms`);
+        } else {
+          this.logger.debug(`Remote config client fetch with retry time ${retries} is rejected because: `, error);
+        }
+      } finally {
+        // Clear the timeout since request completed or failed
+        clearTimeout(timeoutId);
+      }
+
+      if (!shouldRetry) {
+        break;
+      }
+
+      // Linear backoff:
+      // wait for the specified interval before the next attempt
+      // except after the last attempt.
+      if (attempt < retries - 1) {
+        await new Promise((resolve) => setTimeout(resolve, this.getJitterDelay(interval)));
+      }
+    }
+
+    return failedRemoteConfigInfo;
+  }
+
+  /**
+   * Return jitter in the bound of [0,baseDelay) and then floor round.
+   */
+  getJitterDelay(baseDelay: number): number {
+    return Math.floor(Math.random() * baseDelay);
+  }
+
+  getUrlParams(): string {
+    // URL encode the API key to handle special characters
+    const encodedApiKey = encodeURIComponent(this.apiKey);
+
+    const urlParams = new URLSearchParams();
+    urlParams.append('config_group', RemoteConfigClient.CONFIG_GROUP);
+
+    return `${this.serverUrl}/${encodedApiKey}?${urlParams.toString()}`;
+  }
+}

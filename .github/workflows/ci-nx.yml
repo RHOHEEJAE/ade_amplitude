@@ -1,0 +1,149 @@
+name: Continuous Integration (Nx)
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  check-deprecated-packages:
+    name: Check Deprecated Packages
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Check out git repository
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3
+        with:
+          fetch-depth: 0  # Required to compare with base branch
+      
+      - name: Check for new usage of deprecated packages
+        env:
+          GITHUB_BASE_REF: ${{ github.base_ref }}
+        run: |
+          bash scripts/check-deprecated-packages.sh
+
+  check-unused-dependencies:
+    name: Check Unused Dependencies
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out git repository
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3
+
+      - name: Setup Node and pnpm
+        uses: ./.github/actions/setup-node-pnpm
+
+      # Analyzes source, so no build step is needed.
+      - name: Check for unused dependencies
+        run: pnpm lint:deps
+
+  build-docs:
+    name: Build Docs
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Check out git repository
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3
+
+      - name: Setup Node and pnpm
+        uses: ./.github/actions/setup-node-pnpm
+
+      - name: Build all packages
+        run: pnpm build
+
+      - name: Build docs
+        run: pnpm docs:check
+
+  check-size-limits:
+    name: Check Size Limits
+    runs-on: ubuntu-latest
+    env:
+      NX_BASE: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || 'origin/main~1' }}
+      NX_HEAD: ${{ github.sha }}
+    steps:
+      - name: Check out git repository
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3
+        with:
+          fetch-depth: 0
+
+      # size-limit-action installs dependencies itself, so install is skipped.
+      #
+      # This action must exist on the base branch: size-limit-action runs
+      # `git checkout -f <base>` to measure baseline sizes and never switches
+      # back, so the base branch is what's on disk when this job's post steps
+      # run. main carries it, and this workflow only exists on main.
+      - name: Setup Node and pnpm
+        uses: ./.github/actions/setup-node-pnpm
+        with:
+          node-version: 24
+          install: 'false'
+
+      - name: Restore Nx cache
+        uses: actions/cache/restore@d4323d4df104b026a6aa633fdb11d772146be0bf # v4
+        with:
+          path: .nx/cache
+          key: nx-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml', 'nx.json') }}
+
+      - uses: daniel-statsig/size-limit-action@710d41ebc34634c011e8a91fe165d6ff49536a74 # v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          package_manager: pnpm
+          build_script: build:nx
+
+      # TODO: Move the cache saving to a job on the main branch
+      - name: Save Nx cache
+        uses: actions/cache/save@d4323d4df104b026a6aa633fdb11d772146be0bf # v4
+        with:
+          path: .nx/cache
+          key: nx-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml', 'nx.json') }}
+
+  build:
+    name: Build
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: [22.x, 24.x, 26.x]
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    
+    env:
+      NX_BASE: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || 'origin/main~1' }}
+      NX_HEAD: ${{ github.sha }}
+
+    steps:
+      - name: Check out git repository
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3
+        with:
+          fetch-depth: 0  # Required for NX affected commands
+
+      - name: Setup Node and pnpm
+        uses: ./.github/actions/setup-node-pnpm
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Set up NX base for affected commands
+        run: |
+          # Ensure we have the main branch reference for NX affected commands
+          git fetch origin main:main --depth=1 || git fetch origin main --depth=1
+
+      - name: Build affected packages
+        run: |
+          pnpm build:nx-affected
+
+      # https://github.com/amplitude/Amplitude-TypeScript/issues/281
+      - name: Check module dependencies
+        run: |
+          if grep -rnw 'packages/analytics-core/lib' -e '/// <reference types="node" />'; then
+            exit 1
+          elif grep -rnw 'packages/analytics-browser/lib' -e '/// <reference types="node" />'; then
+            exit 1
+          elif grep -rnw 'packages/analytics-marketing-analytics-browser/lib' -e '/// <reference types="node" />'; then
+            exit 1
+          elif grep -rnw 'packages/analytics-react-native/lib' -e '/// <reference types="node" />'; then
+            exit 1
+          fi
+
+      - name: Test affected packages
+        run: pnpm test:nx-affected
+
+      - name: Lint affected packages
+        run: pnpm lint:nx-affected

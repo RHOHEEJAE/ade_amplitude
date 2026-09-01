@@ -1,0 +1,2688 @@
+import {
+  CookieStorage,
+  FetchTransport,
+  getAnalyticsConnector,
+  getCookieName,
+  LogLevel,
+  OfflineDisabled,
+  Status,
+  UserSession,
+  AutocaptureOptions,
+  Identify,
+  RemoteConfigClient,
+  DiagnosticsClient,
+} from '@amplitude/analytics-core';
+import { WebAttribution } from '../src/attribution/web-attribution';
+import * as core from '@amplitude/analytics-core';
+import * as pageViewTracking from '@amplitude/plugin-page-view-tracking-browser';
+import * as eventPropertyTracking from '@amplitude/plugin-event-property-attribution-browser';
+import * as autocapture from '@amplitude/plugin-autocapture-browser';
+import * as networkCapturePlugin from '@amplitude/plugin-network-capture-browser';
+import * as webVitals from '@amplitude/plugin-web-vitals-browser';
+import { AmplitudeBrowser } from '../src/browser-client';
+import * as Config from '../src/config';
+import * as CookieMigration from '../src/cookie-migration';
+import * as fileDownloadTracking from '../src/plugins/file-download-tracking';
+import * as formInteractionTracking from '../src/plugins/form-interaction-tracking';
+import * as networkConnectivityChecker from '../src/plugins/network-connectivity-checker';
+import * as SnippetHelper from '../src/utils/snippet-helper';
+import * as joinedConfig from '../src/config/joined-config';
+import * as pageUrlEnrichment from '@amplitude/plugin-page-url-enrichment-browser';
+import * as customEnrichment from '@amplitude/plugin-custom-enrichment-browser';
+
+// Mock RemoteConfigClient constructor
+const mockRemoteConfigClient = {
+  subscribe: jest
+    .fn()
+    .mockImplementation(
+      (_configKey: string, _eventType: string, callback: (remoteConfig: any, source: any, lastFetch: Date) => void) => {
+        // Call the callback immediately with remoteConfig as null
+        callback(null, 'cache', new Date());
+      },
+    ),
+  unsubscribe: jest.fn(),
+  updateConfigs: jest.fn(),
+};
+let MockedRemoteConfigClient: jest.SpyInstance;
+let originalRemoteConfigClient: typeof RemoteConfigClient;
+
+jest.mock('web-vitals', () => ({
+  onLCP: jest.fn(),
+  onFCP: jest.fn(),
+  onINP: jest.fn(),
+  onCLS: jest.fn(),
+  onTTFB: jest.fn(),
+}));
+
+describe('browser-client', () => {
+  let apiKey = '';
+  let userId = '';
+  let deviceId = '';
+  let client = new AmplitudeBrowser();
+  const testDeviceId = 'test-device-id';
+  const testSessionId = 12345;
+  const url = new URL(`https://www.example.com?ampDeviceId=${testDeviceId}&ampSessionId=${testSessionId}`);
+  const defaultTracking = {
+    attribution: false,
+    fileDownloadTracking: false,
+    formInteractionTracking: false,
+    pageViews: false,
+    sessions: false,
+  };
+
+  beforeEach(() => {
+    client = new AmplitudeBrowser();
+    apiKey = core.UUID();
+    userId = core.UUID();
+    deviceId = core.UUID();
+
+    // Set up RemoteConfigClient mock
+    originalRemoteConfigClient = core.RemoteConfigClient;
+    MockedRemoteConfigClient = jest.fn().mockImplementation(() => mockRemoteConfigClient);
+    Object.defineProperty(core, 'RemoteConfigClient', {
+      value: MockedRemoteConfigClient,
+      writable: true,
+      configurable: true,
+    });
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+    // clean up cookies
+    document.cookie = `AMP_${apiKey}=null; expires=-1`;
+    // clean up RemoteConfigClient mock
+    if (MockedRemoteConfigClient) {
+      Object.defineProperty(core, 'RemoteConfigClient', {
+        value: originalRemoteConfigClient,
+        writable: true,
+        configurable: true,
+      });
+    }
+  });
+
+  describe('plugin', () => {
+    test('should return plugin by name', async () => {
+      const fileDownloadTrackingPlugin = jest.spyOn(fileDownloadTracking, 'fileDownloadTracking');
+      await client.init(apiKey, userId, {
+        optOut: false,
+        defaultTracking: {
+          ...defaultTracking,
+          fileDownloads: true,
+        },
+      }).promise;
+      const result = client.plugin('@amplitude/plugin-file-download-tracking-browser');
+      // result should be fileDownloadTrackingPlugin
+      // comparing with the first call to the spy
+      expect(result).toBe(fileDownloadTrackingPlugin.mock.results[0].value);
+    });
+
+    test('should return undefined when name doesn not exist', async () => {
+      const loggerProvider = {
+        log: jest.fn(),
+        debug: jest.fn(),
+        warn: jest.fn(),
+        error: jest.fn(),
+        enable: jest.fn(),
+        disable: jest.fn(),
+      };
+      await client.init(apiKey, userId, {
+        optOut: false,
+        defaultTracking: {
+          ...defaultTracking,
+          fileDownloads: true,
+        },
+        loggerProvider: loggerProvider,
+      }).promise;
+      const result = client.plugin('plugin-file-download-tracking-browser');
+      // result should be fileDownloadTrackingPlugin
+      // comparing with the first call to the spy
+      expect(result).toBe(undefined);
+      expect(loggerProvider.debug).toHaveBeenCalledWith(
+        'Cannot find plugin with name plugin-file-download-tracking-browser',
+      );
+    });
+  });
+
+  describe('init', () => {
+    test('should call identify when identify is provided', async () => {
+      const trackSpy = jest.spyOn(client, 'track');
+      const identify = new Identify();
+      identify.set('test', '123');
+      await client.init(apiKey, {
+        identify,
+      }).promise;
+      expect(trackSpy).toHaveBeenNthCalledWith(2, {
+        event_type: '$identify',
+        user_properties: { $set: { test: '123' } },
+      });
+    });
+
+    test('should use remote config by default', async () => {
+      await client.init(apiKey).promise;
+      expect(MockedRemoteConfigClient).toHaveBeenCalled();
+    });
+
+    test('should use remote config when fetchRemoteConfig is true', async () => {
+      await client.init(apiKey, {
+        fetchRemoteConfig: true,
+      }).promise;
+      expect(MockedRemoteConfigClient).toHaveBeenCalled();
+    });
+
+    test('should NOT use remote config when fetchRemoteConfig is false', async () => {
+      await client.init(apiKey, {
+        fetchRemoteConfig: false,
+      }).promise;
+      expect(MockedRemoteConfigClient).not.toHaveBeenCalled();
+    });
+
+    test('should pass remoteConfig.serverUrl to RemoteConfigClient when provided', async () => {
+      const customServerUrl = 'https://my-proxy.com/remote-config';
+
+      await client.init(apiKey, {
+        remoteConfig: {
+          serverUrl: customServerUrl,
+        },
+      }).promise;
+
+      expect(MockedRemoteConfigClient).toHaveBeenCalledWith(
+        apiKey,
+        expect.anything(), // loggerProvider
+        'US', // default serverZone
+        customServerUrl, // our custom URL
+      );
+    });
+
+    test('should call updateBrowserConfigWithRemoteConfig when remoteConfig is not null', async () => {
+      const mockRemoteConfig = {
+        autocapture: {
+          elementInteractions: true,
+          pageViews: true,
+        },
+      };
+
+      // Mock the remote config client to return a non-null remoteConfig
+      const mockRemoteConfigClientWithData = {
+        subscribe: jest
+          .fn()
+          .mockImplementation(
+            (
+              _configKey: string,
+              _eventType: string,
+              callback: (remoteConfig: any, source: any, lastFetch: Date) => void,
+            ) => {
+              // Call the callback immediately with a non-null remoteConfig
+              callback(mockRemoteConfig, 'cache', new Date());
+            },
+          ),
+        unsubscribe: jest.fn(),
+        updateConfigs: jest.fn(),
+      };
+
+      // Replace the default mock with our data mock
+      MockedRemoteConfigClient = jest.fn().mockImplementation(() => mockRemoteConfigClientWithData);
+      Object.defineProperty(core, 'RemoteConfigClient', {
+        value: MockedRemoteConfigClient,
+        writable: true,
+        configurable: true,
+      });
+
+      // Spy on the updateBrowserConfigWithRemoteConfig function
+      const updateBrowserConfigSpy = jest.spyOn(joinedConfig, 'updateBrowserConfigWithRemoteConfig');
+
+      await client.init(apiKey, {
+        fetchRemoteConfig: true,
+      }).promise;
+
+      // Verify that updateBrowserConfigWithRemoteConfig was called
+      expect(updateBrowserConfigSpy).toHaveBeenCalledTimes(1);
+      expect(updateBrowserConfigSpy).toHaveBeenCalledWith(
+        mockRemoteConfig,
+        expect.any(Object), // browserOptions
+      );
+
+      updateBrowserConfigSpy.mockRestore();
+    });
+
+    test('should update diagnostics config from remote config', async () => {
+      const mockMainRemoteConfig = {
+        autocapture: {
+          elementInteractions: true,
+        },
+      };
+
+      const mockDiagnosticsRemoteConfig = {
+        enabled: true,
+        sampleRate: 0.25,
+      };
+
+      // Mock the remote config client to return different configs based on the subscription key
+      const mockRemoteConfigClientWithDiagnostics = {
+        subscribe: jest
+          .fn()
+          .mockImplementation(
+            (
+              configKey: string,
+              _eventType: string,
+              callback: (remoteConfig: any, source: any, lastFetch: Date) => void,
+            ) => {
+              // Return different configs based on the subscription key
+              if (configKey === 'configs.analyticsSDK.browserSDK') {
+                callback(mockMainRemoteConfig, 'cache', new Date());
+              } else if (configKey === 'configs.diagnostics.browserSDK') {
+                callback(mockDiagnosticsRemoteConfig, 'cache', new Date());
+              } else {
+                callback(null, 'cache', new Date());
+              }
+            },
+          ),
+        unsubscribe: jest.fn(),
+        updateConfigs: jest.fn(),
+      };
+
+      // Replace the default mock with our data mock
+      MockedRemoteConfigClient = jest.fn().mockImplementation(() => mockRemoteConfigClientWithDiagnostics);
+      Object.defineProperty(core, 'RemoteConfigClient', {
+        value: MockedRemoteConfigClient,
+        writable: true,
+        configurable: true,
+      });
+
+      // Initialize the client
+      await client.init(apiKey, {
+        fetchRemoteConfig: true,
+      }).promise;
+
+      // Verify that subscribe was called with the correct keys
+      expect(mockRemoteConfigClientWithDiagnostics.subscribe).toHaveBeenCalledWith(
+        'configs.analyticsSDK.browserSDK',
+        'all',
+        expect.any(Function),
+      );
+      expect(mockRemoteConfigClientWithDiagnostics.subscribe).toHaveBeenCalledWith(
+        'configs.diagnostics.browserSDK',
+        'all',
+        expect.any(Function),
+      );
+
+      // Verify that the diagnostics config was applied
+      expect(client.config.enableDiagnostics).toBe(true);
+      expect(client.config.diagnosticsSampleRate).toBe(0.25);
+    });
+
+    test.each([
+      {
+        testName: 'should use remote config sample rate of 0 even when _diagnosticsSampleRate is non-zero',
+        setDiagnosticsSampleRate: 0.5,
+        remoteConfigSampleRate: { enabled: true, sampleRate: 0 },
+        expectedSampleRate: 0,
+        expectedEnabled: true,
+        serverZone: undefined,
+        enableDiagnostics: undefined,
+        description: '0 from remote config (not 0.5 from _diagnosticsSampleRate)',
+      },
+      {
+        testName: 'should use _diagnosticsSampleRate when remote config for diagnostics is null',
+        setDiagnosticsSampleRate: 0.75,
+        remoteConfigSampleRate: null,
+        expectedSampleRate: 0.75,
+        expectedEnabled: true,
+        serverZone: undefined,
+        enableDiagnostics: undefined,
+        description: '0.75 from _diagnosticsSampleRate (remote config is null)',
+      },
+      {
+        testName: 'should use provided serverZone and enableDiagnostics options',
+        setDiagnosticsSampleRate: 0,
+        remoteConfigSampleRate: null,
+        expectedSampleRate: 0,
+        expectedEnabled: false,
+        serverZone: 'EU' as const,
+        enableDiagnostics: false,
+        description: 'EU serverZone and enableDiagnostics=false from options',
+      },
+    ])(
+      '$testName',
+      async ({
+        setDiagnosticsSampleRate,
+        remoteConfigSampleRate,
+        expectedSampleRate,
+        expectedEnabled,
+        serverZone,
+        enableDiagnostics,
+      }) => {
+        // Set _diagnosticsSampleRate
+        client._setDiagnosticsSampleRate(setDiagnosticsSampleRate);
+
+        const mockMainRemoteConfig = {
+          autocapture: {
+            elementInteractions: true,
+          },
+        };
+
+        // Mock the remote config client to return different configs based on the subscription key
+        const mockRemoteConfigClientWithDiagnostics = {
+          subscribe: jest
+            .fn()
+            .mockImplementation(
+              (
+                configKey: string,
+                _eventType: string,
+                callback: (remoteConfig: any, source: any, lastFetch: Date) => void,
+              ) => {
+                // Return different configs based on the subscription key
+                if (configKey === 'configs.analyticsSDK.browserSDK') {
+                  callback(mockMainRemoteConfig, 'cache', new Date());
+                } else if (configKey === 'configs.diagnostics.browserSDK') {
+                  callback(remoteConfigSampleRate, 'cache', new Date());
+                } else {
+                  callback(null, 'cache', new Date());
+                }
+              },
+            ),
+          unsubscribe: jest.fn(),
+          updateConfigs: jest.fn(),
+        };
+
+        // Replace the default mock with our data mock
+        MockedRemoteConfigClient = jest.fn().mockImplementation(() => mockRemoteConfigClientWithDiagnostics);
+        Object.defineProperty(core, 'RemoteConfigClient', {
+          value: MockedRemoteConfigClient,
+          writable: true,
+          configurable: true,
+        });
+
+        // Mock DiagnosticsClient to spy on its initialization
+        const mockDiagnosticsClient = {
+          setTag: jest.fn(),
+          enable: jest.fn(),
+          disable: jest.fn(),
+          track: jest.fn(),
+          recordEvent: jest.fn(),
+          increment: jest.fn(),
+        };
+        const diagnosticsClientSpy = jest
+          .spyOn(core, 'DiagnosticsClient')
+          .mockImplementation(() => mockDiagnosticsClient as unknown as DiagnosticsClient);
+
+        // Initialize the client with optional serverZone and enableDiagnostics
+        await client.init(apiKey, {
+          fetchRemoteConfig: true,
+          ...(serverZone !== undefined && { serverZone }),
+          ...(enableDiagnostics !== undefined && { enableDiagnostics }),
+        }).promise;
+
+        // Verify that DiagnosticsClient was called with the expected values
+        expect(diagnosticsClientSpy).toHaveBeenCalledWith(
+          apiKey,
+          expect.any(Object), // loggerProvider
+          serverZone ?? 'US', // serverZone from options or default
+          {
+            enabled: expectedEnabled,
+            sampleRate: expectedSampleRate,
+          },
+        );
+
+        // Verify that the diagnostics config was applied
+        expect(client.config.enableDiagnostics).toBe(expectedEnabled);
+        expect(client.config.diagnosticsSampleRate).toBe(expectedSampleRate);
+
+        expect(mockDiagnosticsClient.setTag).toHaveBeenCalledWith('platform', 'Web');
+        // jsdom: document present, no chrome.runtime
+        expect(mockDiagnosticsClient.setTag).toHaveBeenCalledWith('web_environment', 'browser');
+
+        // Clean up
+        diagnosticsClientSpy.mockRestore();
+      },
+    );
+
+    test('should initialize client', async () => {
+      const parseLegacyCookies = jest.spyOn(CookieMigration, 'parseLegacyCookies').mockResolvedValueOnce({
+        optOut: false,
+      });
+      await client.init(apiKey, userId, {
+        defaultTracking,
+        identityStorage: 'localStorage',
+      }).promise;
+      expect(parseLegacyCookies).toHaveBeenCalledTimes(1);
+    });
+
+    test('should initialize w/o user id and config', async () => {
+      client.setOptOut(true);
+      await client.init(apiKey).promise;
+      expect(client.getUserId()).toBe(undefined);
+    });
+
+    test('should set initialize with undefined user id', async () => {
+      client.setOptOut(true);
+      await client.init(apiKey, undefined).promise;
+      expect(client.getUserId()).toBe(undefined);
+    });
+
+    test('should initialize w/o config', async () => {
+      client.setOptOut(true);
+      await client.init(apiKey, userId).promise;
+      expect(client.getUserId()).toBe(userId);
+    });
+
+    test('should set user id with top level parameter', async () => {
+      client.setOptOut(true);
+      await client.init(apiKey, undefined, {
+        userId,
+      }).promise;
+      expect(client.getUserId()).toBe(undefined);
+    });
+
+    test('should set user to options.userId', async () => {
+      client.setOptOut(true);
+      await client.init(apiKey, {
+        userId,
+      }).promise;
+      expect(client.getUserId()).toBe(userId);
+    });
+
+    test('should set user id using top level parameter as priority', async () => {
+      client.setOptOut(true);
+      await client.init(apiKey, userId, {
+        userId: 'user@amplitude.com',
+      }).promise;
+      expect(client.getUserId()).toBe(userId);
+    });
+
+    test('should initialize with existing session', async () => {
+      const parseLegacyCookies = jest.spyOn(CookieMigration, 'parseLegacyCookies').mockResolvedValueOnce({
+        optOut: false,
+        lastEventTime: Date.now(),
+      });
+      await client.init(apiKey, userId, {
+        sessionId: Date.now(),
+        defaultTracking,
+      }).promise;
+      expect(parseLegacyCookies).toHaveBeenCalledTimes(1);
+    });
+
+    test('should initialize without error when apiKey is undefined', async () => {
+      const parseLegacyCookies = jest.spyOn(CookieMigration, 'parseLegacyCookies').mockResolvedValueOnce({
+        optOut: false,
+      });
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+      await client.init(undefined as any, userId, {
+        defaultTracking,
+      }).promise;
+      expect(parseLegacyCookies).toHaveBeenCalledTimes(1);
+    });
+
+    test('should init from legacy cookies config', async () => {
+      const parseLegacyCookies = jest.spyOn(CookieMigration, 'parseLegacyCookies').mockResolvedValueOnce({
+        optOut: false,
+        deviceId,
+        sessionId: 1,
+        lastEventTime: Date.now() - 1000,
+      });
+      await client.init(apiKey, userId, {
+        optOut: false,
+        defaultTracking,
+        identityStorage: 'none',
+      }).promise;
+      expect(client.getDeviceId()).toBe(deviceId);
+      expect(client.getSessionId()).toBe(1);
+      expect(parseLegacyCookies).toHaveBeenCalledTimes(1);
+    });
+
+    test('should init from new cookies config', async () => {
+      const parseLegacyCookies = jest.spyOn(CookieMigration, 'parseLegacyCookies').mockResolvedValueOnce({
+        optOut: false,
+      });
+      const cookieStorage = new CookieStorage<UserSession>();
+      await cookieStorage.set(getCookieName(apiKey), {
+        deviceId,
+        lastEventTime: Date.now(),
+        optOut: false,
+        sessionId: 1,
+        userId,
+      });
+      await client.init(apiKey, {
+        defaultTracking,
+      }).promise;
+      expect(client.getUserId()).toBe(userId);
+      expect(client.getDeviceId()).toBe(deviceId);
+      expect(client.getSessionId()).toBe(1);
+      expect(parseLegacyCookies).toHaveBeenCalledTimes(1);
+    });
+
+    test('should call prevent concurrent init executions', async () => {
+      const parseLegacyCookies = jest.spyOn(CookieMigration, 'parseLegacyCookies').mockResolvedValueOnce({
+        optOut: false,
+      });
+      const useBrowserConfig = jest.spyOn(Config, 'useBrowserConfig');
+      await Promise.all([
+        client.init(apiKey, userId, { defaultTracking }).promise,
+        client.init(apiKey, userId, { defaultTracking }).promise,
+        client.init(apiKey, userId, { defaultTracking }).promise,
+      ]);
+      // NOTE: `parseLegacyCookies` and `useBrowserConfig` are only called once despite multiple init calls
+      expect(parseLegacyCookies).toHaveBeenCalledTimes(1);
+      expect(useBrowserConfig).toHaveBeenCalledTimes(1);
+    });
+
+    test('should set user id and device id in analytics connector', async () => {
+      await client.init(apiKey, userId, {
+        optOut: true,
+        defaultTracking,
+        deviceId,
+        identityStorage: 'none',
+      }).promise;
+      expect(client.getDeviceId()).toBe(deviceId);
+      expect(client.getUserId()).toBe(userId);
+      const identity = getAnalyticsConnector().identityStore.getIdentity();
+      expect(identity.deviceId).toBe(deviceId);
+      expect(identity.userId).toBe(userId);
+    });
+
+    test('should set up event bridge and track events', async () => {
+      await client.init(apiKey, userId, {
+        optOut: false,
+        defaultTracking,
+      }).promise;
+      const track = jest.spyOn(client, 'track').mockReturnValueOnce({
+        promise: Promise.resolve({
+          code: 200,
+          message: '',
+          event: {
+            event_type: 'event_type',
+          },
+        }),
+      });
+      getAnalyticsConnector().eventBridge.logEvent({
+        eventType: 'event_type',
+        eventProperties: {
+          k: 'v',
+        },
+      });
+      expect(track).toHaveBeenCalledTimes(1);
+    });
+
+    test('should handle event bridge events with time property in eventProperties', async () => {
+      await client.init(apiKey, userId, {
+        optOut: false,
+        defaultTracking,
+      }).promise;
+      const track = jest.spyOn(client, 'track').mockReturnValueOnce({
+        promise: Promise.resolve({
+          code: 200,
+          message: '',
+          event: {
+            event_type: 'custom_event',
+          },
+        }),
+      });
+
+      const customTime = 12345;
+      getAnalyticsConnector().eventBridge.logEvent({
+        eventType: 'custom_event',
+        eventProperties: {
+          property1: 'value1',
+          property2: 123,
+          time: customTime,
+          property3: true,
+        },
+      });
+
+      expect(track).toHaveBeenCalledTimes(1);
+      expect(track).toHaveBeenCalledWith(
+        'custom_event',
+        {
+          property1: 'value1',
+          property2: 123,
+          property3: true,
+        },
+        { time: customTime },
+      );
+    });
+
+    test('should handle event bridge events with null time property', async () => {
+      await client.init(apiKey, userId, {
+        optOut: false,
+        defaultTracking,
+      }).promise;
+      const track = jest.spyOn(client, 'track').mockReturnValueOnce({
+        promise: Promise.resolve({
+          code: 200,
+          message: '',
+          event: {
+            event_type: 'null_time_event',
+          },
+        }),
+      });
+
+      getAnalyticsConnector().eventBridge.logEvent({
+        eventType: 'null_time_event',
+        eventProperties: {
+          property1: 'value1',
+          time: null,
+          property2: 'value2',
+        },
+      });
+
+      expect(track).toHaveBeenCalledTimes(1);
+      expect(track).toHaveBeenCalledWith(
+        'null_time_event',
+        {
+          property1: 'value1',
+          property2: 'value2',
+        },
+        undefined,
+      );
+    });
+
+    test('should handle event bridge events with no eventProperties', async () => {
+      await client.init(apiKey, userId, {
+        optOut: false,
+        defaultTracking,
+      }).promise;
+      const track = jest.spyOn(client, 'track').mockReturnValueOnce({
+        promise: Promise.resolve({
+          code: 200,
+          message: '',
+          event: {
+            event_type: 'no_props_event',
+          },
+        }),
+      });
+
+      getAnalyticsConnector().eventBridge.logEvent({
+        eventType: 'no_props_event',
+      });
+
+      expect(track).toHaveBeenCalledTimes(1);
+      expect(track).toHaveBeenCalledWith('no_props_event', {}, undefined);
+    });
+
+    test('should add file download and form interaction tracking plugins', async () => {
+      const fileDownloadTrackingPlugin = jest.spyOn(fileDownloadTracking, 'fileDownloadTracking');
+      const formInteractionTrackingPlugin = jest.spyOn(formInteractionTracking, 'formInteractionTracking');
+      await client.init(apiKey, userId, {
+        optOut: false,
+        defaultTracking: {
+          ...defaultTracking,
+          fileDownloads: true,
+          formInteractions: true,
+        },
+      }).promise;
+      expect(fileDownloadTrackingPlugin).toHaveBeenCalledTimes(1);
+      expect(formInteractionTrackingPlugin).toHaveBeenCalledTimes(1);
+    });
+
+    test('should NOT add file download and form interaction tracking plugins', async () => {
+      const fileDownloadTrackingPlugin = jest.spyOn(fileDownloadTracking, 'fileDownloadTracking');
+      const formInteractionTrackingPlugin = jest.spyOn(formInteractionTracking, 'formInteractionTracking');
+      await client.init(apiKey, userId, {
+        optOut: false,
+        defaultTracking: {
+          ...defaultTracking,
+          fileDownloads: false,
+          formInteractions: false,
+        },
+      }).promise;
+      expect(fileDownloadTrackingPlugin).toHaveBeenCalledTimes(0);
+      expect(formInteractionTrackingPlugin).toHaveBeenCalledTimes(0);
+    });
+
+    test('should add network connectivity checker plugin by default', async () => {
+      const networkConnectivityCheckerPlugin = jest.spyOn(
+        networkConnectivityChecker,
+        'networkConnectivityCheckerPlugin',
+      );
+      await client.init(apiKey, userId).promise;
+      expect(networkConnectivityCheckerPlugin).toHaveBeenCalledTimes(1);
+    });
+
+    test('should not add network connectivity checker plugin if offline is disabled', async () => {
+      const networkConnectivityCheckerPlugin = jest.spyOn(
+        networkConnectivityChecker,
+        'networkConnectivityCheckerPlugin',
+      );
+      await client.init(apiKey, userId, {
+        offline: OfflineDisabled,
+      }).promise;
+      expect(networkConnectivityCheckerPlugin).toHaveBeenCalledTimes(0);
+    });
+
+    test('should add frustration interactions plugin when autocapture is set', async () => {
+      const frustrationInteractionsPlugin = jest.spyOn(autocapture, 'frustrationPlugin');
+      await client.init(apiKey, userId, {
+        autocapture: {
+          frustrationInteractions: true,
+        },
+      }).promise;
+      expect(frustrationInteractionsPlugin).toHaveBeenCalledTimes(1);
+    });
+
+    test('should add performance tracking plugin when autocapture.performanceTracking is set', async () => {
+      const performanceTrackingPlugin = jest.spyOn(autocapture, 'performancePlugin');
+      await client.init(apiKey, userId, {
+        autocapture: {
+          performanceTracking: true,
+        },
+      }).promise;
+      expect(performanceTrackingPlugin).toHaveBeenCalledTimes(1);
+      expect(performanceTrackingPlugin).toHaveBeenCalledWith({ mainThreadBlock: true });
+    });
+
+    test('should NOT add performance tracking plugin by default', async () => {
+      const performanceTrackingPlugin = jest.spyOn(autocapture, 'performancePlugin');
+      await client.init(apiKey, userId).promise;
+      expect(performanceTrackingPlugin).toHaveBeenCalledTimes(0);
+    });
+
+    test('should NOT add performance tracking plugin when autocapture=true', async () => {
+      const performanceTrackingPlugin = jest.spyOn(autocapture, 'performancePlugin');
+      await client.init(apiKey, userId, {
+        autocapture: true,
+      }).promise;
+      expect(performanceTrackingPlugin).toHaveBeenCalledTimes(0);
+    });
+
+    test('should register autocapture and performance plugins when both element interactions and performance tracking are enabled', async () => {
+      await client.init(apiKey, userId, {
+        autocapture: {
+          elementInteractions: true,
+          performanceTracking: true,
+        },
+      }).promise;
+      const names = client.timeline.plugins.map((p) => p.name);
+      expect(names).toContain('@amplitude/plugin-autocapture-browser');
+      expect(names).toContain('@amplitude/plugin-performance-browser');
+    });
+
+    test('should add page view tracking plugin by default', async () => {
+      const pageViewTrackingPlugin = jest.spyOn(pageViewTracking, 'pageViewTrackingPlugin');
+      await client.init(apiKey, userId).promise;
+      expect(pageViewTrackingPlugin).toHaveBeenCalledTimes(1);
+    });
+
+    test('should NOT add page view tracking plugin when DET is disabled', async () => {
+      const pageViewTrackingPlugin = jest.spyOn(pageViewTracking, 'pageViewTrackingPlugin');
+      await client.init(apiKey, userId, {
+        defaultTracking: false,
+      }).promise;
+      expect(pageViewTrackingPlugin).toHaveBeenCalledTimes(0);
+    });
+
+    test('should NOT add page view tracking plugin when page view is disabled', async () => {
+      const pageViewTrackingPlugin = jest.spyOn(pageViewTracking, 'pageViewTrackingPlugin');
+      await client.init(apiKey, userId, {
+        defaultTracking: {
+          pageViews: false,
+        },
+      }).promise;
+      expect(pageViewTrackingPlugin).toHaveBeenCalledTimes(0);
+    });
+
+    test('should NOT add default tracking plugins when autocapture is disabled', async () => {
+      const pageViewTrackingPlugin = jest.spyOn(pageViewTracking, 'pageViewTrackingPlugin');
+      const fileDownloadTrackingPlugin = jest.spyOn(fileDownloadTracking, 'fileDownloadTracking');
+      const formInteractionTrackingPlugin = jest.spyOn(formInteractionTracking, 'formInteractionTracking');
+      await client.init(apiKey, userId, {
+        autocapture: {
+          pageViews: false,
+          fileDownloads: false,
+          formInteractions: false,
+        },
+      }).promise;
+      expect(pageViewTrackingPlugin).toHaveBeenCalledTimes(0);
+      expect(fileDownloadTrackingPlugin).toHaveBeenCalledTimes(0);
+      expect(formInteractionTrackingPlugin).toHaveBeenCalledTimes(0);
+    });
+
+    test.each([true, { elementInteractions: true }])(
+      'should add autocapture plugin',
+      async (option: boolean | AutocaptureOptions) => {
+        const autocapturePlugin = jest.spyOn(autocapture, 'autocapturePlugin');
+        await client.init(apiKey, userId, {
+          autocapture: option,
+        }).promise;
+        expect(autocapturePlugin).toHaveBeenCalledTimes(1);
+      },
+    );
+
+    test.each([
+      undefined, // default
+      false, // disabled
+      { elementInteractions: false }, // disabled
+    ])('should NOT add autocapture plugin', async (option: undefined | boolean | AutocaptureOptions) => {
+      const autocapturePlugin = jest.spyOn(autocapture, 'autocapturePlugin');
+      await client.init(apiKey, userId, {
+        autocapture: option,
+      }).promise;
+      expect(autocapturePlugin).toHaveBeenCalledTimes(0);
+    });
+
+    test('should use network tracking plugin when autocapture.networkTracking is on', async () => {
+      const networkTrackingPlugin = jest.spyOn(networkCapturePlugin, 'plugin');
+      await client.init(apiKey, userId, {
+        autocapture: {
+          networkTracking: true,
+        },
+      }).promise;
+      expect(networkTrackingPlugin).toHaveBeenCalledTimes(1);
+    });
+
+    test('should use web vitals plugin when autocapture.webVitals is on', async () => {
+      const webVitalsPlugin = jest.spyOn(webVitals, 'webVitalsPlugin');
+      await client.init(apiKey, userId, {
+        autocapture: {
+          webVitals: true,
+        },
+      }).promise;
+      expect(webVitalsPlugin).toHaveBeenCalledTimes(1);
+    });
+
+    test('should listen for network change to online', async () => {
+      jest.useFakeTimers();
+      // Start offline so the online event represents a real offline->online transition.
+      const onLineMock = jest.spyOn(navigator, 'onLine', 'get').mockReturnValue(false);
+      const addEventListenerMock = jest.spyOn(window, 'addEventListener');
+      const flush = jest.spyOn(client, 'flush').mockReturnValue({ promise: Promise.resolve() });
+      const loggerProvider = {
+        log: jest.fn(),
+        debug: jest.fn(),
+        warn: jest.fn(),
+        error: jest.fn(),
+        enable: jest.fn(),
+        disable: jest.fn(),
+      };
+
+      await client.init(apiKey, {
+        defaultTracking: false,
+        loggerProvider: loggerProvider,
+      }).promise;
+      expect(client.config.offline).toBe(true);
+
+      window.dispatchEvent(new Event('online'));
+
+      expect(addEventListenerMock).toHaveBeenCalledWith('online', expect.any(Function));
+      expect(client.config.offline).toBe(false);
+      expect(loggerProvider.debug).toHaveBeenCalledWith('Network connectivity changed to online.');
+
+      jest.advanceTimersByTime(client.config.flushIntervalMillis);
+      expect(flush).toHaveBeenCalledTimes(1);
+
+      jest.useRealTimers();
+      onLineMock.mockRestore();
+      addEventListenerMock.mockRestore();
+      flush.mockRestore();
+    });
+
+    test('should listen for network change to offline', async () => {
+      jest.useFakeTimers();
+      const addEventListenerMock = jest.spyOn(window, 'addEventListener');
+      const loggerProvider = {
+        log: jest.fn(),
+        debug: jest.fn(),
+        warn: jest.fn(),
+        error: jest.fn(),
+        enable: jest.fn(),
+        disable: jest.fn(),
+      };
+
+      await client.init(apiKey, {
+        defaultTracking: false,
+        loggerProvider: loggerProvider,
+      }).promise;
+      expect(client.config.offline).toBe(false);
+
+      window.dispatchEvent(new Event('offline'));
+      expect(addEventListenerMock).toHaveBeenCalledWith('offline', expect.any(Function));
+      expect(client.config.offline).toBe(true);
+      expect(loggerProvider.debug).toHaveBeenCalledWith('Network connectivity changed to offline.');
+
+      jest.useRealTimers();
+      addEventListenerMock.mockRestore();
+    });
+
+    test('should not support offline mode if global scope returns undefined', async () => {
+      const getGlobalScopeMock = jest.spyOn(core, 'getGlobalScope').mockReturnValueOnce(undefined);
+      const addEventListenerMock = jest.spyOn(window, 'addEventListener');
+
+      await client.init(apiKey, {
+        defaultTracking: false,
+      }).promise;
+
+      window.dispatchEvent(new Event('online'));
+      expect(client.config.offline).toBe(false);
+
+      client.config.offline = true;
+      window.dispatchEvent(new Event('offline'));
+      expect(client.config.offline).toBe(true);
+
+      getGlobalScopeMock.mockRestore();
+      addEventListenerMock.mockRestore();
+    });
+
+    test('should add page url previous page plugin if pageUrlEnrichment is true', async () => {
+      const pageUrlEnrichmentPlugin = jest.spyOn(pageUrlEnrichment, 'pageUrlEnrichmentPlugin');
+      await client.init(apiKey, userId, {
+        autocapture: {
+          pageUrlEnrichment: true,
+        },
+      }).promise;
+      expect(pageUrlEnrichmentPlugin).toHaveBeenCalledTimes(1);
+    });
+
+    test('should NOT add page url previous page plugin if pageUrlEnrichment is false', async () => {
+      const pageUrlEnrichmentPlugin = jest.spyOn(pageUrlEnrichment, 'pageUrlEnrichmentPlugin');
+      await client.init(apiKey, userId, {
+        autocapture: {
+          pageUrlEnrichment: false,
+        },
+      }).promise;
+      expect(pageUrlEnrichmentPlugin).toHaveBeenCalledTimes(0);
+    });
+
+    test('should add page url previous page plugin if pageUrlEnrichment is undefined', async () => {
+      const pageUrlEnrichmentPlugin = jest.spyOn(pageUrlEnrichment, 'pageUrlEnrichmentPlugin');
+      await client.init(apiKey, userId, {
+        autocapture: {},
+      }).promise;
+      expect(pageUrlEnrichmentPlugin).toHaveBeenCalledTimes(1);
+    });
+
+    test('should add event property attribution plugin for event property tracking', async () => {
+      jest.spyOn(core.CampaignParser.prototype, 'parse').mockResolvedValue({
+        ...core.BASE_CAMPAIGN,
+        utm_source: 'amp-test',
+      });
+      const eventPropertyTrackingPlugin = jest.spyOn(eventPropertyTracking, 'eventPropertyTrackingPlugin');
+      const webAttributionInit = jest.spyOn(WebAttribution.prototype, 'init');
+
+      await client.init(apiKey, userId, {
+        fetchRemoteConfig: false,
+        defaultTracking: {
+          attribution: {
+            trackingMethod: 'eventProperty',
+          },
+          pageViews: false,
+          sessions: false,
+        },
+      }).promise;
+
+      expect(eventPropertyTrackingPlugin).toHaveBeenCalledTimes(1);
+      expect(eventPropertyTrackingPlugin).toHaveBeenCalledWith(
+        expect.objectContaining({
+          trackingMethod: 'eventProperty',
+        }),
+      );
+      expect(webAttributionInit).not.toHaveBeenCalled();
+    });
+
+    test('should add web attribution plugin for user property tracking only', async () => {
+      jest.spyOn(core.CampaignParser.prototype, 'parse').mockResolvedValue({
+        ...core.BASE_CAMPAIGN,
+        utm_source: 'amp-test',
+      });
+      const eventPropertyTrackingPlugin = jest.spyOn(eventPropertyTracking, 'eventPropertyTrackingPlugin');
+      const webAttributionInit = jest.spyOn(WebAttribution.prototype, 'init');
+
+      await client.init(apiKey, userId, {
+        fetchRemoteConfig: false,
+        defaultTracking: {
+          attribution: {
+            trackingMethod: 'userProperty',
+          },
+          pageViews: false,
+          sessions: false,
+        },
+      }).promise;
+
+      expect(webAttributionInit).toHaveBeenCalledTimes(1);
+      expect(eventPropertyTrackingPlugin).not.toHaveBeenCalled();
+    });
+
+    test('should add both attribution plugins when both tracking methods are enabled', async () => {
+      jest.spyOn(core.CampaignParser.prototype, 'parse').mockResolvedValue({
+        ...core.BASE_CAMPAIGN,
+        utm_source: 'amp-test',
+      });
+      const eventPropertyTrackingPlugin = jest.spyOn(eventPropertyTracking, 'eventPropertyTrackingPlugin');
+      const webAttributionInit = jest.spyOn(WebAttribution.prototype, 'init');
+
+      await client.init(apiKey, userId, {
+        fetchRemoteConfig: false,
+        defaultTracking: {
+          attribution: {
+            trackingMethod: ['userProperty', 'eventProperty'],
+          },
+          pageViews: false,
+          sessions: false,
+        },
+      }).promise;
+
+      expect(webAttributionInit).toHaveBeenCalledTimes(1);
+      expect(eventPropertyTrackingPlugin).toHaveBeenCalledTimes(1);
+      expect(eventPropertyTrackingPlugin).toHaveBeenCalledWith(
+        expect.objectContaining({
+          trackingMethod: ['userProperty', 'eventProperty'],
+        }),
+      );
+    });
+
+    test('should add both attribution plugins by default when no tracking method is configured', async () => {
+      jest.spyOn(core.CampaignParser.prototype, 'parse').mockResolvedValue({
+        ...core.BASE_CAMPAIGN,
+        utm_source: 'amp-test',
+      });
+      const eventPropertyTrackingPlugin = jest.spyOn(eventPropertyTracking, 'eventPropertyTrackingPlugin');
+      const webAttributionInit = jest.spyOn(WebAttribution.prototype, 'init');
+
+      await client.init(apiKey, userId, {
+        fetchRemoteConfig: false,
+        defaultTracking: {
+          attribution: {},
+          pageViews: false,
+          sessions: false,
+        },
+      }).promise;
+
+      expect(webAttributionInit).toHaveBeenCalledTimes(1);
+      expect(eventPropertyTrackingPlugin).toHaveBeenCalledTimes(1);
+    });
+
+    test('should enrich same-tick track calls with the latest campaign after pushState', async () => {
+      jest
+        .spyOn(core.CampaignParser.prototype, 'parse')
+        .mockResolvedValueOnce({
+          ...core.BASE_CAMPAIGN,
+          utm_source: 'campaign-a',
+        })
+        .mockResolvedValueOnce({
+          ...core.BASE_CAMPAIGN,
+          utm_source: 'campaign-b',
+        });
+      let capturedEvent: core.Event | undefined;
+
+      await client.init(apiKey, userId, {
+        fetchRemoteConfig: false,
+        defaultTracking: {
+          attribution: {
+            trackingMethod: 'eventProperty',
+          },
+          pageViews: false,
+          sessions: false,
+        },
+      }).promise;
+
+      await client.add({
+        name: 'capture-event-property-attribution',
+        type: 'enrichment',
+        setup: async () => {
+          return;
+        },
+        execute: async (event) => {
+          capturedEvent = event;
+          return event;
+        },
+      }).promise;
+
+      window.history.pushState(undefined, '', '/next?utm_source=campaign-b');
+      void client
+        .track('test-event', {
+          existing: 'value',
+        })
+        .promise.catch(() => undefined);
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      expect(capturedEvent).toBeDefined();
+      expect(capturedEvent).toEqual(
+        expect.objectContaining({
+          event_type: 'test-event',
+          event_properties: expect.objectContaining({
+            existing: 'value',
+            utm_source: 'campaign-b',
+          }),
+        }),
+      );
+    });
+
+    test('should add custom enrichment plugin when customEnrichment is an object with enabled=true', async () => {
+      const customEnrichmentPlugin = jest.spyOn(customEnrichment, 'customEnrichmentPlugin');
+      await client.init(apiKey, userId, {
+        customEnrichment: { enabled: true, body: 'test' },
+      }).promise;
+      expect(customEnrichmentPlugin).toHaveBeenCalledTimes(1);
+    });
+
+    test('should NOT add custom enrichment plugin when customEnrichment is undefined', async () => {
+      const customEnrichmentPlugin = jest.spyOn(customEnrichment, 'customEnrichmentPlugin');
+      await client.init(apiKey, userId).promise;
+      expect(customEnrichmentPlugin).toHaveBeenCalledTimes(0);
+    });
+
+    test('should NOT add custom enrichment plugin when customEnrichment is an object with enabled=false', async () => {
+      const customEnrichmentPlugin = jest.spyOn(customEnrichment, 'customEnrichmentPlugin');
+      await client.init(apiKey, userId, {
+        customEnrichment: { enabled: false, body: 'test' },
+      }).promise;
+      expect(customEnrichmentPlugin).toHaveBeenCalledTimes(0);
+    });
+
+    test('should NOT add custom enrichment plugin when customEnrichment is false', async () => {
+      const customEnrichmentPluginSpy = jest.spyOn(customEnrichment, 'customEnrichmentPlugin');
+      await client.init(apiKey, userId, {
+        customEnrichment: false,
+      }).promise;
+      expect(customEnrichmentPluginSpy).toHaveBeenCalledTimes(0);
+    });
+
+    test('should NOT add custom enrichment plugin when customEnrichment is false even if remote config enables it', async () => {
+      const mockRemoteConfigWithCustomEnrichment = {
+        subscribe: jest
+          .fn()
+          .mockImplementation(
+            (
+              configKey: string,
+              _eventType: string,
+              callback: (remoteConfig: any, source: any, lastFetch: Date) => void,
+            ) => {
+              if (configKey === 'configs.analyticsSDK.browserSDK') {
+                callback({ customEnrichment: { enabled: true, body: 'return event;' } }, 'cache', new Date());
+              } else {
+                callback(null, 'cache', new Date());
+              }
+            },
+          ),
+        unsubscribe: jest.fn(),
+        updateConfigs: jest.fn(),
+      };
+
+      MockedRemoteConfigClient = jest.fn().mockImplementation(() => mockRemoteConfigWithCustomEnrichment);
+      Object.defineProperty(core, 'RemoteConfigClient', {
+        value: MockedRemoteConfigClient,
+        writable: true,
+        configurable: true,
+      });
+
+      const customEnrichmentPluginSpy = jest.spyOn(customEnrichment, 'customEnrichmentPlugin');
+      await client.init(apiKey, userId, {
+        fetchRemoteConfig: true,
+        customEnrichment: false,
+      }).promise;
+      expect(customEnrichmentPluginSpy).toHaveBeenCalledTimes(0);
+    });
+
+    test.each([[url], [new URL(`https://www.example.com?deviceId=${testDeviceId}`)]])(
+      'should set device id from url',
+      async (mockedUrl) => {
+        const originalLocation = window.location;
+
+        Object.defineProperty(window, 'location', {
+          value: {
+            ...originalLocation,
+            search: mockedUrl.search,
+          } as Location,
+          writable: true,
+        });
+
+        await client.init(apiKey, userId, {
+          defaultTracking: false,
+        }).promise;
+        expect(client.config.deviceId).toEqual(testDeviceId);
+
+        Object.defineProperty(window, 'location', {
+          value: originalLocation,
+          writable: true,
+        });
+      },
+    );
+
+    test('should set session id from url', async () => {
+      const originalLocation = window.location;
+
+      Object.defineProperty(window, 'location', {
+        value: {
+          search: url.search,
+        } as Location,
+        writable: true,
+      });
+
+      const setSessionId = jest.spyOn(client, 'setSessionId');
+
+      await client.init(apiKey, userId, {
+        defaultTracking: {
+          attribution: false,
+          fileDownloads: false,
+          formInteractions: false,
+          pageViews: false,
+          sessions: true,
+        },
+      }).promise;
+      expect(client.config.sessionId).toEqual(testSessionId);
+      expect(setSessionId).toHaveBeenCalledTimes(1);
+      expect(setSessionId).toHaveBeenLastCalledWith(testSessionId);
+
+      Object.defineProperty(window, 'location', {
+        value: originalLocation,
+        writable: true,
+      });
+    });
+
+    test.each([[new URL(`https://www.example.com?ampSessionId=test}`)], [new URL(`https://www.example.com`)]])(
+      'should fall back to other options when session id from url is not Number',
+      async (mockedUrl) => {
+        // Mock window.location
+        const originalLocation = window.location;
+        Object.defineProperty(window, 'location', {
+          value: {
+            search: mockedUrl.search,
+          } as Location,
+          writable: true,
+        });
+
+        // Mock Date.now()
+        const originalDate = Date.now;
+        const currentTimestamp = Date.now();
+        Date.now = jest.fn(() => currentTimestamp);
+
+        const setSessionId = jest.spyOn(client, 'setSessionId');
+        await client.init(apiKey, userId, {
+          defaultTracking: {
+            attribution: false,
+            fileDownloads: false,
+            formInteractions: false,
+            pageViews: false,
+            sessions: true,
+          },
+        }).promise;
+
+        // should call "setSessionId" with undefined because "test" from ampSessionId is NaN
+        expect(client.config.sessionId).toEqual(currentTimestamp);
+        expect(setSessionId).toHaveBeenCalledTimes(1);
+        expect(setSessionId).toHaveBeenLastCalledWith(undefined);
+
+        // Restore mocks
+        Object.defineProperty(window, 'location', {
+          value: originalLocation,
+          writable: true,
+        });
+        Date.now = originalDate;
+      },
+    );
+
+    describe('config.optOut', () => {
+      describe('when optOut is true', () => {
+        beforeEach(async () => {
+          const identity = new Identify();
+          identity.set('test-property', 'test-value');
+          await client.init(apiKey, userId, {
+            optOut: true,
+            identify: identity,
+          }).promise;
+        });
+
+        test('should defer session + attribution until after optOut changes', async () => {
+          expect(client.config.sessionId).toBeUndefined();
+          client.setOptOut(false);
+          // give the timeline 10 ms to finish calling the onOptOutChanged listeners
+          await new Promise((resolve) => setTimeout(resolve, 10));
+          expect(client.config.sessionId).toBeGreaterThan(0);
+        });
+
+        test('should defer session but use user specified sessionId if provided', async () => {
+          expect(client.config.sessionId).toBeUndefined();
+          const id = Date.now() + 10_000; // future timestamp
+          client.setSessionId(id);
+          client.setOptOut(false);
+          await new Promise((resolve) => setTimeout(resolve, 10));
+          expect(client.config.sessionId).toBe(id);
+        });
+
+        test('should defer session + attribution until another init call with optOut false', async () => {
+          expect(client.config.sessionId).toBeUndefined();
+          await client.init(apiKey, userId, {
+            optOut: false,
+          }).promise;
+          // give the timeline 10 ms to finish calling the onOptOutChanged listeners
+          await new Promise((resolve) => setTimeout(resolve, 10));
+          expect(client.config.sessionId).toBeGreaterThan(0);
+        });
+
+        test('should defer session but use user specified sessionId if set with setSessionId', async () => {
+          expect(client.config.sessionId).toBeUndefined();
+          const id = Date.now() + 10_000; // future timestamp
+          client.setSessionId(id);
+          await client.init(apiKey, userId, {
+            optOut: false,
+          }).promise;
+          await new Promise((resolve) => setTimeout(resolve, 20));
+          expect(client.config.sessionId).toBe(id);
+        });
+
+        test('should defer session but use user specified sessionId if set in init', async () => {
+          expect(client.config.sessionId).toBeUndefined();
+          const id = Date.now() + 10_000; // future timestamp
+          await client.init(apiKey, userId, {
+            optOut: false,
+            sessionId: id,
+          }).promise;
+          expect(client.config.sessionId).toBe(id);
+        });
+
+        test('should not initialize webAttribution when optOut listener receives true', async () => {
+          // Initialize with optOut: true and attribution enabled to set up the listener
+          await client.init(apiKey, userId, {
+            optOut: true,
+            defaultTracking: {
+              attribution: true,
+            },
+          }).promise;
+
+          // Track calls to WebAttribution constructor
+          let webAttributionInitCallCount = 0;
+          /* eslint-disable-next-line @typescript-eslint/unbound-method */
+          const originalInit = WebAttribution.prototype.init;
+          jest.spyOn(WebAttribution.prototype, 'init').mockImplementation(function (this: WebAttribution) {
+            webAttributionInitCallCount++;
+            return originalInit.call(this);
+          });
+
+          // set optOut to false and then true
+          client.setOptOut(false);
+          await new Promise((resolve) => setTimeout(resolve, 10));
+          client.setOptOut(true);
+          await new Promise((resolve) => setTimeout(resolve, 10));
+
+          // should only call init once
+          expect(webAttributionInitCallCount).toBe(1);
+        });
+
+        test('should add event property attribution plugin even when optOut is true', async () => {
+          jest.spyOn(core.CampaignParser.prototype, 'parse').mockResolvedValue({
+            ...core.BASE_CAMPAIGN,
+            utm_source: 'amp-test',
+          });
+          const eventPropertyTrackingPlugin = jest.spyOn(eventPropertyTracking, 'eventPropertyTrackingPlugin');
+
+          await client.init(apiKey, userId, {
+            optOut: true,
+            fetchRemoteConfig: false,
+            defaultTracking: {
+              attribution: {
+                trackingMethod: 'eventProperty',
+              },
+              pageViews: false,
+              sessions: false,
+            },
+          }).promise;
+
+          expect(eventPropertyTrackingPlugin).toHaveBeenCalledTimes(1);
+          expect(eventPropertyTrackingPlugin).toHaveBeenCalledWith(
+            expect.objectContaining({
+              trackingMethod: 'eventProperty',
+            }),
+          );
+        });
+      });
+
+      describe('when optOut is false', () => {
+        let sessionId: number | undefined;
+        beforeEach(async () => {
+          await client.init(apiKey, userId, {
+            optOut: false,
+          }).promise;
+          sessionId = client.config.sessionId;
+        });
+
+        test('should not change sessionId when optOut changes to true', async () => {
+          expect(sessionId).toBeGreaterThan(0);
+          client.setOptOut(true);
+          expect(client.config.sessionId).toBe(sessionId);
+        });
+
+        test('should not change sessionId when another init called again with optOut false', async () => {
+          expect(sessionId).toBeGreaterThan(0);
+          await client.init(apiKey, userId, {
+            optOut: false,
+          }).promise;
+          expect(client.config.sessionId).toBe(sessionId);
+        });
+      });
+    });
+
+    describe('ampTimestamp validation', () => {
+      const originalLocation = window.location;
+      const originalDateNow = Date.now;
+      const currentTime = 1640995200000; // 2022-01-01 00:00:00 UTC
+      const futureTimestamp = currentTime + 300000; // 5 minutes in the future
+      const pastTimestamp = currentTime - 300000; // 5 minutes in the past
+      const mockedUUID = '1234567890';
+
+      beforeEach(() => {
+        Date.now = jest.fn(() => currentTime);
+        // Mock UUID() to return a fixed value
+        jest.spyOn(core, 'UUID').mockReturnValue(mockedUUID);
+      });
+
+      afterEach(() => {
+        Object.defineProperty(window, 'location', {
+          value: originalLocation,
+          writable: true,
+        });
+        Date.now = originalDateNow;
+      });
+
+      test('should use ampSessionId when ampTimestamp is valid (future)', async () => {
+        const urlWithValidTimestamp = new URL(
+          `https://www.example.com?ampSessionId=${testSessionId}&ampTimestamp=${futureTimestamp}`,
+        );
+
+        Object.defineProperty(window, 'location', {
+          value: {
+            ...originalLocation,
+            search: urlWithValidTimestamp.search,
+          } as Location,
+          writable: true,
+        });
+
+        const setSessionId = jest.spyOn(client, 'setSessionId');
+
+        await client.init(apiKey, userId, {
+          defaultTracking: {
+            attribution: false,
+            fileDownloads: false,
+            formInteractions: false,
+            pageViews: false,
+            sessions: true,
+          },
+        }).promise;
+
+        expect(client.config.sessionId).toEqual(testSessionId);
+        expect(setSessionId).toHaveBeenCalledWith(testSessionId);
+      });
+
+      test('should ignore ampSessionId when ampTimestamp is expired (past)', async () => {
+        const urlWithExpiredTimestamp = new URL(
+          `https://www.example.com?ampSessionId=${testSessionId}&ampTimestamp=${pastTimestamp}`,
+        );
+
+        Object.defineProperty(window, 'location', {
+          value: {
+            ...originalLocation,
+            search: urlWithExpiredTimestamp.search,
+          } as Location,
+          writable: true,
+        });
+
+        const setSessionId = jest.spyOn(client, 'setSessionId');
+
+        await client.init(apiKey, userId, {
+          defaultTracking: {
+            attribution: false,
+            fileDownloads: false,
+            formInteractions: false,
+            pageViews: false,
+            sessions: true,
+          },
+        }).promise;
+
+        // Should fall back to Date.now() instead of using expired ampSessionId
+        expect(client.config.sessionId).toEqual(currentTime);
+        expect(setSessionId).toHaveBeenCalledWith(undefined);
+      });
+
+      test('should use ampDeviceId when ampTimestamp is valid (future)', async () => {
+        const urlWithValidTimestamp = new URL(
+          `https://www.example.com?ampDeviceId=${testDeviceId}&ampTimestamp=${futureTimestamp}`,
+        );
+
+        Object.defineProperty(window, 'location', {
+          value: {
+            ...originalLocation,
+            search: urlWithValidTimestamp.search,
+          } as Location,
+          writable: true,
+        });
+
+        await client.init(apiKey, userId, {
+          defaultTracking: false,
+        }).promise;
+
+        expect(client.config.deviceId).toEqual(testDeviceId);
+      });
+
+      test('should ignore ampDeviceId when ampTimestamp is expired (past)', async () => {
+        const urlWithExpiredTimestamp = new URL(
+          `https://www.example.com?ampDeviceId=${testDeviceId}&ampTimestamp=${pastTimestamp}`,
+        );
+
+        Object.defineProperty(window, 'location', {
+          value: {
+            ...originalLocation,
+            search: urlWithExpiredTimestamp.search,
+          } as Location,
+          writable: true,
+        });
+
+        await client.init(apiKey, userId, {
+          defaultTracking: false,
+        }).promise;
+
+        // Should generate new device ID instead of using expired ampDeviceId
+        expect(client.config.deviceId).toEqual(mockedUUID);
+      });
+
+      test('should work as before when ampTimestamp is missing (backward compatibility)', async () => {
+        const urlWithoutTimestamp = new URL(
+          `https://www.example.com?ampSessionId=${testSessionId}&ampDeviceId=${testDeviceId}`,
+        );
+
+        Object.defineProperty(window, 'location', {
+          value: {
+            ...originalLocation,
+            search: urlWithoutTimestamp.search,
+          } as Location,
+          writable: true,
+        });
+
+        const setSessionId = jest.spyOn(client, 'setSessionId');
+
+        await client.init(apiKey, userId, {
+          defaultTracking: {
+            attribution: false,
+            fileDownloads: false,
+            formInteractions: false,
+            pageViews: false,
+            sessions: true,
+          },
+        }).promise;
+
+        // Should use both parameters when timestamp is missing (backward compatibility)
+        expect(client.config.sessionId).toEqual(testSessionId);
+        expect(client.config.deviceId).toEqual(testDeviceId);
+        expect(setSessionId).toHaveBeenCalledWith(testSessionId);
+      });
+
+      test('should handle malformed ampTimestamp gracefully', async () => {
+        const urlWithMalformedTimestamp = new URL(
+          `https://www.example.com?ampSessionId=${testSessionId}&ampDeviceId=${testDeviceId}&ampTimestamp=invalid`,
+        );
+
+        Object.defineProperty(window, 'location', {
+          value: {
+            ...originalLocation,
+            search: urlWithMalformedTimestamp.search,
+          } as Location,
+          writable: true,
+        });
+
+        const setSessionId = jest.spyOn(client, 'setSessionId');
+
+        await client.init(apiKey, userId, {
+          defaultTracking: {
+            attribution: false,
+            fileDownloads: false,
+            formInteractions: false,
+            pageViews: false,
+            sessions: true,
+          },
+        }).promise;
+
+        // Should treat malformed timestamp as missing and use parameters (backward compatibility)
+        expect(client.config.sessionId).toEqual(testSessionId);
+        expect(client.config.deviceId).toEqual(testDeviceId);
+        expect(setSessionId).toHaveBeenCalledWith(testSessionId);
+      });
+
+      test('should use deviceId parameter when ampTimestamp is valid', async () => {
+        const urlWithValidTimestampDeviceId = new URL(
+          `https://www.example.com?deviceId=${testDeviceId}&ampTimestamp=${futureTimestamp}`,
+        );
+
+        Object.defineProperty(window, 'location', {
+          value: {
+            ...originalLocation,
+            search: urlWithValidTimestampDeviceId.search,
+          } as Location,
+          writable: true,
+        });
+
+        await client.init(apiKey, userId, {
+          defaultTracking: false,
+        }).promise;
+
+        expect(client.config.deviceId).toEqual(testDeviceId);
+      });
+
+      test('should ignore deviceId parameter when ampTimestamp is expired', async () => {
+        const urlWithExpiredTimestampDeviceId = new URL(
+          `https://www.example.com?deviceId=${testDeviceId}&ampTimestamp=${pastTimestamp}`,
+        );
+
+        Object.defineProperty(window, 'location', {
+          value: {
+            ...originalLocation,
+            search: urlWithExpiredTimestampDeviceId.search,
+          } as Location,
+          writable: true,
+        });
+
+        await client.init(apiKey, userId, {
+          defaultTracking: false,
+        }).promise;
+
+        // Should generate new device ID instead of using expired deviceId parameter
+        expect(client.config.deviceId).not.toEqual(testDeviceId);
+        expect(client.config.deviceId).toBeDefined();
+        expect(typeof client.config.deviceId).toBe('string');
+        const { deviceId } = client.config;
+        if (typeof deviceId !== 'string') {
+          throw new Error('Expected deviceId to be a string');
+        }
+        expect(deviceId.length).toBeGreaterThan(0);
+      });
+    });
+  });
+
+  describe('getUserId', () => {
+    test('should get user id', async () => {
+      await client.init(apiKey, userId, { defaultTracking }).promise;
+      expect(client.getUserId()).toBe(userId);
+    });
+
+    test('should handle undefined config', async () => {
+      expect(client.getUserId()).toBe(undefined);
+    });
+  });
+
+  describe('setUserId', () => {
+    test('should set user id', async () => {
+      await client.init(apiKey, { defaultTracking }).promise;
+      expect(client.getUserId()).toBe(undefined);
+      client.setUserId(userId);
+      expect(client.getUserId()).toBe(userId);
+    });
+
+    test('should not set user id', async () => {
+      const setSessionId = jest.spyOn(client, 'setSessionId');
+      await client.init(apiKey, userId, { defaultTracking }).promise;
+
+      // Reset mock to isolate mock for `setUserId(...)` call
+      // `setUserId(...)` may have been called on `init(...)`
+      // We do not want to depend on init behavior
+      setSessionId.mockReset();
+
+      expect(client.getUserId()).toBe(userId);
+      client.setUserId(userId);
+      expect(setSessionId).toHaveBeenCalledTimes(0);
+      expect(client.getUserId()).toBe(userId);
+    });
+
+    test('should not send session events on set user', async () => {
+      jest.spyOn(CookieMigration, 'parseLegacyCookies').mockResolvedValueOnce({
+        optOut: false,
+        sessionId: 1,
+        lastEventTime: Date.now() - 1000,
+      });
+      const result = {
+        promise: Promise.resolve({
+          code: 200,
+          event: {
+            event_type: 'a',
+          },
+          message: 'success',
+        }),
+      };
+      const track = jest.spyOn(client, 'track').mockReturnValue(result);
+      await client.init(apiKey, userId, {
+        sessionTimeout: 5000,
+        defaultTracking: {
+          ...defaultTracking,
+          sessions: true,
+        },
+      }).promise;
+
+      // Reset mock to isolate mock for `track(...)` call
+      // `track(...)` may have been called on `init(...)`
+      // We do not want to depend on init behavior
+      track.mockReset();
+
+      client.setUserId(undefined);
+      expect(client.getUserId()).toBe(undefined);
+      expect(track).toHaveBeenCalledTimes(0);
+    });
+
+    test('should defer set user id', () => {
+      return new Promise<void>((resolve) => {
+        void client.init(apiKey, { defaultTracking }).promise.then(() => {
+          expect(client.getUserId()).toBe('user@amplitude.com');
+          resolve();
+        });
+        client.setUserId('user@amplitude.com');
+      });
+    });
+
+    test('should be able to unset user id to undefined', async () => {
+      await client.init(apiKey, userId, {
+        defaultTracking,
+        deviceId,
+      }).promise;
+      expect(client.getUserId()).toBe(userId);
+      expect(client.getDeviceId()).toBe(deviceId);
+
+      client.setUserId(undefined);
+      expect(client.getUserId()).toBe(undefined);
+      expect(client.getDeviceId()).toBe(deviceId);
+    });
+
+    test('should be able to unset user id to undefined after setUserId()', async () => {
+      await client.init(apiKey, {
+        defaultTracking,
+        deviceId,
+      }).promise;
+      expect(client.getUserId()).toBe(undefined);
+      expect(client.getDeviceId()).toBe(deviceId);
+
+      client.setUserId(userId);
+      expect(client.getUserId()).toBe(userId);
+      expect(client.getDeviceId()).toBe(deviceId);
+
+      client.setUserId(undefined);
+      expect(client.getUserId()).toBe(undefined);
+      expect(client.getDeviceId()).toBe(deviceId);
+    });
+  });
+
+  describe('getDeviceId', () => {
+    test('should get device id', async () => {
+      await client.init(apiKey, {
+        defaultTracking,
+        deviceId,
+      }).promise;
+      expect(client.getDeviceId()).toBe(deviceId);
+    });
+
+    test('should handle undefined config', async () => {
+      expect(client.getDeviceId()).toBe(undefined);
+    });
+  });
+
+  describe('setDeviceId', () => {
+    test('should set device id config', async () => {
+      await client.init(apiKey, { defaultTracking }).promise;
+      client.setDeviceId(deviceId);
+      expect(client.getDeviceId()).toBe(deviceId);
+    });
+
+    test('should defer set device id', () => {
+      return new Promise<void>((resolve) => {
+        void client.init(apiKey, { defaultTracking }).promise.then(() => {
+          expect(client.getDeviceId()).toBe('asdfg');
+          resolve();
+        });
+        client.setDeviceId('asdfg');
+      });
+    });
+  });
+
+  describe('reset', () => {
+    test('should reset user id and generate new device id config', async () => {
+      await client.init(apiKey, { defaultTracking }).promise;
+      client.setUserId(userId);
+      client.setDeviceId(deviceId);
+      expect(client.getUserId()).toBe(userId);
+      expect(client.getDeviceId()).toBe(deviceId);
+      client.reset();
+      expect(client.getUserId()).toBe(undefined);
+      expect(client.getDeviceId()).not.toBe(deviceId);
+    });
+
+    test('should invoke plugin onReset hooks', async () => {
+      await client.init(apiKey, { defaultTracking }).promise;
+
+      const onResetMock = jest.fn();
+      const testPlugin = {
+        name: 'test-reset-plugin',
+        type: 'enrichment' as const,
+        setup: jest.fn().mockResolvedValue(undefined),
+        execute: jest.fn().mockImplementation((event) => Promise.resolve(event)),
+        onReset: onResetMock,
+      };
+
+      await client.add(testPlugin).promise;
+      client.reset();
+
+      expect(onResetMock).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('getIdentity', () => {
+    test('should get identity', async () => {
+      const userId = 'test-user-id';
+      const deviceId = 'test-device-id';
+
+      await client.init(apiKey, 'test-user-id', {
+        defaultTracking,
+        deviceId,
+      }).promise;
+      const identify = new Identify();
+      identify.set('test-property', 'test-value');
+      client.identify(identify);
+
+      const identity = client.getIdentity();
+
+      expect(identity).toEqual({
+        deviceId: deviceId,
+        userId: userId,
+        userProperties: {
+          'test-property': 'test-value',
+        },
+      });
+    });
+
+    test('should handle undefined', () => {
+      const identity = client.getIdentity();
+
+      expect(identity).toEqual({
+        deviceId: undefined,
+        userId: undefined,
+        userProperties: undefined,
+      });
+    });
+
+    test('should update identity after setting userId and deviceId', async () => {
+      await client.init(apiKey, { defaultTracking }).promise;
+
+      const initialIdentity = client.getIdentity();
+      expect(initialIdentity.userId).toBe(undefined);
+
+      client.setUserId(userId);
+      client.setDeviceId(deviceId);
+
+      const updatedIdentity = client.getIdentity();
+      expect(updatedIdentity).toEqual({
+        deviceId: deviceId,
+        userId: userId,
+        userProperties: client.userProperties,
+      });
+    });
+  });
+
+  describe('setIdentity', () => {
+    test('should set userId via setIdentity', async () => {
+      await client.init(apiKey, { defaultTracking }).promise;
+      expect(client.getUserId()).toBe(undefined);
+
+      client.setIdentity({ userId: 'new-user-id' });
+
+      expect(client.getUserId()).toBe('new-user-id');
+    });
+
+    test('should set deviceId via setIdentity', async () => {
+      await client.init(apiKey, { defaultTracking }).promise;
+      const initialDeviceId = client.getDeviceId();
+
+      client.setIdentity({ deviceId: 'new-device-id' });
+
+      expect(client.getDeviceId()).toBe('new-device-id');
+      expect(client.getDeviceId()).not.toBe(initialDeviceId);
+    });
+
+    test('should set userProperties and auto-send identify event', async () => {
+      await client.init(apiKey, { defaultTracking }).promise;
+      const identifySpy = jest.spyOn(client, 'identify');
+
+      client.setIdentity({ userProperties: { plan: 'premium', theme: 'dark' } });
+
+      expect(client.userProperties).toEqual({ plan: 'premium', theme: 'dark' });
+      expect(identifySpy).toHaveBeenCalledTimes(1);
+
+      const identity = client.getIdentity();
+      expect(identity.userProperties).toEqual({ plan: 'premium', theme: 'dark' });
+    });
+
+    test('should set userId and userProperties together', async () => {
+      await client.init(apiKey, { defaultTracking }).promise;
+      const identifySpy = jest.spyOn(client, 'identify');
+
+      client.setIdentity({
+        userId: 'new-user-id',
+        userProperties: { name: 'John' },
+      });
+
+      expect(client.getUserId()).toBe('new-user-id');
+      expect(client.userProperties).toEqual({ name: 'John' });
+      expect(identifySpy).toHaveBeenCalledTimes(1);
+    });
+
+    test('should defer setIdentity before init', () => {
+      return new Promise<void>((resolve) => {
+        void client.init(apiKey, { defaultTracking }).promise.then(() => {
+          expect(client.getUserId()).toBe('deferred-user');
+          expect(client.userProperties).toEqual({ deferred: true });
+          resolve();
+        });
+        client.setIdentity({ userId: 'deferred-user', userProperties: { deferred: true } });
+      });
+    });
+
+    test('should notify plugins of identity change', async () => {
+      await client.init(apiKey, { defaultTracking }).promise;
+      const onIdentityChangedMock = jest.fn();
+
+      await client.add({
+        name: 'test-plugin',
+        type: 'enrichment',
+        setup: async () => {
+          return;
+        },
+        execute: async (event) => event,
+        onIdentityChanged: onIdentityChangedMock,
+      }).promise;
+
+      client.setIdentity({ userProperties: { plan: 'premium' } });
+
+      expect(onIdentityChangedMock).toHaveBeenCalledWith({ userProperties: { plan: 'premium' } });
+    });
+  });
+
+  describe('getOptOut', () => {
+    test.each([true, false])('should return opt out value', async (optOut) => {
+      await client.init(apiKey, {
+        defaultTracking,
+        sessionId: 1,
+        optOut,
+      }).promise;
+      expect(client.getOptOut()).toBe(optOut);
+    });
+
+    test('should return undefined if opt out is not set', async () => {
+      expect(client.getOptOut()).toBe(undefined);
+    });
+  });
+
+  describe('getSessionId', () => {
+    test('should get session id', async () => {
+      await client.init(apiKey, {
+        defaultTracking,
+        sessionId: 1,
+      }).promise;
+      expect(client.getSessionId()).toBe(1);
+    });
+
+    test('should handle undefined config', async () => {
+      expect(client.getSessionId()).toBe(undefined);
+    });
+  });
+
+  describe('setSessionId', () => {
+    test('should set session id', async () => {
+      await client.init(apiKey, { defaultTracking }).promise;
+      client.setSessionId(1);
+      expect(client.getSessionId()).toBe(1);
+    });
+
+    test('should set session id with start session event', async () => {
+      const result = {
+        promise: Promise.resolve({
+          code: 200,
+          event: {
+            event_type: 'a',
+          },
+          message: 'success',
+        }),
+      };
+      const track = jest.spyOn(client, 'track').mockReturnValue(result);
+      await client.init(apiKey, {
+        sessionId: 1,
+        defaultTracking: {
+          ...defaultTracking,
+          attribution: false,
+          pageViews: false,
+          sessions: true,
+        },
+      }).promise;
+      client.setSessionId(2);
+      expect(client.getSessionId()).toBe(2);
+      expect(track).toHaveBeenCalledTimes(3);
+    });
+
+    test('should set session id with start and end session event', async () => {
+      jest.spyOn(CookieMigration, 'parseLegacyCookies').mockResolvedValueOnce({
+        optOut: false,
+        sessionId: 1,
+        lastEventId: 100,
+        lastEventTime: Date.now() - 1000,
+      });
+      const result = {
+        promise: Promise.resolve({
+          code: 200,
+          event: {
+            event_type: 'a',
+          },
+          message: 'success',
+        }),
+      };
+      const track = jest.spyOn(client, 'track').mockReturnValue(result);
+      await client.init(apiKey, {
+        sessionTimeout: 5000,
+        defaultTracking: {
+          ...defaultTracking,
+          attribution: false,
+          pageViews: false,
+          sessions: true,
+        },
+      }).promise;
+      client.setSessionId(2);
+      expect(client.getSessionId()).toBe(2);
+      expect(track).toHaveBeenCalledTimes(2);
+    });
+
+    test('should set session id with start and end session event and web attribution event', async () => {
+      jest.spyOn(CookieMigration, 'parseLegacyCookies').mockResolvedValueOnce({
+        optOut: false,
+        sessionId: 1,
+        lastEventId: 100,
+        lastEventTime: Date.now() - 1000,
+      });
+      const result = {
+        promise: Promise.resolve({
+          code: 200,
+          event: {
+            event_type: 'a',
+          },
+          message: 'success',
+        }),
+      };
+      const track = jest.spyOn(client, 'track').mockReturnValue(result);
+      await client.init(apiKey, {
+        sessionTimeout: 5000,
+        defaultTracking: {
+          ...defaultTracking,
+          attribution: true,
+          pageViews: false,
+          sessions: true,
+        },
+      }).promise;
+
+      client.setSessionId(2);
+
+      expect(client.getSessionId()).toBe(2);
+      return new Promise<void>((resolve) => {
+        setTimeout(() => {
+          expect(track).toHaveBeenCalledTimes(3);
+          resolve();
+        }, 4000);
+      });
+    });
+
+    test('should defer set session id', () => {
+      return new Promise<void>((resolve) => {
+        void client.init(apiKey, { defaultTracking }).promise.then(() => {
+          expect(client.getSessionId()).toBe(1);
+          resolve();
+        });
+        client.setSessionId(1);
+      });
+    });
+  });
+
+  describe('extendSession', () => {
+    test('should extend the current session without sending events', async () => {
+      const firstSessionId = 1;
+      const client = new AmplitudeBrowser();
+      await client.init(apiKey, {
+        sessionTimeout: 20,
+        sessionId: firstSessionId,
+        flushQueueSize: 1,
+        flushIntervalMillis: 1,
+        defaultTracking,
+      }).promise;
+      // assert sessionId is set
+      expect(client.config.sessionId).toBe(firstSessionId);
+      expect(client.config.lastEventTime).toBeUndefined();
+
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      jest.spyOn(client.config.transportProvider, 'send').mockReturnValue(
+        Promise.resolve({
+          status: Status.Success,
+          statusCode: 200,
+          body: {
+            eventsIngested: 1,
+            payloadSizeBytes: 1,
+            serverUploadTime: 1,
+          },
+        }),
+      );
+
+      // send an event
+      await client.track('test 1').promise;
+      const eventTime1 = client.config.lastEventTime ?? -1;
+      expect(eventTime1 > 0).toBeTruthy();
+
+      // wait for session to almost expire, then extend it
+      await new Promise<void>((resolve) =>
+        setTimeout(() => {
+          client.extendSession();
+          resolve();
+        }, 15),
+      );
+
+      // assert session id is unchanged
+      expect(client.config.sessionId).toBe(firstSessionId);
+      // assert last event time was updated
+      const extendedLastEventTime = client.config.lastEventTime ?? -1;
+      expect(extendedLastEventTime > 0).toBeTruthy();
+      expect(extendedLastEventTime > eventTime1).toBeTruthy();
+
+      // send another event just before session expires (again)
+      // Mock Date.now() because isNewSession() depends on it
+      const dateNowMocked = jest.spyOn(Date, 'now').mockImplementation(() => extendedLastEventTime + 15);
+      await new Promise<void>((resolve) =>
+        // eslint-disable-next-line @typescript-eslint/no-misused-promises
+        setTimeout(async () => {
+          await client.track('test 2').promise;
+          resolve();
+        }, 10),
+      );
+      dateNowMocked.mockRestore();
+
+      // assert session id is unchanged
+      expect(client.config.sessionId).toBe(firstSessionId);
+      // assert last event time was updated
+      const eventTime2 = client.config.lastEventTime ?? -1;
+      expect(eventTime2 > 0).toBeTruthy();
+      expect(eventTime2 > extendedLastEventTime).toBeTruthy();
+
+      // Wait for session to timeout, without extendSession()
+      await new Promise<void>((resolve) =>
+        // eslint-disable-next-line @typescript-eslint/no-misused-promises
+        setTimeout(async () => {
+          await client.track('test 3').promise;
+          resolve();
+        }, 21),
+      );
+      // assert session id is changed
+      expect(client.config.sessionId).not.toBe(firstSessionId);
+      expect(client.config.sessionId ?? -1 > firstSessionId).toBeTruthy();
+    });
+
+    test('should extend session using proxy', async () => {
+      const lastEventTime = Date.now() - 1000;
+      jest.spyOn(CookieMigration, 'parseLegacyCookies').mockResolvedValueOnce({
+        optOut: false,
+        sessionId: 1,
+        lastEventTime: lastEventTime,
+      });
+
+      const client = new AmplitudeBrowser();
+
+      // call extendSession() before init()
+      client.extendSession();
+
+      // init
+      await client.init(apiKey, {
+        sessionTimeout: 20,
+        flushQueueSize: 1,
+        flushIntervalMillis: 1,
+        defaultTracking,
+      }).promise;
+
+      // assert sessionId is unchanged
+      expect(client.config.sessionId).toBe(1);
+      // assert last event time was updated
+      expect(client.config.lastEventTime).not.toBe(lastEventTime);
+    });
+
+    /**
+     * Tests the reverse case of calling expire sessions
+     */
+    test('should expire session w/o calling extend session using proxy', async () => {
+      const lastEventTime = Date.now() - 1000;
+      jest.spyOn(CookieMigration, 'parseLegacyCookies').mockResolvedValueOnce({
+        optOut: false,
+        sessionId: 1,
+        lastEventTime: lastEventTime,
+      });
+
+      const client = new AmplitudeBrowser();
+
+      // init
+      await client.init(apiKey, {
+        sessionTimeout: 20,
+        flushQueueSize: 1,
+        flushIntervalMillis: 1,
+        defaultTracking,
+      }).promise;
+
+      // assert sessionId is unchanged
+      expect(client.config.sessionId).toBe(1);
+      // assert last event time was updated
+      expect(client.config.lastEventTime).toBe(lastEventTime);
+    });
+  });
+
+  describe('pageCount', () => {
+    test('init pageCounter should be 0', async () => {
+      await client.init(apiKey, { defaultTracking }).promise;
+      expect(client.config.pageCounter).toBe(0);
+    });
+
+    test('should set pageCounter to 0 in new session', async () => {
+      await client.init(apiKey, { defaultTracking }).promise;
+      client.config.pageCounter = 2;
+      expect(client.config.pageCounter).toBe(2);
+      client.setSessionId(Date.now() + 5 * 60 * 60);
+      expect(client.config.pageCounter).toBe(0);
+    });
+  });
+
+  describe('setTransport', () => {
+    test('should set transport', async () => {
+      const fetch = new FetchTransport();
+      const createTransport = jest.spyOn(Config, 'createTransport').mockReturnValueOnce(fetch);
+      await client.init(apiKey, { defaultTracking }).promise;
+      client.setTransport('fetch');
+      expect(createTransport).toHaveBeenCalledTimes(2);
+    });
+
+    test('should keep compression enabled for default endpoints when switching transport', async () => {
+      const createTransport = jest.spyOn(Config, 'createTransport');
+      await client.init(apiKey, { defaultTracking }).promise;
+
+      createTransport.mockClear();
+      client.setTransport('xhr');
+
+      expect(createTransport).toHaveBeenCalledWith('xhr');
+    });
+
+    test('should keep custom endpoint compression setting when switching transport', async () => {
+      const createTransport = jest.spyOn(Config, 'createTransport');
+      await client.init(apiKey, {
+        defaultTracking,
+        serverUrl: 'https://custom.example.com/2/httpapi',
+        enableRequestBodyCompression: false,
+      }).promise;
+
+      createTransport.mockClear();
+      client.setTransport('xhr');
+
+      expect(createTransport).toHaveBeenCalledWith('xhr');
+    });
+
+    test('should defer set transport', () => {
+      return new Promise<void>((resolve) => {
+        const fetch = new FetchTransport();
+        const createTransport = jest.spyOn(Config, 'createTransport').mockReturnValueOnce(fetch);
+        void client.init(apiKey, { defaultTracking }).promise.then(() => {
+          expect(createTransport).toHaveBeenCalledTimes(2);
+          resolve();
+        });
+        client.setTransport('fetch');
+      });
+    });
+  });
+
+  describe('identify', () => {
+    test('should track identify', async () => {
+      const track = jest.spyOn(client, 'dispatch').mockReturnValueOnce(
+        Promise.resolve({
+          code: 200,
+          message: '',
+          event: {
+            event_type: 'event_type',
+          },
+        }),
+      );
+      await client.init(apiKey, {
+        defaultTracking,
+      }).promise;
+      const identifyObject = new core.Identify();
+      const result = await client.identify(identifyObject, { user_id: '123', device_id: '123' }).promise;
+      expect(result.code).toEqual(200);
+      expect(track).toHaveBeenCalledTimes(1);
+    });
+
+    test('should track identify using proxy', async () => {
+      const track = jest.spyOn(client, 'dispatch').mockReturnValueOnce(
+        Promise.resolve({
+          code: 200,
+          message: '',
+          event: {
+            event_type: 'event_type',
+          },
+        }),
+      );
+      const convertProxyObjectToRealObject = jest
+        .spyOn(SnippetHelper, 'convertProxyObjectToRealObject')
+        .mockReturnValueOnce(new core.Identify());
+      await client.init(apiKey, {
+        defaultTracking,
+      }).promise;
+      const identifyObject = {
+        _q: [],
+      };
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore to verify behavior in snippet installation
+      const result = await client.identify(identifyObject).promise;
+      expect(result.code).toEqual(200);
+      expect(track).toHaveBeenCalledTimes(1);
+      expect(convertProxyObjectToRealObject).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('groupIdentify', () => {
+    test('should track group identify', async () => {
+      const track = jest.spyOn(client, 'dispatch').mockReturnValueOnce(
+        Promise.resolve({
+          code: 200,
+          message: '',
+          event: {
+            event_type: 'event_type',
+          },
+        }),
+      );
+      await client.init(apiKey, {
+        defaultTracking,
+      }).promise;
+      const identifyObject = new core.Identify();
+      const result = await client.groupIdentify('g', '1', identifyObject).promise;
+      expect(result.code).toEqual(200);
+      expect(track).toHaveBeenCalledTimes(1);
+    });
+
+    test('should track group identify using proxy', async () => {
+      const track = jest.spyOn(client, 'dispatch').mockReturnValueOnce(
+        Promise.resolve({
+          code: 200,
+          message: '',
+          event: {
+            event_type: 'event_type',
+          },
+        }),
+      );
+      const convertProxyObjectToRealObject = jest
+        .spyOn(SnippetHelper, 'convertProxyObjectToRealObject')
+        .mockReturnValueOnce(new core.Identify());
+      await client.init(apiKey, {
+        defaultTracking,
+      }).promise;
+      const identifyObject = {
+        _q: [],
+      };
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore to verify behavior in snippet installation
+      const result = await client.groupIdentify('g', '1', identifyObject).promise;
+      expect(result.code).toEqual(200);
+      expect(track).toHaveBeenCalledTimes(1);
+      expect(convertProxyObjectToRealObject).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('revenue', () => {
+    test('should track revenue', async () => {
+      const track = jest.spyOn(client, 'dispatch').mockReturnValueOnce(
+        Promise.resolve({
+          code: 200,
+          message: '',
+          event: {
+            event_type: 'event_type',
+          },
+        }),
+      );
+      await client.init(apiKey, {
+        defaultTracking,
+      }).promise;
+      const revenueObject = new core.Revenue();
+      const result = await client.revenue(revenueObject).promise;
+      expect(result.code).toEqual(200);
+      expect(track).toHaveBeenCalledTimes(1);
+    });
+
+    test('should track revenue using proxy', async () => {
+      const track = jest.spyOn(client, 'dispatch').mockReturnValueOnce(
+        Promise.resolve({
+          code: 200,
+          message: '',
+          event: {
+            event_type: 'event_type',
+          },
+        }),
+      );
+      const convertProxyObjectToRealObject = jest
+        .spyOn(SnippetHelper, 'convertProxyObjectToRealObject')
+        .mockReturnValueOnce(new core.Revenue());
+      await client.init(apiKey, {
+        defaultTracking,
+      }).promise;
+      const revenueObject = {
+        _q: [],
+      };
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore to verify behavior in snippet installation
+      const result = await client.revenue(revenueObject).promise;
+      expect(result.code).toEqual(200);
+      expect(track).toHaveBeenCalledTimes(1);
+      expect(convertProxyObjectToRealObject).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('process', () => {
+    test('should process create new session for new campain', async () => {
+      await client.init(apiKey, {
+        optOut: true,
+        logLevel: LogLevel.Warn,
+        defaultTracking: {
+          attribution: {
+            resetSessionOnNewCampaign: true,
+          },
+        },
+      }).promise;
+
+      expect(client.webAttribution).toBeDefined();
+
+      // Making sure client.webAttribution is not undefined
+      if (!client.webAttribution) {
+        client.webAttribution = new WebAttribution({}, client.config);
+      }
+      jest.spyOn(client.webAttribution, 'shouldSetSessionIdOnNewCampaign').mockReturnValueOnce(true);
+      const logSpy = jest.spyOn(client.config.loggerProvider, 'log');
+
+      await client.process({
+        event_type: 'event',
+      });
+
+      expect(logSpy).toHaveBeenCalledWith('Created a new session for new campaign.');
+    });
+    test('should track web attribution if change in campaign information', async () => {
+      const track = jest.spyOn(client, 'dispatch').mockReturnValue(
+        Promise.resolve({
+          code: 200,
+          message: '',
+          event: {
+            event_type: 'event_type',
+          },
+        }),
+      );
+      await client.init(apiKey, {
+        optOut: true,
+        logLevel: LogLevel.Warn,
+        defaultTracking: {
+          attribution: {
+            resetSessionOnNewCampaign: true,
+          },
+        },
+      }).promise;
+
+      client.webAttribution = new WebAttribution({}, { ...client.config, lastEventTime: undefined });
+      client.webAttribution.shouldTrackNewCampaign = true;
+      jest.spyOn(core, 'isNewSession').mockReturnValueOnce(false);
+      await client.process({
+        event_type: 'event',
+      });
+      expect(track).toHaveBeenCalled();
+    });
+
+    test('should proceed with unexpired session', async () => {
+      const setSessionId = jest.spyOn(client, 'setSessionId');
+      await client.init(apiKey, {
+        optOut: true,
+        defaultTracking: false,
+      }).promise;
+      const result = await client.process({
+        event_type: 'event',
+      });
+      // once on init
+      expect(setSessionId).toHaveBeenCalledTimes(1);
+      expect(result.code).toBe(0);
+    });
+
+    test('should proceed with overriden session ID', async () => {
+      const setSessionId = jest.spyOn(client, 'setSessionId');
+      await client.init(apiKey, {
+        optOut: true,
+        defaultTracking: false,
+      }).promise;
+      const result = await client.process({
+        event_type: 'event',
+        session_id: -1,
+      });
+      // once on init
+      expect(setSessionId).toHaveBeenCalledTimes(1);
+      expect(result.code).toBe(0);
+    });
+
+    test('should reset session due to expired session', async () => {
+      const setSessionId = jest.spyOn(client, 'setSessionId');
+      await client.init(apiKey, {
+        optOut: true,
+        defaultTracking: false,
+        // force session to always be expired
+        sessionTimeout: -1,
+      }).promise;
+      const result = await client.process({
+        event_type: 'event',
+      });
+      // once on init
+      // and once on process
+      expect(setSessionId).toHaveBeenCalledTimes(2);
+      expect(result.code).toBe(0);
+    });
+  });
+
+  describe('debug logs through cookie', () => {
+    test('debug logs should be persisted across page loads', async () => {
+      const cookieStorage = new CookieStorage<UserSession>();
+      const cookie: UserSession = {
+        deviceId: '123',
+        userId: '123',
+        sessionId: 123,
+        lastEventTime: Date.now(),
+        optOut: false,
+        debugLogsEnabled: true,
+      };
+      await cookieStorage.set(getCookieName(apiKey), cookie);
+
+      const loggerProvider = {
+        log: jest.fn(),
+        debug: jest.fn(),
+        warn: jest.fn(),
+        error: jest.fn(),
+        enable: jest.fn(),
+        disable: jest.fn(),
+      };
+
+      await client.init(apiKey, {
+        defaultTracking,
+        logLevel: LogLevel.Error,
+        loggerProvider: loggerProvider,
+      }).promise;
+
+      expect(loggerProvider.enable).toHaveBeenCalledWith(LogLevel.Debug);
+      console.log(loggerProvider.enable.mock.calls);
+      expect(loggerProvider.enable).toHaveBeenCalledTimes(1);
+    });
+
+    test('debug logs should not be enabled by default', async () => {
+      const cookieStorage = new CookieStorage<UserSession>();
+      const cookie: UserSession = {
+        deviceId: '123',
+        userId: '123',
+        sessionId: 123,
+        lastEventTime: Date.now(),
+        optOut: false,
+      };
+      await cookieStorage.set(getCookieName(apiKey), cookie);
+
+      const loggerProvider = {
+        log: jest.fn(),
+        debug: jest.fn(),
+        warn: jest.fn(),
+        error: jest.fn(),
+        enable: jest.fn(),
+        disable: jest.fn(),
+      };
+
+      await client.init(apiKey, {
+        defaultTracking,
+        logLevel: LogLevel.Error,
+        loggerProvider: loggerProvider,
+      }).promise;
+
+      expect(loggerProvider.enable).toHaveBeenCalledWith(LogLevel.Error);
+    });
+  });
+
+  describe('_setDiagnosticsSampleRate', () => {
+    test('should set diagnostics sample rate when config is not initialized', () => {
+      expect(client._diagnosticsSampleRate).toBe(0);
+      const sampleRate = 0.1;
+
+      client._setDiagnosticsSampleRate(sampleRate);
+
+      expect(client._diagnosticsSampleRate).toBe(sampleRate);
+    });
+
+    test('should not set diagnostics sample rate when config is already initialized', async () => {
+      expect(client._diagnosticsSampleRate).toBe(0);
+      await client.init(apiKey).promise;
+
+      const initialSampleRate = client._diagnosticsSampleRate;
+      const newSampleRate = 0.5;
+
+      client._setDiagnosticsSampleRate(newSampleRate);
+
+      // Should not change the sample rate when config is already initialized
+      expect(client._diagnosticsSampleRate).toBe(initialSampleRate);
+    });
+
+    test('should early return when diagnostics sample rate is not between 0 and 1', () => {
+      expect(client._diagnosticsSampleRate).toBe(0);
+      const sampleRate = 1.1;
+
+      client._setDiagnosticsSampleRate(sampleRate);
+
+      expect(client._diagnosticsSampleRate).toBe(0);
+    });
+  });
+
+  describe('logBrowserOptions', () => {
+    test('should not throw error on circular reference', async () => {
+      // regression test for https://github.com/amplitude/Amplitude-TypeScript/issues/1521
+      const logBrowserOptions = AmplitudeBrowser.prototype['logBrowserOptions'];
+      const circularReference: any = { a: undefined };
+      circularReference.a = circularReference;
+      const ctx = {
+        config: {
+          loggerProvider: {
+            debug: jest.fn(),
+            error: jest.fn(),
+          },
+        },
+      };
+      const apiKey = '1234567890';
+      logBrowserOptions.call(ctx, { apiKey, ...circularReference });
+      expect(ctx.config.loggerProvider.debug.mock.calls[0][1]).toContain(apiKey.substring(0, 5));
+      expect(ctx.config.loggerProvider.error).not.toHaveBeenCalled();
+    });
+  });
+});

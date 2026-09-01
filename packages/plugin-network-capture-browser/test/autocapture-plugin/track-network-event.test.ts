@@ -1,0 +1,941 @@
+// make a test class that implements NetworkRequestEvent
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+import {
+  BrowserClient,
+  BrowserConfig,
+  CookieStorage,
+  FetchTransport,
+  JsonObject,
+  Logger,
+  LogLevel,
+  NetworkEventCallback,
+  networkObserver,
+  NetworkRequestEvent,
+  NetworkTrackingOptions,
+  SAFE_HEADERS,
+} from '@amplitude/analytics-core';
+import * as AnalyticsCore from '@amplitude/analytics-core';
+import {
+  logNetworkAnalyticsEvent,
+  NetworkAnalyticsEvent,
+  parseHeaderCaptureRule,
+  parseUrlFromString,
+  shouldTrackNetworkEvent,
+} from '../../src/track-network-event';
+import { BrowserEnrichmentPlugin, networkCapturePlugin } from '../../src/network-capture-plugin';
+import { AMPLITUDE_NETWORK_REQUEST_EVENT } from '../../src/constants';
+import { VERSION } from '../../src/version';
+import { createMockBrowserClient } from '../mock-browser-client';
+import * as streams from 'stream/web';
+import { TextEncoder } from 'util';
+type PartialGlobal = Pick<typeof globalThis, 'fetch'>;
+
+type ResourceType = 'fetch' | 'xhr';
+
+class MockNetworkRequestEvent implements NetworkRequestEvent {
+  public responseHeaders?: Record<string, string>;
+  public requestHeaders?: Record<string, string>;
+  public requestBodyJson?: Promise<JsonObject | null>;
+  public responseBodyJson?: Promise<JsonObject | null>;
+
+  constructor(
+    public url: string = 'https://example.com',
+    public type: ResourceType = 'fetch',
+    public method: string = 'GET',
+    public status: number = 200,
+    public duration: number = 100,
+    public responseWrapper = {
+      bodySize: 100,
+      headers() {
+        return { 'Content-Type': 'application/json' };
+      },
+      async json() {
+        return { message: 'hello' };
+      },
+    } as any,
+    public requestWrapper = {
+      bodySize: 100,
+      headers() {
+        return { 'Content-Type': 'application/json' };
+      },
+      async json() {
+        return { message: 'hello' };
+      },
+    } as any,
+    public startTime: number = Date.now(),
+    public timestamp: number = Date.now(),
+    public endTime: number = Date.now() + 100,
+  ) {
+    this.type = 'fetch';
+  }
+
+  toSerializable(): Record<string, any> {
+    return {
+      ...this,
+      responseBodySize: this.responseWrapper.bodySize,
+      requestBodySize: this.requestWrapper.bodySize,
+      requestHeaders: this.requestWrapper.headers,
+      responseHeaders: this.responseWrapper.headers,
+    };
+  }
+}
+
+const baseBrowserConfig: BrowserConfig = {
+  apiKey: '<FAKE_API_KEY>',
+  flushIntervalMillis: 0,
+  flushMaxRetries: 0,
+  flushQueueSize: 0,
+  logLevel: LogLevel.None,
+  loggerProvider: new Logger(),
+  offline: false,
+  optOut: false,
+  serverUrl: undefined,
+  transportProvider: new FetchTransport(),
+  useBatch: false,
+  cookieOptions: {
+    domain: '.amplitude.com',
+    expiration: 365,
+    sameSite: 'Lax',
+    secure: false,
+    upgrade: true,
+  },
+  cookieStorage: new CookieStorage(),
+  sessionTimeout: 30 * 60 * 1000,
+  trackingOptions: {
+    ipAddress: true,
+    language: true,
+    platform: true,
+  },
+};
+
+describe('track-network-event', () => {
+  let networkEvent: MockNetworkRequestEvent;
+  let localConfig: BrowserConfig;
+  beforeEach(() => {
+    localConfig = {
+      ...baseBrowserConfig,
+      autocapture: {
+        networkTracking: true,
+      },
+      networkTrackingOptions: {},
+    } as BrowserConfig;
+    networkEvent = new MockNetworkRequestEvent();
+  });
+
+  describe('parseHeaderCaptureRule()', () => {
+    describe('returns SAFE_HEADERS when headers', () => {
+      test('is "true"', () => {
+        expect(parseHeaderCaptureRule(true)).toEqual([...SAFE_HEADERS]);
+      });
+    });
+
+    describe('returns undefined when', () => {
+      test('allowlist is "empty"', () => {
+        expect(parseHeaderCaptureRule([])).toBeUndefined();
+      });
+
+      test('allowlist is "undefined"', () => {
+        expect(parseHeaderCaptureRule(undefined)).toEqual(undefined);
+      });
+
+      test('allowlist is "false"', () => {
+        expect(parseHeaderCaptureRule(false)).toBeUndefined();
+      });
+    });
+
+    test('should return undefined when rule is null', () => {
+      const result = parseHeaderCaptureRule(null);
+      expect(result).toBeUndefined();
+    });
+
+    test('should return undefined when rule is false', () => {
+      const result = parseHeaderCaptureRule(false);
+      expect(result).toBeUndefined();
+    });
+  });
+
+  describe('trackNetworkEvent()', () => {
+    let client: BrowserClient;
+    let trackSpy: jest.SpyInstance;
+    let eventCallbacks: any[] = [];
+    const subscribe = jest.fn((cb: NetworkEventCallback) => {
+      eventCallbacks.push(cb);
+      return () => {
+        eventCallbacks = [];
+      };
+    });
+
+    let plugin: BrowserEnrichmentPlugin;
+    let amendedGlobalScope: PartialGlobal;
+    let originalFetchMock: jest.Mock;
+
+    beforeEach(async () => {
+      originalFetchMock = jest.fn();
+      amendedGlobalScope = {
+        fetch: originalFetchMock,
+        TextEncoder,
+        ReadableStream: streams,
+      } as PartialGlobal;
+      // keep reference to original getGlobalScope
+      const originalGetGlobalScope = AnalyticsCore.getGlobalScope;
+      jest.spyOn(AnalyticsCore, 'getGlobalScope').mockImplementation((): any => {
+        return {
+          ...originalGetGlobalScope(),
+          ...amendedGlobalScope,
+        };
+      });
+
+      client = createMockBrowserClient();
+      trackSpy = jest.spyOn(client, 'track');
+      client.init('<FAKE_API_KEY>', undefined, localConfig);
+      jest.spyOn(networkObserver, 'subscribe').mockImplementation(subscribe);
+      plugin = networkCapturePlugin();
+      await plugin.setup?.(localConfig, client);
+    });
+
+    afterEach(async () => {
+      await plugin?.teardown?.();
+    });
+
+    test('should track a network request event with status=500', async () => {
+      const responseHeaders = new Headers();
+      responseHeaders.set('content-length', '100');
+      eventCallbacks.forEach((cb: NetworkEventCallback) => {
+        cb.callback({
+          url: 'https://example.com/track?hello=world#hash',
+          type: 'fetch',
+          method: 'POST',
+          status: 500,
+          duration: 100,
+          requestWrapper: {
+            bodySize: 10,
+            headers: { 'content-type': 'application/json' },
+          } as any,
+          responseWrapper: {
+            bodySize: 100,
+            headers: { 'content-length': '100' },
+          } as any,
+          startTime: Date.now(),
+          timestamp: Date.now(),
+          endTime: Date.now() + 100,
+          toSerializable: () => networkEvent.toSerializable(),
+        });
+      });
+      const networkEventCall = trackSpy.mock.calls.find((call) => {
+        return call[0] === AMPLITUDE_NETWORK_REQUEST_EVENT;
+      });
+      const [eventName, eventProperties] = networkEventCall;
+      expect(eventName).toBe(AMPLITUDE_NETWORK_REQUEST_EVENT);
+      expect(eventProperties).toEqual({
+        '[Amplitude] URL': 'https://example.com/track',
+        '[Amplitude] URL Query': 'hello=world',
+        '[Amplitude] URL Fragment': 'hash',
+        '[Amplitude] Request Method': 'POST',
+        '[Amplitude] Status Code': 500,
+        '[Amplitude] Start Time': expect.any(Number),
+        '[Amplitude] Completion Time': expect.any(Number),
+        '[Amplitude] Duration': expect.any(Number),
+        '[Amplitude] Request Body Size': 10,
+        '[Amplitude] Response Body Size': 100,
+        '[Amplitude] Request Type': 'fetch',
+      });
+    });
+
+    test('should track a network request event with status=500 and network request missing attributes', async () => {
+      eventCallbacks.forEach((cb: NetworkEventCallback) => {
+        cb.callback({
+          url: 'https://example.com/track?hello=world#hash',
+          type: 'xhr',
+          method: 'POST',
+          status: 500,
+          duration: 100,
+          requestWrapper: {
+            bodySize: undefined,
+            headers: { 'content-type': 'application/json' },
+          } as any,
+          timestamp: Date.now(),
+          startTime: Date.now(),
+          endTime: Date.now() + 100,
+          toSerializable: () => networkEvent.toSerializable(),
+        });
+      });
+      const networkEventCall = trackSpy.mock.calls.find((call) => {
+        return call[0] === AMPLITUDE_NETWORK_REQUEST_EVENT;
+      });
+      const [eventName, eventProperties] = networkEventCall;
+      expect(eventName).toBe(AMPLITUDE_NETWORK_REQUEST_EVENT);
+      expect(eventProperties).toEqual({
+        '[Amplitude] URL': 'https://example.com/track',
+        '[Amplitude] URL Query': 'hello=world',
+        '[Amplitude] URL Fragment': 'hash',
+        '[Amplitude] Request Method': 'POST',
+        '[Amplitude] Status Code': 500,
+        '[Amplitude] Start Time': expect.any(Number),
+        '[Amplitude] Completion Time': expect.any(Number),
+        '[Amplitude] Duration': expect.any(Number),
+        '[Amplitude] Request Body Size': undefined,
+        '[Amplitude] Response Body Size': undefined,
+        '[Amplitude] Request Type': 'xhr',
+      });
+    });
+
+    test('should not track a network request event with status=200', async () => {
+      eventCallbacks.forEach((cb: NetworkEventCallback) => {
+        cb.callback({
+          url: 'https://example.com/track?hello=world#hash',
+          type: 'fetch',
+          method: 'POST',
+          status: 200,
+          duration: 100,
+          requestWrapper: {
+            bodySize: 10,
+            headers: { 'content-type': 'application/json' },
+          } as any,
+          startTime: Date.now(),
+          timestamp: Date.now(),
+          endTime: Date.now() + 100,
+          toSerializable: () => networkEvent.toSerializable(),
+        });
+      });
+      const networkEventCall = trackSpy.mock.calls.find((call) => {
+        return call[0] === AMPLITUDE_NETWORK_REQUEST_EVENT;
+      });
+      expect(networkEventCall).toBeUndefined();
+    });
+
+    test('should not track event if request event is missing URL', () => {
+      eventCallbacks.forEach((cb: NetworkEventCallback) => {
+        const event = {
+          type: 'fetch',
+          method: 'POST',
+          status: 500,
+          duration: 100,
+          requestWrapper: {
+            bodySize: 10,
+            headers: { 'content-type': 'application/json' },
+          } as any,
+          startTime: Date.now(),
+          timestamp: Date.now(),
+          endTime: Date.now() + 100,
+        } as NetworkRequestEvent;
+        cb.callback({
+          ...event,
+          toSerializable: () => event,
+        });
+      });
+      const networkEventCall = trackSpy.mock.calls.find((call) => {
+        return call[0] === AMPLITUDE_NETWORK_REQUEST_EVENT;
+      });
+      expect(networkEventCall).toBeUndefined();
+    });
+  });
+
+  describe('shouldTrackNetworkEvent with React Native URL polyfill', () => {
+    const originalURL = global.URL;
+
+    afterEach(() => {
+      global.URL = originalURL;
+    });
+
+    test('parses host and query when URL.host is not implemented', () => {
+      class ReactNativeURL {
+        _url: string;
+
+        constructor(url: string) {
+          this._url = url.endsWith('/') ? url : `${url}/`;
+        }
+
+        get href() {
+          return this._url;
+        }
+
+        get host() {
+          throw new Error('URL.host is not implemented');
+        }
+
+        get searchParams() {
+          return { toString: () => '' };
+        }
+      }
+
+      global.URL = ReactNativeURL as unknown as typeof URL;
+
+      networkEvent.url = 'http://10.0.2.2:5173/api/test?foo=bar';
+      localConfig.networkTrackingOptions = {
+        captureRules: [{ hosts: ['10.0.2.2:5173'], statusCodeRange: '200-299' }],
+      };
+
+      expect(shouldTrackNetworkEvent(networkEvent, localConfig.networkTrackingOptions)).toBe(true);
+    });
+  });
+
+  describe('parseUrlFromString()', () => {
+    test('parses plain URL', () => {
+      const url = parseUrlFromString('http://10.0.2.2:5173/api/test');
+      expect(url).toEqual({
+        href: 'http://10.0.2.2:5173/api/test',
+        hrefWithoutQueryOrHash: 'http://10.0.2.2:5173/api/test',
+        host: '10.0.2.2:5173',
+        query: '',
+        fragment: '',
+      });
+    });
+
+    test('parses host and query when URL.host is not implemented', () => {
+      const url = parseUrlFromString('http://10.0.2.2:5173/api/test?foo=bar');
+      expect(url).toEqual({
+        href: 'http://10.0.2.2:5173/api/test?foo=bar',
+        hrefWithoutQueryOrHash: 'http://10.0.2.2:5173/api/test',
+        host: '10.0.2.2:5173',
+        query: 'foo=bar',
+        fragment: '',
+      });
+    });
+
+    test('parses hash fragments', () => {
+      const url = parseUrlFromString('http://10.0.2.2:5173/api/test?foo=bar#hash');
+      expect(url).toEqual({
+        href: 'http://10.0.2.2:5173/api/test?foo=bar#hash',
+        hrefWithoutQueryOrHash: 'http://10.0.2.2:5173/api/test',
+        host: '10.0.2.2:5173',
+        query: 'foo=bar',
+        fragment: 'hash',
+      });
+    });
+
+    test('parses relative URL', () => {
+      const url = parseUrlFromString('/api/test');
+      expect(url).toEqual({
+        href: '/api/test',
+        hrefWithoutQueryOrHash: '/api/test',
+        host: '',
+        query: '',
+        fragment: '',
+      });
+    });
+  });
+
+  describe('shouldTrackNetworkEvent returns false when', () => {
+    test('network request body contains "[Amplitude] Network Request"', () => {
+      networkEvent.url = 'https://api2.amplitude.com/track';
+      const body =
+        '{"api_key":"*****","events":[{"user_id":"****","device_id":"a1c372c9-e8bb-4be2-9865-1ba97787d485","session_id":1747961537096,"time":1747963021841,"platform":"Web","language":"en-US","ip":"$remote","insert_id":"22c2c614-ca7c-4668-9ad4-1576f3372bc0","event_type":"[Amplitude] Page Viewed","event_properties":{"referrer":"http://localhost:5173/browser-sdk/fetch.html","referring_domain":"localhost:5173","[Amplitude] Page Domain":"localhost","[Amplitude] Page Location":"http://localhost:5173/browser-sdk/fetch.html","[Amplitude] Page Path":"/browser-sdk/fetch.html","[Amplitude] Page Title":"Fetch & XHR Network Tracking Test","[Amplitude] Page URL":"http://localhost:5173/browser-sdk/fetch.html","[Amplitude] Page Counter":24},"event_id":14683,"library":"amplitude-ts/2.17.6","user_agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36"},{"user_id":"daniel.graham.dev","device_id":"a1c372c9-e8bb-4be2-9865-1ba97787d485","session_id":1747961537096,"time":1747963022828,"platform":"Web","language":"en-US","ip":"$remote","insert_id":"d5c71b76-22d5-4bbf-9b44-79a8b315a47f","event_type":"[Amplitude] Network Request","event_properties":{"[Amplitude] URL":"https://httpstat.us/200","[Amplitude] URL Query":"","[Amplitude] URL Fragment":"","[Amplitude] Request Method":"POST","[Amplitude] Status Code":0,"[Amplitude] Start Time":1747963022814,"[Amplitude] Completion Time":1747963022825,"[Amplitude] Duration":11,"[Amplitude] Request Body Size":28,"[Amplitude] Request Type":"fetch"},"event_id":14684,"library":"amplitude-ts/2.17.6","user_agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36"}],"options":{},"client_upload_time":"2025-05-23T01:17:02.843Z","request_metadata":{"sdk":{"metrics":{"histogram":{"remote_config_fetch_time_API_success":6}}}}}';
+      networkEvent.requestWrapper.body = body;
+      const networkTracking = {
+        ignoreAmplitudeRequests: false,
+        captureRules: [{ hosts: ['*'], statusCodeRange: '200-299' }],
+      };
+      const result = shouldTrackNetworkEvent(networkEvent, networkTracking);
+      expect(result).toBe(false);
+    });
+
+    test('status code is empty', () => {
+      const networkEvent = new MockNetworkRequestEvent(
+        'fetch',
+        undefined,
+        'POST',
+        0,
+        0,
+        'https://example.com/track',
+        // leave status empty
+      );
+      const result = shouldTrackNetworkEvent(
+        networkEvent,
+        localConfig.networkTrackingOptions as NetworkTrackingOptions,
+      );
+      expect(result).toBe(false);
+    });
+
+    test('domain is amplitude.com', () => {
+      networkEvent.url = 'https://api.amplitude.com/track';
+      expect(shouldTrackNetworkEvent(networkEvent)).toBe(false);
+    });
+
+    test('domain is in ignoreHosts', () => {
+      localConfig.networkTrackingOptions = { ignoreHosts: ['example.com'] };
+      networkEvent.url = 'https://example.com/track';
+      expect(shouldTrackNetworkEvent(networkEvent, localConfig.networkTrackingOptions)).toBe(false);
+    });
+
+    test('domain matches a wildcard in ignoreHosts', () => {
+      localConfig.networkTrackingOptions = { ignoreHosts: ['*.example.com', 'dummy.url'] };
+      networkEvent.url = 'https://sub.example.com/track';
+      const result = shouldTrackNetworkEvent(networkEvent, localConfig.networkTrackingOptions);
+      expect(result).toBe(false);
+    });
+
+    test('host is not in one of the captureRules', () => {
+      localConfig.networkTrackingOptions = {
+        captureRules: [
+          {
+            hosts: ['example.com'],
+          },
+        ],
+      };
+      networkEvent.url = 'https://otherexample.com/apicall';
+      const result = shouldTrackNetworkEvent(networkEvent, localConfig.networkTrackingOptions);
+      expect(result).toBe(false);
+    });
+
+    test('status code is 403 and 400 is in the forbidden status codes', () => {
+      localConfig.networkTrackingOptions = {
+        captureRules: [
+          {
+            hosts: ['example.com'],
+            statusCodeRange: '404-599',
+          },
+        ],
+      };
+      networkEvent.url = 'https://example.com/track';
+      networkEvent.status = 403;
+      const result = shouldTrackNetworkEvent(networkEvent, localConfig.networkTrackingOptions);
+      expect(result).toBe(false);
+    });
+
+    test('status code is 400 and no status code range is defined', () => {
+      localConfig.networkTrackingOptions = {
+        captureRules: [
+          {
+            hosts: ['example.com'],
+          },
+        ],
+      };
+      networkEvent.url = 'https://example.com/track';
+      networkEvent.status = 400;
+      const result = shouldTrackNetworkEvent(networkEvent, localConfig.networkTrackingOptions);
+      expect(result).toBe(false);
+    });
+
+    test('status code is 200 and no captureRules are defined', () => {
+      networkEvent.url = 'https://notamplitude.com/track';
+      networkEvent.status = 200;
+      const result = shouldTrackNetworkEvent(
+        networkEvent,
+        localConfig.networkTrackingOptions as NetworkTrackingOptions,
+      );
+      expect(result).toBe(false);
+    });
+
+    test('status code is 0 and no captureRules are defined', () => {
+      networkEvent.url = 'https://notamplitude.com/track';
+      networkEvent.status = 0;
+      const result = shouldTrackNetworkEvent(
+        networkEvent,
+        localConfig.networkTrackingOptions as NetworkTrackingOptions,
+      );
+      expect(result).toBe(false);
+    });
+
+    test('host matches in captureRules but status code is not in the range', () => {
+      localConfig.networkTrackingOptions = {
+        captureRules: [
+          {
+            hosts: ['*'],
+            statusCodeRange: '200-299',
+          },
+          {
+            hosts: ['example.com'],
+            statusCodeRange: '500-599',
+          },
+        ],
+      };
+      networkEvent.url = 'https://example.com/track';
+      networkEvent.status = 200;
+      const result = shouldTrackNetworkEvent(networkEvent, localConfig.networkTrackingOptions);
+      expect(result).toBe(false);
+    });
+
+    test('url does not match any of the captureRule.urls', () => {
+      const networkTracking = {
+        captureRules: [
+          {
+            hosts: ['*'],
+            urls: [/login/],
+            statusCodeRange: '500-599',
+          },
+        ],
+      };
+      networkEvent.status = 500;
+      networkEvent.url = 'https://example.com/logout';
+      const result = shouldTrackNetworkEvent(networkEvent, networkTracking);
+      expect(result).toBe(false);
+    });
+
+    test('method does not match any of the methods in captureRules', () => {
+      const networkTracking = {
+        captureRules: [
+          {
+            hosts: ['*'],
+            methods: ['POST', 'PUT'],
+            statusCodeRange: '500-599',
+          },
+        ],
+      };
+      networkEvent.status = 500;
+      networkEvent.method = 'GET';
+      networkEvent.url = 'https://example.com/api';
+      const result = shouldTrackNetworkEvent(networkEvent, networkTracking);
+      expect(result).toBe(false);
+    });
+  });
+
+  describe('shouldTrackNetworkEvent returns true when', () => {
+    const defaultHref = window.location.href;
+
+    beforeAll(() => {
+      window.location.href = 'https://example.com';
+    });
+
+    afterAll(() => {
+      window.location.href = defaultHref;
+    });
+
+    test('url omits baseURL and window.location.href is not ignored', () => {
+      networkEvent.url = '/some/url';
+      networkEvent.status = 500;
+      const result = shouldTrackNetworkEvent(networkEvent, localConfig.networkTrackingOptions);
+      expect(result).toBe(true);
+    });
+
+    test('url is a relative URL and location.href is not ignored', () => {
+      networkEvent.url = 'relativeurl';
+      networkEvent.status = 500;
+      const result = shouldTrackNetworkEvent(networkEvent, localConfig.networkTrackingOptions);
+      expect(result).toBe(true);
+    });
+
+    test('domain is api.amplitude.com and ignoreAmplitudeRequests is false', () => {
+      localConfig.networkTrackingOptions = { ignoreAmplitudeRequests: false };
+      networkEvent.url = 'https://api.amplitude.com/track';
+      networkEvent.status = 500;
+      const result = shouldTrackNetworkEvent(networkEvent, localConfig.networkTrackingOptions);
+      expect(result).toBe(true);
+    });
+
+    test('domain is amplitude.com and ignoreAmplitudeRequests is false', () => {
+      localConfig.networkTrackingOptions = { ignoreAmplitudeRequests: false };
+      networkEvent.url = 'https://amplitude.com/track';
+      networkEvent.status = 500;
+      const result = shouldTrackNetworkEvent(networkEvent, localConfig.networkTrackingOptions);
+      expect(result).toBe(true);
+    });
+
+    test('status code is 500', () => {
+      networkEvent.url = 'https://notamplitude.com/track';
+      networkEvent.status = 500;
+      const result = shouldTrackNetworkEvent(
+        networkEvent,
+        localConfig.networkTrackingOptions as NetworkTrackingOptions,
+      );
+      expect(result).toBe(true);
+    });
+
+    test('status code is 0', () => {
+      networkEvent.url = 'https://notamplitude.com/track';
+      networkEvent.status = 0;
+      localConfig.networkTrackingOptions = {
+        captureRules: [
+          {
+            hosts: ['notamplitude.com'],
+            statusCodeRange: '0,400-499',
+          },
+        ],
+      };
+      const result = shouldTrackNetworkEvent(networkEvent, localConfig.networkTrackingOptions);
+      expect(result).toBe(true);
+    });
+
+    test('status code is 200 and 200 is allowed in captureRules', () => {
+      localConfig.networkTrackingOptions = {
+        captureRules: [
+          {
+            hosts: ['example.com'],
+            statusCodeRange: '200',
+          },
+        ],
+      };
+      networkEvent.url = 'https://example.com/track';
+      networkEvent.status = 200;
+      const result = shouldTrackNetworkEvent(networkEvent, localConfig.networkTrackingOptions);
+      expect(result).toBe(true);
+    });
+
+    test('status code is 403 and 400 is within the statusCodeRange', () => {
+      localConfig.networkTrackingOptions = {
+        captureRules: [
+          {
+            hosts: ['example.com'],
+            statusCodeRange: '402-599',
+          },
+        ],
+      };
+      networkEvent.url = 'https://example.com/track';
+      networkEvent.status = 403;
+      const result = shouldTrackNetworkEvent(networkEvent, localConfig.networkTrackingOptions);
+      expect(result).toBe(true);
+    });
+
+    test('host does not match with second capture rule but matches with first', () => {
+      localConfig.networkTrackingOptions = {
+        captureRules: [
+          {
+            hosts: ['*.example.com'],
+            statusCodeRange: '400-499',
+          },
+          {
+            hosts: ['otherexample.com'],
+            statusCodeRange: '400-599',
+          },
+        ],
+      };
+      networkEvent.url = 'https://some.example.com/track';
+      networkEvent.status = 403;
+      const result = shouldTrackNetworkEvent(networkEvent, localConfig.networkTrackingOptions);
+      expect(result).toBe(true);
+    });
+
+    test('url matches one of the urls in captureRules', () => {
+      const networkTracking = {
+        captureRules: [
+          {
+            hosts: ['*'],
+            urls: [/login/],
+            statusCodeRange: '500-599',
+          },
+        ],
+      };
+      networkEvent.status = 500;
+      networkEvent.url = 'https://example.com/login';
+      const result = shouldTrackNetworkEvent(networkEvent, networkTracking);
+      expect(result).toBe(true);
+    });
+
+    test('method matches one of the methods in captureRules', () => {
+      const networkTracking = {
+        captureRules: [
+          {
+            hosts: ['*'],
+            methods: ['POST', 'PUT'],
+            statusCodeRange: '500-599',
+          },
+        ],
+      };
+      networkEvent.status = 500;
+      networkEvent.method = 'POST';
+      networkEvent.url = 'https://example.com/api';
+      const result = shouldTrackNetworkEvent(networkEvent, networkTracking);
+      expect(result).toBe(true);
+    });
+
+    test('captureRules.method is a wildcard', () => {
+      const networkTracking = {
+        captureRules: [
+          {
+            hosts: ['*'],
+            methods: ['*'],
+            statusCodeRange: '500-599',
+          },
+        ],
+      };
+      networkEvent.status = 500;
+      networkEvent.method = 'REQUEST';
+      networkEvent.url = 'https://example.com/api';
+      const result = shouldTrackNetworkEvent(networkEvent, networkTracking);
+      expect(result).toBe(true);
+    });
+  });
+
+  describe('shouldTrackNetworkEvent with header enrichment', () => {
+    beforeEach(() => {
+      networkEvent = new MockNetworkRequestEvent();
+    });
+
+    test('should call headers with allowlist and should enrich network event', () => {
+      const networkTracking = {
+        captureRules: [
+          {
+            hosts: ['example.com'],
+            statusCodeRange: '500-599',
+            responseHeaders: ['content-type'],
+            requestHeaders: ['content-length'],
+          },
+        ],
+      };
+      networkEvent.status = 500;
+      const responseHeadersSpy = jest.spyOn(networkEvent.responseWrapper, 'headers');
+      const requestHeadersSpy = jest.spyOn(networkEvent.requestWrapper, 'headers');
+
+      shouldTrackNetworkEvent(networkEvent, networkTracking);
+
+      expect(responseHeadersSpy).toHaveBeenCalledWith(['content-type']);
+      expect(requestHeadersSpy).toHaveBeenCalledWith(['content-length']);
+      expect(networkEvent.responseHeaders).toBeDefined();
+      expect(networkEvent.requestHeaders).toBeDefined();
+    });
+
+    test('should not enrich network event if responseHeaders and requestHeaders are false', () => {
+      const networkTracking = {
+        captureRules: [
+          {
+            hosts: ['example.com'],
+            statusCodeRange: '500-599',
+            responseHeaders: false,
+            requestHeaders: false,
+          },
+        ],
+      };
+      networkEvent.status = 500;
+      const responseHeadersSpy = jest.spyOn(networkEvent.responseWrapper, 'headers');
+      const requestHeadersSpy = jest.spyOn(networkEvent.requestWrapper, 'headers');
+      const result = shouldTrackNetworkEvent(networkEvent, networkTracking);
+      expect(result).toBe(true);
+      expect(networkEvent.responseHeaders).toBeUndefined();
+      expect(networkEvent.requestHeaders).toBeUndefined();
+      expect(responseHeadersSpy).not.toHaveBeenCalled();
+      expect(requestHeadersSpy).not.toHaveBeenCalled();
+    });
+
+    test('should enrich network event if responseHeaders and requestHeaders are true', () => {
+      const networkTracking = {
+        captureRules: [
+          {
+            hosts: ['example.com'],
+            statusCodeRange: '500-599',
+            responseHeaders: true,
+            requestHeaders: true,
+          },
+        ],
+      };
+      networkEvent.status = 500;
+      const responseHeadersSpy = jest.spyOn(networkEvent.responseWrapper, 'headers');
+      const requestHeadersSpy = jest.spyOn(networkEvent.requestWrapper, 'headers');
+      const result = shouldTrackNetworkEvent(networkEvent, networkTracking);
+      expect(result).toBe(true);
+      expect(networkEvent.responseHeaders).toBeDefined();
+      expect(networkEvent.requestHeaders).toBeDefined();
+      expect(responseHeadersSpy).toHaveBeenCalled();
+      expect(requestHeadersSpy).toHaveBeenCalled();
+    });
+  });
+
+  describe('shouldTrackNetworkEvent with body enrichment', () => {
+    beforeEach(() => {
+      networkEvent = new MockNetworkRequestEvent();
+    });
+
+    test('should enrich network event with request and response body', () => {
+      const networkTracking = {
+        captureRules: [
+          {
+            hosts: ['example.com'],
+            statusCodeRange: '500-599',
+            responseBody: { allowlist: ['*'] },
+            requestBody: { allowlist: ['*'] },
+          },
+        ],
+      };
+      networkEvent.status = 500;
+      networkEvent.url = 'https://example.com/track';
+      const result = shouldTrackNetworkEvent(networkEvent, networkTracking);
+      expect(result).toBe(true);
+      expect(networkEvent.requestBodyJson).toBeDefined();
+      expect(networkEvent.responseBodyJson).toBeDefined();
+    });
+
+    test.each(['excludelist', 'blocklist'] as const)(
+      'should pass allowlist and %s to request and response json()',
+      (excludelist) => {
+        const responseJsonSpy = jest.spyOn(networkEvent.responseWrapper, 'json');
+        const requestJsonSpy = jest.spyOn(networkEvent.requestWrapper, 'json');
+        const allow = ['**'];
+        const exclude = ['/secret'];
+        const networkTracking = {
+          captureRules: [
+            {
+              hosts: ['example.com'],
+              statusCodeRange: '500-599',
+              responseBody: { allowlist: allow, [excludelist]: exclude },
+              requestBody: { allowlist: allow, [excludelist]: exclude },
+            },
+          ],
+        };
+        networkEvent.status = 500;
+        networkEvent.url = 'https://example.com/track';
+        shouldTrackNetworkEvent(networkEvent, networkTracking);
+        expect(responseJsonSpy).toHaveBeenCalledWith(allow, exclude);
+        expect(requestJsonSpy).toHaveBeenCalledWith(allow, exclude);
+      },
+    );
+
+    test('should prioritize excludelist over blocklist', () => {
+      const responseJsonSpy = jest.spyOn(networkEvent.responseWrapper, 'json');
+      const requestJsonSpy = jest.spyOn(networkEvent.requestWrapper, 'json');
+      const allow = ['**'];
+      const exclude = ['/secret'];
+      const networkTracking = {
+        captureRules: [
+          {
+            hosts: ['example.com'],
+            statusCodeRange: '500-599',
+            responseBody: { allowlist: allow, excludelist: exclude, blocklist: ['/ignore-me'] },
+            requestBody: { allowlist: allow, excludelist: exclude, blocklist: ['/ignore-me'] },
+          },
+        ],
+      };
+      networkEvent.status = 500;
+      networkEvent.url = 'https://example.com/track';
+      shouldTrackNetworkEvent(networkEvent, networkTracking);
+      expect(responseJsonSpy).toHaveBeenCalledWith(allow, exclude);
+      expect(requestJsonSpy).toHaveBeenCalledWith(allow, exclude);
+    });
+
+    test('should use blocklist if excludelist is undefined', () => {
+      const responseJsonSpy = jest.spyOn(networkEvent.responseWrapper, 'json');
+      const requestJsonSpy = jest.spyOn(networkEvent.requestWrapper, 'json');
+      const allow = ['**'];
+      const block = ['/ignore-me'];
+      const networkTracking = {
+        captureRules: [
+          {
+            hosts: ['example.com'],
+            statusCodeRange: '500-599',
+            responseBody: { allowlist: allow, excludelist: undefined, blocklist: block },
+            requestBody: { allowlist: allow, excludelist: undefined, blocklist: block },
+          },
+        ],
+      };
+      networkEvent.status = 500;
+      networkEvent.url = 'https://example.com/track';
+      shouldTrackNetworkEvent(networkEvent, networkTracking);
+      expect(responseJsonSpy).toHaveBeenCalledWith(allow, block);
+      expect(requestJsonSpy).toHaveBeenCalledWith(allow, block);
+    });
+  });
+
+  describe('logNetworkAnalyticsEvent', () => {
+    test('should log network analytics event with request and response body', async () => {
+      const networkAnalyticsEvent: NetworkAnalyticsEvent = {
+        '[Amplitude] URL': 'https://example.com/track',
+        '[Amplitude] URL Query': 'hello=world',
+        '[Amplitude] URL Fragment': 'hash',
+        '[Amplitude] Request Method': 'POST',
+        '[Amplitude] Status Code': 500,
+      };
+      const request = new MockNetworkRequestEvent();
+      request.requestBodyJson = Promise.resolve({ message: 'hello' });
+      request.responseBodyJson = Promise.resolve({ message: 'world' });
+      const amplitude = createMockBrowserClient();
+      await logNetworkAnalyticsEvent(networkAnalyticsEvent, request, amplitude, new Logger());
+      /* eslint-disable-next-line @typescript-eslint/unbound-method */
+      expect(amplitude.track).toHaveBeenCalledWith(AMPLITUDE_NETWORK_REQUEST_EVENT, networkAnalyticsEvent);
+    });
+  });
+});
+
+describe('version', () => {
+  test('should return the plugin version', () => {
+    expect(VERSION != null).toBe(true);
+  });
+});

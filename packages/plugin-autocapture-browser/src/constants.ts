@@ -1,0 +1,61 @@
+export const PLUGIN_NAME = '@amplitude/plugin-autocapture-browser';
+export const FRUSTRATION_PLUGIN_NAME = '@amplitude/plugin-frustration-browser';
+export const PERFORMANCE_PLUGIN_NAME = '@amplitude/plugin-performance-browser';
+
+export const AMPLITUDE_ELEMENT_CLICKED_EVENT = '[Amplitude] Element Clicked';
+export const AMPLITUDE_ELEMENT_DEAD_CLICKED_EVENT = '[Amplitude] Dead Click';
+export const AMPLITUDE_ELEMENT_RAGE_CLICKED_EVENT = '[Amplitude] Rage Click';
+export const AMPLITUDE_ELEMENT_ERROR_CLICKED_EVENT = '[Amplitude] Error Click';
+export const AMPLITUDE_ELEMENT_CHANGED_EVENT = '[Amplitude] Element Changed';
+export const AMPLITUDE_PAGE_SCROLLED_EVENT = '[Amplitude] Page Scrolled';
+export const AMPLITUDE_THRASHED_CURSOR_EVENT = '[Amplitude] Thrashed Cursor';
+export const AMPLITUDE_MAIN_THREAD_BLOCK_EVENT = '[Amplitude] Main Thread Block';
+
+export const AMPLITUDE_EVENT_PROP_ELEMENT_ID = '[Amplitude] Element ID';
+export const AMPLITUDE_EVENT_PROP_ELEMENT_CLASS = '[Amplitude] Element Class';
+export const AMPLITUDE_EVENT_PROP_ELEMENT_TAG = '[Amplitude] Element Tag';
+export const AMPLITUDE_EVENT_PROP_ELEMENT_TEXT = '[Amplitude] Element Text';
+export const AMPLITUDE_EVENT_PROP_ELEMENT_HIERARCHY = '[Amplitude] Element Hierarchy';
+export const AMPLITUDE_EVENT_PROP_ELEMENT_HREF = '[Amplitude] Element Href';
+export const AMPLITUDE_EVENT_PROP_ELEMENT_POSITION_LEFT = '[Amplitude] Element Position Left';
+export const AMPLITUDE_EVENT_PROP_ELEMENT_POSITION_TOP = '[Amplitude] Element Position Top';
+export const AMPLITUDE_EVENT_PROP_ELEMENT_ARIA_LABEL = '[Amplitude] Element Aria Label';
+export const AMPLITUDE_EVENT_PROP_ELEMENT_ATTRIBUTES = '[Amplitude] Element Attributes';
+export const AMPLITUDE_EVENT_PROP_ELEMENT_PATH = '[Amplitude] Element Path';
+
+export const AMPLITUDE_EVENT_PROP_ELEMENT_PARENT_LABEL = '[Amplitude] Element Parent Label';
+export const AMPLITUDE_EVENT_PROP_PAGE_URL = '[Amplitude] Page URL';
+export const AMPLITUDE_EVENT_PROP_PAGE_TITLE = '[Amplitude] Page Title';
+export const AMPLITUDE_EVENT_PROP_VIEWPORT_HEIGHT = '[Amplitude] Viewport Height';
+export const AMPLITUDE_EVENT_PROP_VIEWPORT_WIDTH = '[Amplitude] Viewport Width';
+export const AMPLITUDE_EVENT_PROP_MAX_PAGE_X = '[Amplitude] Max Page X';
+export const AMPLITUDE_EVENT_PROP_MAX_PAGE_Y = '[Amplitude] Max Page Y';
+
+export const AMPLITUDE_EVENT_PROP_PAGE_VIEW_ID = '[Amplitude] Page View ID';
+
+// Origin constants are now shared via analytics-core; re-export for backwards compatibility
+export {
+  AMPLITUDE_ORIGIN,
+  AMPLITUDE_ORIGIN_EU,
+  AMPLITUDE_ORIGIN_STAGING,
+  AMPLITUDE_ORIGINS_MAP,
+  AMPLITUDE_BACKGROUND_CAPTURE_SCRIPT_URL,
+} from '@amplitude/analytics-core';
+
+export const AMPLITUDE_VISUAL_TAGGING_SELECTOR_SCRIPT_URL =
+  'https://cdn.amplitude.com/libs/visual-tagging-selector-1.0.0-alpha.js.gz';
+// This is the class name used by the visual tagging selector to highlight the selected element.
+// Should not use this class in the selector.
+export const AMPLITUDE_VISUAL_TAGGING_HIGHLIGHT_CLASS = 'amp-visual-tagging-selector-highlight';
+
+// Data attribute for specifying which attributes should be redacted from autocapture
+export const DATA_AMP_MASK_ATTRIBUTES = 'data-amp-mask-attributes';
+
+export const MAX_MASK_TEXT_PATTERNS = 25;
+
+export const MAX_ATTRIBUTE_LENGTH = 128;
+
+// The key for the page view object in sessionStorage
+export const PAGE_VIEW_SESSION_STORAGE_KEY = 'AMP_PAGE_VIEW';
+
+export const MAX_ELEMENT_EXPOSED_STR_LENGTH = 18_000;

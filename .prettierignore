@@ -1,0 +1,4 @@
+*.md
+
+/.nx/workspace-data
+/.nx/cache

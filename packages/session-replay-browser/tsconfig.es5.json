@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.json",
+  "include": ["src/**/*"],
+  "exclude": ["src/worker/compression.ts", "src/worker/track-destination.ts"],
+  "compilerOptions": {
+    "module": "commonjs",
+    "noEmit": false,
+    "outDir": "lib/cjs",
+    "rootDir": "./src"
+  }
+}

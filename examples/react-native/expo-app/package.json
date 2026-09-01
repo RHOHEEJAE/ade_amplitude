@@ -1,0 +1,39 @@
+{
+  "name": "expo-app",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "expo start --dev-client",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
+    "web": "expo start --web",
+    "eject": "expo eject"
+  },
+  "dependencies": {
+    "@amplitude/analytics-react-native": "workspace:*",
+    "@amplitude/plugin-network-capture-browser": "workspace:*",
+    "@babel/runtime": "^7.20.0",
+    "@react-native-async-storage/async-storage": "~1.17.11",
+    "@react-navigation/native": "^6.1.18",
+    "@react-navigation/native-stack": "^6.11.0",
+    "expo": "~48.0.0",
+    "expo-modules-core": "~1.2.7",
+    "expo-splash-screen": "~0.18.2",
+    "expo-status-bar": "~1.4.2",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-native": "0.71.15",
+    "react-native-safe-area-context": "4.5.0",
+    "react-native-screens": "~3.20.0",
+    "react-native-web": "0.18.10"
+  },
+  "devDependencies": {
+    "@amplitude/babel-plugin-autocapture-transformer": "workspace:*",
+    "@babel/core": "^7.20.5",
+    "babel-plugin-transform-inline-environment-variables": "^0.4.4",
+    "@types/react": "~18.0.26",
+    "expo-doctor": "^1.19.8",
+    "expo-modules-autolinking": "~1.1.2",
+    "typescript": "~4.9.4"
+  },
+  "private": true
+}

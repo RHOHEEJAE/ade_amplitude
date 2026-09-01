@@ -1,0 +1,71 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches:
+      - main
+      - v1.x
+
+jobs:
+  build:
+    name: Build
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: [22.x, 24.x, 26.x]
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Check out git repository
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3
+
+      - name: Setup Node and pnpm
+        uses: ./.github/actions/setup-node-pnpm
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Build all packages
+        run: |
+          pnpm build
+
+      # https://github.com/amplitude/Amplitude-TypeScript/issues/281
+      - name: Check module dependencies
+        run: |
+          if grep -rnw 'packages/analytics-core/lib' -e '/// <reference types="node" />'; then
+            exit 1
+          elif grep -rnw 'packages/analytics-browser/lib' -e '/// <reference types="node" />'; then
+            exit 1
+          elif grep -rnw 'packages/analytics-marketing-analytics-browser/lib' -e '/// <reference types="node" />'; then
+            exit 1
+          elif grep -rnw 'packages/analytics-react-native/lib' -e '/// <reference types="node" />'; then
+            exit 1
+          fi
+
+      - name: Build docs
+        run: |
+          pnpm docs:check
+
+      - name: Test all packages
+        run: |
+          pnpm test
+
+      - name: Lint all packages
+        run: |
+          pnpm lint
+
+  # A static source check, so it runs once rather than across the Node matrix.
+  check-unused-dependencies:
+    name: Check Unused Dependencies
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out git repository
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3
+
+      - name: Setup Node and pnpm
+        uses: ./.github/actions/setup-node-pnpm
+
+      - name: Check for unused dependencies
+        run: |
+          pnpm lint:deps

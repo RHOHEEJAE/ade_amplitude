@@ -1,0 +1,145 @@
+import { DEFAULT_FILE_DOWNLOAD_EVENT, FILE_EXTENSION, FILE_NAME, LINK_ID, LINK_TEXT, LINK_URL } from '../constants';
+import { BrowserConfig } from '../config';
+import { getGlobalScope, Event, EnrichmentPlugin, BrowserClient } from '@amplitude/analytics-core';
+
+interface EventListener {
+  element: Element;
+  type: 'click';
+  handler: () => void;
+}
+
+export const fileDownloadTracking = (): EnrichmentPlugin => {
+  let observer: MutationObserver | undefined;
+  let eventListeners: EventListener[] = [];
+  const addEventListener = (element: Element, type: 'click', handler: () => void) => {
+    element.addEventListener(type, handler);
+    eventListeners.push({
+      element,
+      type,
+      handler,
+    });
+  };
+  const removeClickListeners = () => {
+    eventListeners.forEach(({ element, type, handler }) => {
+      /* istanbul ignore next */
+      element?.removeEventListener(type, handler);
+    });
+    eventListeners = [];
+  };
+
+  const name = '@amplitude/plugin-file-download-tracking-browser';
+  const type = 'enrichment';
+
+  const setup = async (config: BrowserConfig, amplitude: BrowserClient) => {
+    const initializeFileDownloadTracking = () => {
+      /* istanbul ignore if */
+      if (!amplitude) {
+        // TODO: Add required minimum version of @amplitude/analytics-browser
+        config.loggerProvider.warn(
+          'File download tracking requires a later version of @amplitude/analytics-browser. File download events are not tracked.',
+        );
+        return;
+      }
+
+      /* istanbul ignore if */
+      if (typeof document === 'undefined') {
+        return;
+      }
+
+      const addFileDownloadListener = (a: HTMLAnchorElement) => {
+        let url: URL;
+        try {
+          // eslint-disable-next-line no-restricted-globals
+          url = new URL(a.href, window.location.href);
+        } catch {
+          /* istanbul ignore next */
+          return;
+        }
+        const result = ext.exec(url.href);
+        const fileExtension = result?.[1];
+
+        if (fileExtension) {
+          addEventListener(a, 'click', () => {
+            if (fileExtension) {
+              amplitude.track(DEFAULT_FILE_DOWNLOAD_EVENT, {
+                [FILE_EXTENSION]: fileExtension,
+                [FILE_NAME]: url.pathname,
+                [LINK_ID]: a.id,
+                [LINK_TEXT]: a.text,
+                [LINK_URL]: a.href,
+              });
+            }
+          });
+        }
+      };
+
+      const ext =
+        /\.(pdf|xlsx?|docx?|txt|rtf|csv|exe|key|pp(s|t|tx)|7z|pkg|rar|gz|zip|avi|mov|mp4|mpe?g|wmv|midi?|mp3|wav|wma)(\?.+)?$/;
+
+      // Adds listener to existing anchor tags
+      const links = Array.from(document.getElementsByTagName('a'));
+      links.forEach(addFileDownloadListener);
+
+      // Adds listener to anchor tags added after initial load
+      /* istanbul ignore else */
+      if (typeof MutationObserver !== 'undefined') {
+        observer = new MutationObserver((mutations) => {
+          mutations.forEach((mutation) => {
+            mutation.addedNodes.forEach((node) => {
+              // Registration of one node must not abort registration of the rest of the batch, otherwise
+              // links appended after a malformed node are silently never tracked.
+              try {
+                if (node.nodeName === 'A') {
+                  addFileDownloadListener(node as HTMLAnchorElement);
+                }
+                if ('querySelectorAll' in node && typeof node.querySelectorAll === 'function') {
+                  // Some environments patch querySelectorAll to return a nullish value, so the return type
+                  // is widened to reflect what may actually arrive at runtime.
+                  const queryableNode = node as Element;
+                  const links: NodeListOf<HTMLAnchorElement> | null | undefined = queryableNode.querySelectorAll('a');
+                  links?.forEach(addFileDownloadListener);
+                }
+              } catch (error) {
+                config.loggerProvider.warn(`Failed to track file downloads for an added node: ${String(error)}`);
+              }
+            });
+          });
+        });
+
+        observer.observe(document.body, {
+          subtree: true,
+          childList: true,
+        });
+      }
+    };
+
+    // If the document is already loaded, initialize immediately.
+    /* istanbul ignore else*/
+    if (document.readyState === 'complete') {
+      initializeFileDownloadTracking();
+    } else {
+      // Otherwise, wait for the load event.
+      const window = getGlobalScope();
+      /* istanbul ignore else*/
+      if (window) {
+        window.addEventListener('load', initializeFileDownloadTracking);
+      } else {
+        config.loggerProvider.debug('File download tracking is not installed because global is undefined.');
+      }
+    }
+  };
+
+  const execute = async (event: Event) => event;
+  const teardown = async () => {
+    observer?.disconnect();
+    removeClickListeners();
+  };
+
+  return {
+    name,
+    type,
+    setup,
+    execute,
+    teardown,
+  };
+};

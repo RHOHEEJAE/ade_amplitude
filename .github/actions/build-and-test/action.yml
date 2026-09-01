@@ -1,0 +1,71 @@
+name: 'Build and Test'
+description: 'Install dependencies, build, test, and lint packages'
+inputs:
+  node-version:
+    description: 'Node.js version to use'
+    required: true
+  run-tests:
+    description: 'Whether to run unit tests'
+    required: false
+    default: 'true'
+  run-lint:
+    description: 'Whether to run lint'
+    required: false
+    default: 'true'
+  configure-git:
+    description: 'Whether to configure git user for versioning'
+    required: false
+    default: 'true'
+  configure-aws:
+    description: 'Whether to configure AWS credentials'
+    required: false
+    default: 'true'
+
+runs:
+  using: "composite"
+  steps:
+    - name: Setup pnpm
+      uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+
+    - name: Setup Node.js ${{ inputs.node-version }}
+      uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+      with:
+        node-version: ${{ inputs.node-version }}
+        registry-url: 'https://registry.npmjs.org'
+        cache: 'pnpm'
+
+    - name: Install project dependencies
+      run: |
+        pnpm install --frozen-lockfile
+      shell: bash
+
+    - name: Build all packages
+      run: |
+        pnpm build
+      shell: bash
+
+    - name: Test all packages
+      if: inputs.run-tests == 'true'
+      run: |
+        pnpm test
+      shell: bash
+
+    - name: Lint all packages
+      if: inputs.run-lint == 'true'
+      run: |
+        pnpm lint
+      shell: bash
+
+    - name: Configure Git User
+      if: inputs.configure-git == 'true'
+      run: |
+        git config --global user.name amplitude-sdk-dev
+        git config --global user.email 249154226+amplitude-sdk-dev@users.noreply.github.com
+      shell: bash
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@5fd3084fc36e372ff1fff382a39b10d03659f355 # v2
+      if: inputs.configure-aws == 'true' && github.event.inputs.releaseType != 'dry-run'
+      with:
+        role-to-assume: arn:aws:iam::358203115967:role/github-actions-role
+        aws-region: us-west-2

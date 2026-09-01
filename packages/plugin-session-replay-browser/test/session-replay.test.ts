@@ -1,0 +1,839 @@
+import * as AnalyticsCore from '@amplitude/analytics-core';
+import {
+  BrowserClient,
+  BrowserConfig,
+  LogLevel,
+  ILogger,
+  Plugin,
+  Event,
+  SpecialEventType,
+} from '@amplitude/analytics-core';
+import * as sessionReplayBrowser from '@amplitude/session-replay-browser';
+import { SessionReplayPlugin, sessionReplayPlugin } from '../src/session-replay';
+import { VERSION } from '../src/version';
+import { randomUUID } from 'crypto';
+
+jest.mock('@amplitude/session-replay-browser');
+type MockedSessionReplayBrowser = jest.Mocked<typeof import('@amplitude/session-replay-browser')>;
+
+type MockedLogger = jest.Mocked<ILogger>;
+type MockedBrowserClient = jest.Mocked<BrowserClient>;
+
+describe('SessionReplayPlugin', () => {
+  const { init, setSessionId, getSessionReplayProperties, shutdown, getSessionId, evaluateTargetingAndCapture } =
+    sessionReplayBrowser as MockedSessionReplayBrowser;
+  const mockLoggerProviderDebug = jest.fn();
+  const mockLoggerProvider: MockedLogger = {
+    error: jest.fn(),
+    log: jest.fn(),
+    disable: jest.fn(),
+    enable: jest.fn(),
+    warn: jest.fn(),
+    debug: mockLoggerProviderDebug,
+  };
+  const mockConfig: BrowserConfig = {
+    apiKey: 'static_key',
+    flushIntervalMillis: 0,
+    flushMaxRetries: 1,
+    flushQueueSize: 0,
+    logLevel: LogLevel.None,
+    loggerProvider: mockLoggerProvider,
+    optOut: false,
+    deviceId: '1a2b3c',
+    serverUrl: 'url',
+    serverZone: 'US',
+    useBatch: false,
+    sessionId: 123,
+    cookieExpiration: 365,
+    cookieSameSite: 'Lax',
+    cookieSecure: false,
+    cookieUpgrade: true,
+    disableCookies: false,
+    domain: '.amplitude.com',
+    sessionTimeout: 30 * 60 * 1000,
+    trackingOptions: {
+      ipAddress: true,
+      language: true,
+      platform: true,
+    },
+  } as unknown as BrowserConfig;
+
+  const plugins: Plugin[] = [];
+  const mockAmplitude: MockedBrowserClient = {
+    add: jest.fn(),
+    remove: jest.fn(),
+  } as unknown as MockedBrowserClient;
+
+  beforeEach(() => {
+    init.mockReturnValue({
+      promise: Promise.resolve(),
+    });
+    setSessionId.mockReturnValue({
+      promise: Promise.resolve(),
+    });
+    getSessionReplayProperties.mockImplementation(() => {
+      return { '[Amplitude] Session Replay ID': 'foo/bar' };
+    });
+    plugins.splice(0, plugins.length);
+    mockAmplitude.add.mockImplementation((plugin) => {
+      plugins.push(plugin);
+      return {
+        promise: Promise.resolve(),
+      };
+    });
+    mockAmplitude.remove.mockImplementation((pluginName) => {
+      const pluginIndex = plugins.findIndex((plugin) => plugin.name === pluginName);
+      plugins.splice(pluginIndex, 1);
+      return {
+        promise: Promise.resolve(),
+      };
+    });
+    jest.useFakeTimers();
+  });
+
+  afterEach(() => {
+    jest.resetAllMocks();
+    jest.useRealTimers();
+  });
+
+  describe('setup', () => {
+    test('should setup plugin', async () => {
+      const customDeviceId = randomUUID();
+      const sessionReplay = new SessionReplayPlugin({
+        deviceId: customDeviceId,
+      });
+      await sessionReplay.setup?.(mockConfig, mockAmplitude);
+      expect(sessionReplay.config?.serverUrl).toBe('url');
+      expect(sessionReplay.config?.flushMaxRetries).toBe(1);
+      expect(sessionReplay.config?.flushQueueSize).toBe(0);
+      expect(sessionReplay.config?.flushIntervalMillis).toBe(0);
+
+      expect(init).toHaveBeenCalledWith('static_key', expect.objectContaining({ deviceId: customDeviceId }));
+    });
+
+    test('should handle errors during init', async () => {
+      const sessionReplay = new SessionReplayPlugin();
+      init.mockReturnValue({
+        promise: Promise.reject(new Error('Mock init error')),
+      });
+
+      await sessionReplay.setup?.(mockConfig, mockAmplitude);
+
+      expect(mockLoggerProvider['error']).toHaveBeenCalledTimes(1);
+      expect(mockLoggerProvider['error'].mock.calls[0][0]).toBe(
+        'Session Replay: Failed to initialize due to Mock init error',
+      );
+    });
+
+    test('should handle setup successfully with valid config', async () => {
+      const sessionReplay = new SessionReplayPlugin();
+
+      await sessionReplay.setup?.(mockConfig, mockAmplitude);
+
+      expect(init).toHaveBeenCalled();
+      expect(sessionReplay.config).toBeDefined();
+    });
+
+    test('should pass storeType through to session replay (undefined when not set)', async () => {
+      const sessionReplay = new SessionReplayPlugin();
+
+      await sessionReplay.setup?.(mockConfig, mockAmplitude);
+
+      expect(init).toHaveBeenCalledWith('static_key', expect.objectContaining({ storeType: undefined }));
+    });
+
+    test('should use explicitly provided storeType', async () => {
+      const sessionReplay = new SessionReplayPlugin({ storeType: 'idb' });
+
+      await sessionReplay.setup?.(mockConfig, mockAmplitude);
+
+      expect(init).toHaveBeenCalledWith('static_key', expect.objectContaining({ storeType: 'idb' }));
+    });
+
+    test('should pass flushIntervalConfig through to session replay (undefined when not set)', async () => {
+      const sessionReplay = new SessionReplayPlugin();
+
+      await sessionReplay.setup?.(mockConfig, mockAmplitude);
+
+      expect(init).toHaveBeenCalledWith('static_key', expect.objectContaining({ flushIntervalConfig: undefined }));
+    });
+
+    test('should pass flushIntervalConfig through to session replay when provided', async () => {
+      const flushIntervalConfig = { minIntervalMs: 1000, maxIntervalMs: 5000 };
+      const sessionReplay = new SessionReplayPlugin({ flushIntervalConfig });
+
+      await sessionReplay.setup?.(mockConfig, mockAmplitude);
+
+      expect(init).toHaveBeenCalledWith(
+        'static_key',
+        expect.objectContaining({ flushIntervalConfig: { minIntervalMs: 1000, maxIntervalMs: 5000 } }),
+      );
+    });
+
+    test('should pass the GA perf knobs through to session replay when provided', async () => {
+      const sessionReplay = new SessionReplayPlugin({
+        eagerFullSnapshotSend: false,
+        captureFullSnapshotOnFocus: false,
+        maxPersistedEventsSizeBytes: 2000000,
+        maxSingleEventSizeBytes: 1000000,
+      });
+
+      await sessionReplay.setup?.(mockConfig, mockAmplitude);
+
+      expect(init).toHaveBeenCalledWith(
+        'static_key',
+        expect.objectContaining({
+          eagerFullSnapshotSend: false,
+          captureFullSnapshotOnFocus: false,
+          maxPersistedEventsSizeBytes: 2000000,
+          maxSingleEventSizeBytes: 1000000,
+        }),
+      );
+    });
+
+    test('should pass the GA perf knobs as undefined when not set', async () => {
+      const sessionReplay = new SessionReplayPlugin();
+
+      await sessionReplay.setup?.(mockConfig, mockAmplitude);
+
+      expect(init).toHaveBeenCalledWith(
+        'static_key',
+        expect.objectContaining({
+          eagerFullSnapshotSend: undefined,
+          captureFullSnapshotOnFocus: undefined,
+          maxPersistedEventsSizeBytes: undefined,
+          maxSingleEventSizeBytes: undefined,
+        }),
+      );
+    });
+
+    describe('defaultTracking', () => {
+      test('should not change defaultTracking when forceSessionTracking is not defined', async () => {
+        const sessionReplay = new SessionReplayPlugin();
+        await sessionReplay.setup?.(
+          {
+            ...mockConfig,
+            defaultTracking: true,
+          },
+          mockAmplitude,
+        );
+        expect(sessionReplay.config?.defaultTracking).toBe(true);
+      });
+
+      test('should not change defaultTracking if its set to true', async () => {
+        const sessionReplay = new SessionReplayPlugin({ forceSessionTracking: true });
+        await sessionReplay.setup?.(
+          {
+            ...mockConfig,
+            defaultTracking: true,
+          },
+          mockAmplitude,
+        );
+        expect(sessionReplay.config?.defaultTracking).toBe(true);
+      });
+
+      test('should modify defaultTracking to enable sessions if its set to false', async () => {
+        const sessionReplay = new SessionReplayPlugin({ forceSessionTracking: true });
+        await sessionReplay.setup?.(
+          {
+            ...mockConfig,
+            defaultTracking: false,
+          },
+          mockAmplitude,
+        );
+        expect(sessionReplay.config?.defaultTracking).toEqual({
+          pageViews: false,
+          formInteractions: false,
+          fileDownloads: false,
+          sessions: true,
+        });
+      });
+
+      test('should modify defaultTracking to enable sessions if it is an object', async () => {
+        const sessionReplay = new SessionReplayPlugin({ forceSessionTracking: true });
+        await sessionReplay.setup?.(
+          {
+            ...mockConfig,
+            defaultTracking: {
+              pageViews: false,
+            },
+          },
+          mockAmplitude,
+        );
+        expect(sessionReplay.config?.defaultTracking).toEqual({
+          pageViews: false,
+          sessions: true,
+        });
+      });
+
+      test('should not modify defaultTracking to enable sessions if session tracking is disbled', async () => {
+        const sessionReplay = new SessionReplayPlugin({ forceSessionTracking: false });
+        await sessionReplay.setup?.(
+          {
+            ...mockConfig,
+            defaultTracking: false,
+          },
+          mockAmplitude,
+        );
+        expect(sessionReplay.config?.defaultTracking).toEqual(false);
+      });
+
+      test('should not modify defaultTracking object to enable sessions if session tracking is disbled', async () => {
+        const sessionReplay = new SessionReplayPlugin({ forceSessionTracking: false });
+        await sessionReplay.setup?.(
+          {
+            ...mockConfig,
+            defaultTracking: {
+              pageViews: false,
+            },
+          },
+          mockAmplitude,
+        );
+        expect(sessionReplay.config?.defaultTracking).toEqual({
+          pageViews: false,
+        });
+      });
+    });
+
+    test('should call initialize on session replay sdk', async () => {
+      const sessionReplay = new SessionReplayPlugin({
+        sampleRate: 0.4,
+        privacyConfig: {
+          blockSelector: ['#id'],
+        },
+      });
+      await sessionReplay.setup?.(mockConfig, mockAmplitude);
+
+      expect(init).toHaveBeenCalledTimes(1);
+      expect(init.mock.calls[0][0]).toEqual(mockConfig.apiKey);
+      expect(init.mock.calls[0][1]).toEqual(
+        expect.objectContaining({
+          deviceId: mockConfig.deviceId,
+          flushMaxRetries: mockConfig.flushMaxRetries,
+          logLevel: mockConfig.logLevel,
+          loggerProvider: mockConfig.loggerProvider,
+          optOut: mockConfig.optOut,
+          sampleRate: 0.4,
+          serverZone: mockConfig.serverZone,
+          sessionId: mockConfig.sessionId,
+          privacyConfig: expect.objectContaining({
+            blockSelector: ['#id'],
+          }) as object,
+          version: {
+            type: 'plugin',
+            version: VERSION,
+          },
+        }),
+      );
+    });
+
+    test('should call initialize on session replay sdk with custom server urls', async () => {
+      const configServerUrl = 'http://localhost:3000';
+      const trackServerUrl = 'http://localhost:3001';
+
+      const sessionReplay = new SessionReplayPlugin({
+        sampleRate: 0.4,
+        privacyConfig: {
+          blockSelector: ['#id'],
+        },
+        configServerUrl,
+        trackServerUrl,
+      });
+      await sessionReplay.setup?.(mockConfig, mockAmplitude);
+
+      expect(init).toHaveBeenCalledTimes(1);
+      expect(init.mock.calls[0][0]).toEqual(mockConfig.apiKey);
+      expect(init.mock.calls[0][1]).toEqual(
+        expect.objectContaining({
+          deviceId: mockConfig.deviceId,
+          flushMaxRetries: mockConfig.flushMaxRetries,
+          logLevel: mockConfig.logLevel,
+          loggerProvider: mockConfig.loggerProvider,
+          optOut: mockConfig.optOut,
+          sampleRate: 0.4,
+          serverZone: mockConfig.serverZone,
+          configServerUrl,
+          trackServerUrl,
+          sessionId: mockConfig.sessionId,
+          privacyConfig: expect.objectContaining({
+            blockSelector: ['#id'],
+          }) as object,
+          version: {
+            type: 'plugin',
+            version: VERSION,
+          },
+        }),
+      );
+    });
+
+    test('should use remote config serverUrl from browser config', async () => {
+      const remoteConfigServerUrl = 'http://remote-config-server.com';
+
+      const sessionReplay = new SessionReplayPlugin({
+        sampleRate: 0.4,
+        privacyConfig: {
+          blockSelector: ['#id'],
+        },
+      });
+      await sessionReplay.setup?.(
+        {
+          ...mockConfig,
+          remoteConfig: {
+            serverUrl: remoteConfigServerUrl,
+          },
+        },
+        mockAmplitude,
+      );
+
+      expect(init).toHaveBeenCalledTimes(1);
+      expect(init.mock.calls[0][0]).toEqual(mockConfig.apiKey);
+      expect(init.mock.calls[0][1]).toEqual(
+        expect.objectContaining({
+          deviceId: mockConfig.deviceId,
+          flushMaxRetries: mockConfig.flushMaxRetries,
+          logLevel: mockConfig.logLevel,
+          loggerProvider: mockConfig.loggerProvider,
+          optOut: mockConfig.optOut,
+          sampleRate: 0.4,
+          serverZone: mockConfig.serverZone,
+          configServerUrl: remoteConfigServerUrl,
+          sessionId: mockConfig.sessionId,
+          privacyConfig: expect.objectContaining({
+            blockSelector: ['#id'],
+          }) as object,
+          version: {
+            type: 'plugin',
+            version: VERSION,
+          },
+        }),
+      );
+    });
+
+    test('should not set useWebWorker when not provided (default)', async () => {
+      const sessionReplay = new SessionReplayPlugin({
+        sampleRate: 0.5,
+      });
+      await sessionReplay.setup?.(mockConfig, mockAmplitude);
+
+      expect(init).toHaveBeenCalledTimes(1);
+      expect(init.mock.calls[0][1]).toEqual(
+        expect.objectContaining({
+          useWebWorker: undefined,
+        }),
+      );
+    });
+
+    test('should support useWebWorker config', async () => {
+      const sessionReplay = new SessionReplayPlugin({
+        useWebWorker: true,
+      });
+      await sessionReplay.setup?.(mockConfig, mockAmplitude);
+
+      expect(init).toHaveBeenCalledTimes(1);
+      expect(init.mock.calls[0][1]).toEqual(
+        expect.objectContaining({
+          useWebWorker: true,
+        }),
+      );
+    });
+
+    test('should support legacy experimental.useWebWorker config for backwards compatibility', async () => {
+      const sessionReplay = new SessionReplayPlugin({
+        experimental: {
+          useWebWorker: true,
+        },
+      });
+      await sessionReplay.setup?.(mockConfig, mockAmplitude);
+
+      expect(init).toHaveBeenCalledTimes(1);
+      expect(init.mock.calls[0][1]).toEqual(
+        expect.objectContaining({
+          useWebWorker: true,
+        }),
+      );
+    });
+
+    test('should forward crossOriginIframes to session-replay SDK', async () => {
+      const crossOriginIframes = { enabled: true, coordinateChildren: false };
+      const sessionReplay = new SessionReplayPlugin({ crossOriginIframes });
+      await sessionReplay.setup?.(mockConfig, mockAmplitude);
+
+      expect(init).toHaveBeenCalledTimes(1);
+      expect(init.mock.calls[0][1]).toEqual(
+        expect.objectContaining({
+          crossOriginIframes,
+        }),
+      );
+    });
+  });
+
+  describe('onSessionIdChanged', () => {
+    test('should call setSessionId()', async () => {
+      const sessionReplay = sessionReplayPlugin();
+      getSessionId.mockReturnValueOnce(123);
+      await sessionReplay.setup?.({ ...mockConfig }, mockAmplitude);
+
+      await sessionReplay.onSessionIdChanged?.(456);
+
+      expect(setSessionId).toHaveBeenCalledTimes(1);
+      expect(setSessionId).toHaveBeenCalledWith(456);
+      expect(mockLoggerProviderDebug).toHaveBeenCalledWith(
+        'Analytics session id is changed to 456, SR session id is 123.',
+      );
+    });
+
+    test('should handle call before setup gracefully', async () => {
+      const sessionReplay = new SessionReplayPlugin();
+      await sessionReplay.onSessionIdChanged?.(456);
+
+      expect(setSessionId).toHaveBeenCalledTimes(1);
+      expect(mockLoggerProviderDebug).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('onOptOutChanged', () => {
+    test('should shutdown when optOut is changed to true', async () => {
+      const sessionReplay = sessionReplayPlugin();
+      await sessionReplay.setup?.({ ...mockConfig }, mockAmplitude);
+
+      await sessionReplay.onOptOutChanged?.(true);
+
+      expect(shutdown).toHaveBeenCalledTimes(1);
+      expect(mockLoggerProviderDebug).toHaveBeenCalledWith(
+        'optOut is changed to true, calling sessionReplay.shutdown().',
+      );
+    });
+
+    test('should re init when optOut is changed to false', async () => {
+      const customDeviceId = randomUUID();
+      const sessionReplay = new SessionReplayPlugin({
+        deviceId: customDeviceId,
+      });
+      await sessionReplay.setup?.(mockConfig, mockAmplitude);
+      await sessionReplay.onOptOutChanged?.(false);
+
+      expect(init).toHaveBeenCalledTimes(2);
+      expect(mockLoggerProviderDebug).toHaveBeenCalledWith('optOut is changed to false, calling sessionReplay.init().');
+      expect(init).toHaveBeenCalledWith('static_key', expect.objectContaining({ deviceId: customDeviceId }));
+      expect(init).toHaveBeenNthCalledWith(2, 'static_key', expect.objectContaining({ deviceId: customDeviceId }));
+    });
+
+    test('should not re init when optOut is false but config is null', async () => {
+      const sessionReplay = new SessionReplayPlugin();
+      await sessionReplay.onOptOutChanged?.(false);
+
+      expect(init).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('execute', () => {
+    test('should add event property for [Amplitude] Session Replay ID', async () => {
+      const sessionReplay = sessionReplayPlugin();
+      await sessionReplay.setup?.({ ...mockConfig }, mockAmplitude);
+      getSessionReplayProperties.mockReturnValueOnce({
+        '[Amplitude] Session Replay ID': '123',
+      });
+      const event = {
+        event_type: 'event_type',
+        event_properties: {
+          property_a: true,
+          property_b: 123,
+        },
+        session_id: 123,
+      };
+
+      const enrichedEvent = await sessionReplay.execute?.(event);
+      expect(enrichedEvent?.event_properties).toEqual({
+        property_a: true,
+        property_b: 123,
+        '[Amplitude] Session Replay ID': '123',
+      });
+    });
+
+    test('should not add event property for event with mismatching session id', async () => {
+      const sessionReplay = sessionReplayPlugin();
+      await sessionReplay.setup?.({ ...mockConfig }, mockAmplitude);
+      getSessionReplayProperties.mockReturnValueOnce({
+        '[Amplitude] Session Replay ID': '123',
+      });
+      const event = {
+        event_type: 'event_type',
+        event_properties: {
+          property_a: true,
+          property_b: 123,
+        },
+        session_id: 124,
+      };
+      const enrichedEvent = await sessionReplay.execute?.(event);
+
+      expect(enrichedEvent?.event_properties).toEqual({
+        property_a: true,
+        property_b: 123,
+      });
+    });
+
+    test('should update the session id on any event', async () => {
+      const sessionReplay = new SessionReplayPlugin();
+      await sessionReplay.setup?.({ ...mockConfig, sessionId: 123 }, mockAmplitude);
+
+      const newEvent = {
+        event_type: 'session_start',
+      };
+      if (sessionReplay.config) {
+        sessionReplay.config.sessionId = 456;
+      }
+      await sessionReplay.execute(newEvent);
+      expect(setSessionId).toHaveBeenCalledTimes(1);
+      expect(setSessionId).toHaveBeenCalledWith(456);
+    });
+
+    test('should not update if session id unchanged', async () => {
+      const sessionReplay = new SessionReplayPlugin();
+      await sessionReplay.setup?.({ ...mockConfig, sessionId: 123 }, mockAmplitude);
+      getSessionId.mockReturnValueOnce(123);
+
+      const event = {
+        event_type: 'page view',
+        session_id: 123,
+      };
+      await sessionReplay.execute?.(event);
+      expect(setSessionId).not.toHaveBeenCalled();
+    });
+
+    test('should call evaluateTargetingAndCapture for IDENTIFY events', async () => {
+      const sessionReplay = new SessionReplayPlugin();
+      await sessionReplay.setup?.({ ...mockConfig, sessionId: 123 }, mockAmplitude);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+      evaluateTargetingAndCapture.mockResolvedValue(undefined);
+
+      const event = {
+        event_type: SpecialEventType.IDENTIFY,
+        user_properties: {
+          $set: { name: 'John', age: 30 },
+        },
+        session_id: 123,
+      };
+      await sessionReplay.execute?.(event);
+
+      expect(evaluateTargetingAndCapture).toHaveBeenCalledWith(
+        expect.objectContaining({
+          event,
+          userProperties: { name: 'John', age: 30 },
+        }),
+      );
+    });
+
+    test('should call evaluateTargetingAndCapture with page from getGlobalScope when location.href is set', async () => {
+      jest.spyOn(AnalyticsCore, 'getGlobalScope').mockReturnValue({
+        location: { href: 'https://app.example.com/analytics' },
+      } as any);
+      const sessionReplay = new SessionReplayPlugin();
+      await sessionReplay.setup?.({ ...mockConfig, sessionId: 123 }, mockAmplitude);
+      evaluateTargetingAndCapture.mockResolvedValue(undefined);
+
+      const event = {
+        event_type: SpecialEventType.IDENTIFY,
+        user_properties: { $set: { name: 'Jane' } },
+        session_id: 123,
+      };
+      await sessionReplay.execute?.(event);
+
+      expect(evaluateTargetingAndCapture).toHaveBeenCalledWith(
+        expect.objectContaining({
+          event,
+          userProperties: { name: 'Jane' },
+          page: { url: 'https://app.example.com/analytics' },
+        }),
+      );
+    });
+
+    test('should call evaluateTargetingAndCapture with page undefined when getGlobalScope has no location or href', async () => {
+      jest.spyOn(AnalyticsCore, 'getGlobalScope').mockReturnValue(undefined);
+      const sessionReplay = new SessionReplayPlugin();
+      await sessionReplay.setup?.({ ...mockConfig, sessionId: 123 }, mockAmplitude);
+      evaluateTargetingAndCapture.mockResolvedValue(undefined);
+
+      const event = {
+        event_type: SpecialEventType.IDENTIFY,
+        user_properties: { $set: { name: 'Bob' } },
+        session_id: 123,
+      };
+      await sessionReplay.execute?.(event);
+
+      expect(evaluateTargetingAndCapture).toHaveBeenCalledWith(
+        expect.objectContaining({
+          event,
+          userProperties: { name: 'Bob' },
+          page: undefined,
+        }),
+      );
+    });
+
+    test('should return original event in case of errors', async () => {
+      const sessionReplay = sessionReplayPlugin();
+      await sessionReplay.setup?.({ ...mockConfig }, mockAmplitude);
+      getSessionReplayProperties.mockImplementation(() => {
+        throw new Error('Mock error');
+      });
+      const event = {
+        event_type: 'event_type',
+        event_properties: {
+          property_a: true,
+          property_b: 123,
+        },
+        session_id: 123,
+      };
+
+      const enrichedEvent = await sessionReplay.execute?.(event);
+      expect(enrichedEvent).toEqual(event);
+      expect(mockLoggerProvider['error']).toHaveBeenCalledTimes(1);
+      expect(mockLoggerProvider['error'].mock.calls[0][0]).toBe(
+        'Session Replay: Failed to enrich event due to Mock error',
+      );
+    });
+
+    test('should update the session id on any event when using custom session id', async () => {
+      const sessionReplay = sessionReplayPlugin({
+        customSessionId: (event: Event) => {
+          const event_properties = event.event_properties as { [key: string]: any };
+          if (!event_properties) {
+            return;
+          }
+          return event_properties['custom_session_id'] as string | undefined;
+        },
+      });
+      await sessionReplay.setup?.({ ...mockConfig }, mockAmplitude);
+      getSessionId.mockReturnValueOnce('test_122');
+      const event = {
+        event_type: 'event_type',
+        event_properties: {
+          property_a: true,
+          property_b: 123,
+          custom_session_id: 'test_123',
+        },
+        session_id: 124,
+      };
+
+      await sessionReplay.execute?.(event);
+      expect(setSessionId).toHaveBeenCalledTimes(1);
+      expect(setSessionId).toHaveBeenCalledWith('test_123');
+    });
+
+    test('should not update the session id when using custom session id and it does not change', async () => {
+      const sessionReplay = sessionReplayPlugin({
+        customSessionId: (event: Event) => {
+          const event_properties = event.event_properties as { [key: string]: any };
+          if (!event_properties) {
+            return;
+          }
+          return event_properties['custom_session_id'] as string | undefined;
+        },
+      });
+      await sessionReplay.setup?.({ ...mockConfig }, mockAmplitude);
+      getSessionId.mockReturnValueOnce('test_123');
+      const event = {
+        event_type: 'event_type',
+        event_properties: {
+          property_a: true,
+          property_b: 123,
+          custom_session_id: 'test_123',
+        },
+        session_id: 124,
+      };
+
+      await sessionReplay.execute?.(event);
+      expect(setSessionId).not.toHaveBeenCalled();
+    });
+
+    test('should do nothing when the custom session id cannot be found', async () => {
+      const sessionReplay = sessionReplayPlugin({
+        customSessionId: (event: Event) => {
+          const event_properties = event.event_properties as { [key: string]: any };
+          if (!event_properties) {
+            return;
+          }
+          return event_properties['custom_session_id'] as string | undefined;
+        },
+      });
+      await sessionReplay.setup?.({ ...mockConfig }, mockAmplitude);
+      const event = {
+        event_type: 'event_type',
+        event_properties: {
+          property_a: true,
+          property_b: 123,
+        },
+        session_id: 124,
+      };
+
+      const enrichedEvent = await sessionReplay.execute?.(event);
+      expect(setSessionId).not.toHaveBeenCalled();
+      expect(enrichedEvent).toEqual(event);
+    });
+
+    test('should handle execute before setup gracefully', async () => {
+      const sessionReplay = new SessionReplayPlugin();
+      const event = {
+        event_type: 'event_type',
+        event_properties: {
+          property_a: true,
+        },
+        session_id: 123,
+      };
+
+      const enrichedEvent = await sessionReplay.execute?.(event);
+      expect(enrichedEvent).toEqual(event);
+      expect(setSessionId).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('teardown', () => {
+    test('should call session replay teardown', async () => {
+      const sessionReplay = sessionReplayPlugin();
+      await sessionReplay.setup?.(mockConfig, mockAmplitude);
+      await sessionReplay.teardown?.();
+      expect(shutdown).toHaveBeenCalled();
+    });
+
+    test('should set config to null after teardown', async () => {
+      const sessionReplay = new SessionReplayPlugin();
+      await sessionReplay.setup?.(mockConfig, mockAmplitude);
+      expect(sessionReplay.config).not.toBeNull();
+      await sessionReplay.teardown?.();
+      expect(sessionReplay.config).toBeNull();
+    });
+
+    test('should handle teardown errors gracefully', async () => {
+      const sessionReplay = sessionReplayPlugin();
+      await sessionReplay.setup?.(mockConfig, mockAmplitude);
+
+      shutdown.mockImplementation(() => {
+        throw new Error('Mock shutdown error');
+      });
+
+      expect(async () => {
+        await sessionReplay.teardown?.();
+      }).not.toThrow();
+
+      expect(mockLoggerProvider['error']).toHaveBeenCalledTimes(1);
+      expect(mockLoggerProvider['error'].mock.calls[0][0]).toBe(
+        'Session Replay: teardown failed due to Mock shutdown error',
+      );
+    });
+  });
+
+  describe('getSessionReplayProperties', () => {
+    test('should return session replay properties', async () => {
+      const sessionReplay = sessionReplayPlugin() as SessionReplayPlugin;
+      await sessionReplay.setup?.(mockConfig, mockAmplitude);
+      getSessionReplayProperties.mockReturnValueOnce({
+        '[Amplitude] Session Recorded': true,
+        '[Amplitude] Session Replay ID': '123/456',
+      });
+      const sessionReplayProperties = sessionReplay.getSessionReplayProperties();
+      expect(sessionReplayProperties).toEqual({
+        '[Amplitude] Session Recorded': true,
+        '[Amplitude] Session Replay ID': '123/456',
+      });
+    });
+  });
+});

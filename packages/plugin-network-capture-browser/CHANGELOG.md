@@ -1,0 +1,778 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+## [1.10.14](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.10.13...@amplitude/plugin-network-capture-browser@1.10.14) (2026-08-24)
+
+**Note:** Version bump only for package @amplitude/plugin-network-capture-browser
+
+
+
+
+
+## [1.10.13](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.10.12...@amplitude/plugin-network-capture-browser@1.10.13) (2026-08-12)
+
+
+### Bug Fixes
+
+* **deps:** remediate Semgrep supply chain findings ([#1921](https://github.com/amplitude/Amplitude-TypeScript/issues/1921)) ([e131df0](https://github.com/amplitude/Amplitude-TypeScript/commit/e131df0b414933418e4c7159f1bfbdacc633a7d9))
+
+
+
+
+
+## [1.10.12](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.10.11...@amplitude/plugin-network-capture-browser@1.10.12) (2026-07-28)
+
+**Note:** Version bump only for package @amplitude/plugin-network-capture-browser
+
+
+
+
+
+## [1.10.11](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.10.10...@amplitude/plugin-network-capture-browser@1.10.11) (2026-07-22)
+
+**Note:** Version bump only for package @amplitude/plugin-network-capture-browser
+
+
+
+
+
+## [1.10.10](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.10.9...@amplitude/plugin-network-capture-browser@1.10.10) (2026-07-20)
+
+**Note:** Version bump only for package @amplitude/plugin-network-capture-browser
+
+
+
+
+
+## [1.10.9](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.10.8...@amplitude/plugin-network-capture-browser@1.10.9) (2026-07-17)
+
+**Note:** Version bump only for package @amplitude/plugin-network-capture-browser
+
+
+
+
+
+## [1.10.8](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.10.7...@amplitude/plugin-network-capture-browser@1.10.8) (2026-07-14)
+
+**Note:** Version bump only for package @amplitude/plugin-network-capture-browser
+
+
+
+
+
+## [1.10.7](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.10.6...@amplitude/plugin-network-capture-browser@1.10.7) (2026-07-13)
+
+**Note:** Version bump only for package @amplitude/plugin-network-capture-browser
+
+
+
+
+
+## [1.10.6](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.10.5...@amplitude/plugin-network-capture-browser@1.10.6) (2026-07-09)
+
+**Note:** Version bump only for package @amplitude/plugin-network-capture-browser
+
+
+
+
+
+## [1.10.5](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.10.4...@amplitude/plugin-network-capture-browser@1.10.5) (2026-06-30)
+
+**Note:** Version bump only for package @amplitude/plugin-network-capture-browser
+
+
+
+
+
+## [1.10.4](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.10.3...@amplitude/plugin-network-capture-browser@1.10.4) (2026-06-25)
+
+**Note:** Version bump only for package @amplitude/plugin-network-capture-browser
+
+
+
+
+
+## [1.10.3](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.10.2...@amplitude/plugin-network-capture-browser@1.10.3) (2026-06-11)
+
+**Note:** Version bump only for package @amplitude/plugin-network-capture-browser
+
+
+
+
+
+## [1.10.2](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.10.1...@amplitude/plugin-network-capture-browser@1.10.2) (2026-06-05)
+
+**Note:** Version bump only for package @amplitude/plugin-network-capture-browser
+
+
+
+
+
+## [1.10.1](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.10.0...@amplitude/plugin-network-capture-browser@1.10.1) (2026-05-21)
+
+**Note:** Version bump only for package @amplitude/plugin-network-capture-browser
+
+
+
+
+
+# [1.10.0](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.9.16...@amplitude/plugin-network-capture-browser@1.10.0) (2026-04-28)
+
+
+### Features
+
+* remove experimental request body compression backdoor ([#1699](https://github.com/amplitude/Amplitude-TypeScript/issues/1699)) ([98ecb9d](https://github.com/amplitude/Amplitude-TypeScript/commit/98ecb9dc1f3658cf6d0dfae1e9784335c9d33b5e))
+
+
+
+
+
+## [1.9.16](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.9.15...@amplitude/plugin-network-capture-browser@1.9.16) (2026-04-22)
+
+
+### Bug Fixes
+
+* **analytics-browser:** replace "blocklist" with "excludelist" in networkTracking ([#1692](https://github.com/amplitude/Amplitude-TypeScript/issues/1692)) ([f84374e](https://github.com/amplitude/Amplitude-TypeScript/commit/f84374eb0a4754e9fedfec0fbb9694531ba021e9))
+
+
+
+
+
+## [1.9.15](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.9.14...@amplitude/plugin-network-capture-browser@1.9.15) (2026-04-21)
+
+**Note:** Version bump only for package @amplitude/plugin-network-capture-browser
+
+
+
+
+
+## [1.9.14](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.9.13...@amplitude/plugin-network-capture-browser@1.9.14) (2026-04-14)
+
+**Note:** Version bump only for package @amplitude/plugin-network-capture-browser
+
+
+
+
+
+## [1.9.13](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.9.12...@amplitude/plugin-network-capture-browser@1.9.13) (2026-04-09)
+
+**Note:** Version bump only for package @amplitude/plugin-network-capture-browser
+
+
+
+
+
+## [1.9.12](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.9.11...@amplitude/plugin-network-capture-browser@1.9.12) (2026-04-01)
+
+**Note:** Version bump only for package @amplitude/plugin-network-capture-browser
+
+
+
+
+
+## [1.9.11](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.9.10...@amplitude/plugin-network-capture-browser@1.9.11) (2026-03-26)
+
+**Note:** Version bump only for package @amplitude/plugin-network-capture-browser
+
+
+
+
+
+## [1.9.10](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.9.9...@amplitude/plugin-network-capture-browser@1.9.10) (2026-03-23)
+
+**Note:** Version bump only for package @amplitude/plugin-network-capture-browser
+
+
+
+
+
+## [1.9.9](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.9.8...@amplitude/plugin-network-capture-browser@1.9.9) (2026-03-20)
+
+**Note:** Version bump only for package @amplitude/plugin-network-capture-browser
+
+
+
+
+
+## [1.9.8](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.9.7...@amplitude/plugin-network-capture-browser@1.9.8) (2026-03-19)
+
+**Note:** Version bump only for package @amplitude/plugin-network-capture-browser
+
+
+
+
+
+## [1.9.7](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.9.6...@amplitude/plugin-network-capture-browser@1.9.7) (2026-03-17)
+
+**Note:** Version bump only for package @amplitude/plugin-network-capture-browser
+
+
+
+
+
+## [1.9.6](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.9.5...@amplitude/plugin-network-capture-browser@1.9.6) (2026-03-16)
+
+**Note:** Version bump only for package @amplitude/plugin-network-capture-browser
+
+
+
+
+
+## [1.9.5](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.9.4...@amplitude/plugin-network-capture-browser@1.9.5) (2026-03-13)
+
+**Note:** Version bump only for package @amplitude/plugin-network-capture-browser
+
+
+
+
+
+## [1.9.4](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.9.3...@amplitude/plugin-network-capture-browser@1.9.4) (2026-03-12)
+
+**Note:** Version bump only for package @amplitude/plugin-network-capture-browser
+
+
+
+
+
+## [1.9.3](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.9.2...@amplitude/plugin-network-capture-browser@1.9.3) (2026-03-09)
+
+**Note:** Version bump only for package @amplitude/plugin-network-capture-browser
+
+
+
+
+
+## [1.9.2](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.9.1...@amplitude/plugin-network-capture-browser@1.9.2) (2026-03-05)
+
+**Note:** Version bump only for package @amplitude/plugin-network-capture-browser
+
+
+
+
+
+## [1.9.1](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.9.0...@amplitude/plugin-network-capture-browser@1.9.1) (2026-03-03)
+
+**Note:** Version bump only for package @amplitude/plugin-network-capture-browser
+
+
+
+
+
+# [1.9.0](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.8.3...@amplitude/plugin-network-capture-browser@1.9.0) (2026-03-03)
+
+
+### Features
+
+* manual opt in gzip ([#1568](https://github.com/amplitude/Amplitude-TypeScript/issues/1568)) ([303c130](https://github.com/amplitude/Amplitude-TypeScript/commit/303c130429c51b0913f3903db4ace5263e1c78e7))
+
+
+
+
+
+## [1.8.3](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.8.2...@amplitude/plugin-network-capture-browser@1.8.3) (2026-02-26)
+
+**Note:** Version bump only for package @amplitude/plugin-network-capture-browser
+
+
+
+
+
+## [1.8.2](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.8.1...@amplitude/plugin-network-capture-browser@1.8.2) (2026-02-24)
+
+**Note:** Version bump only for package @amplitude/plugin-network-capture-browser
+
+
+
+
+
+## [1.8.1](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.8.0...@amplitude/plugin-network-capture-browser@1.8.1) (2026-02-19)
+
+**Note:** Version bump only for package @amplitude/plugin-network-capture-browser
+
+
+
+
+
+# [1.8.0](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.7.9...@amplitude/plugin-network-capture-browser@1.8.0) (2026-02-17)
+
+
+### Features
+
+* **analytics-browser:** add setIdentity() ([#1517](https://github.com/amplitude/Amplitude-TypeScript/issues/1517)) ([314b3c1](https://github.com/amplitude/Amplitude-TypeScript/commit/314b3c1b7ee5b0ef135848a66156eb2874daec5f))
+
+
+
+
+
+## [1.7.9](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.7.8...@amplitude/plugin-network-capture-browser@1.7.9) (2026-02-10)
+
+**Note:** Version bump only for package @amplitude/plugin-network-capture-browser
+
+
+
+
+
+## [1.7.8](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.7.7...@amplitude/plugin-network-capture-browser@1.7.8) (2026-01-26)
+
+**Note:** Version bump only for package @amplitude/plugin-network-capture-browser
+
+
+
+
+
+## [1.7.7](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.7.6...@amplitude/plugin-network-capture-browser@1.7.7) (2026-01-21)
+
+**Note:** Version bump only for package @amplitude/plugin-network-capture-browser
+
+
+
+
+
+## [1.7.6](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.7.5...@amplitude/plugin-network-capture-browser@1.7.6) (2026-01-15)
+
+**Note:** Version bump only for package @amplitude/plugin-network-capture-browser
+
+
+
+
+
+## [1.7.5](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.7.4...@amplitude/plugin-network-capture-browser@1.7.5) (2026-01-14)
+
+**Note:** Version bump only for package @amplitude/plugin-network-capture-browser
+
+
+
+
+
+## [1.7.4](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.7.3...@amplitude/plugin-network-capture-browser@1.7.4) (2026-01-14)
+
+**Note:** Version bump only for package @amplitude/plugin-network-capture-browser
+
+
+
+
+
+## [1.7.3](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.7.2...@amplitude/plugin-network-capture-browser@1.7.3) (2025-12-24)
+
+**Note:** Version bump only for package @amplitude/plugin-network-capture-browser
+
+
+
+
+
+## [1.7.2](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.7.1...@amplitude/plugin-network-capture-browser@1.7.2) (2025-12-16)
+
+**Note:** Version bump only for package @amplitude/plugin-network-capture-browser
+
+
+
+
+
+## [1.7.1](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.7.0...@amplitude/plugin-network-capture-browser@1.7.1) (2025-12-09)
+
+**Note:** Version bump only for package @amplitude/plugin-network-capture-browser
+
+
+
+
+
+# [1.7.0](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.6.16...@amplitude/plugin-network-capture-browser@1.7.0) (2025-11-21)
+
+
+### Features
+
+* **analytics-browser:** reduce bundle size via refactoring out rxjs ([#1391](https://github.com/amplitude/Amplitude-TypeScript/issues/1391)) ([09ade0b](https://github.com/amplitude/Amplitude-TypeScript/commit/09ade0b37cfdbaacb0e328cb812168d60dc25124))
+
+
+
+
+
+## [1.6.16](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.6.15...@amplitude/plugin-network-capture-browser@1.6.16) (2025-11-20)
+
+**Note:** Version bump only for package @amplitude/plugin-network-capture-browser
+
+
+
+
+
+## [1.6.15](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.6.14...@amplitude/plugin-network-capture-browser@1.6.15) (2025-11-17)
+
+**Note:** Version bump only for package @amplitude/plugin-network-capture-browser
+
+
+
+
+
+## [1.6.14](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.6.13...@amplitude/plugin-network-capture-browser@1.6.14) (2025-11-17)
+
+**Note:** Version bump only for package @amplitude/plugin-network-capture-browser
+
+
+
+
+
+## [1.6.13](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.6.12...@amplitude/plugin-network-capture-browser@1.6.13) (2025-11-05)
+
+**Note:** Version bump only for package @amplitude/plugin-network-capture-browser
+
+
+
+
+
+## [1.6.12](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.6.11...@amplitude/plugin-network-capture-browser@1.6.12) (2025-10-29)
+
+**Note:** Version bump only for package @amplitude/plugin-network-capture-browser
+
+
+
+
+
+## [1.6.11](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.6.10...@amplitude/plugin-network-capture-browser@1.6.11) (2025-10-23)
+
+**Note:** Version bump only for package @amplitude/plugin-network-capture-browser
+
+
+
+
+
+## [1.6.10](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.6.9...@amplitude/plugin-network-capture-browser@1.6.10) (2025-10-23)
+
+**Note:** Version bump only for package @amplitude/plugin-network-capture-browser
+
+
+
+
+
+## [1.6.9](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.6.8...@amplitude/plugin-network-capture-browser@1.6.9) (2025-10-17)
+
+**Note:** Version bump only for package @amplitude/plugin-network-capture-browser
+
+
+
+
+
+## [1.6.8](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.6.7...@amplitude/plugin-network-capture-browser@1.6.8) (2025-10-15)
+
+**Note:** Version bump only for package @amplitude/plugin-network-capture-browser
+
+
+
+
+
+## [1.6.7](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.6.6...@amplitude/plugin-network-capture-browser@1.6.7) (2025-10-14)
+
+**Note:** Version bump only for package @amplitude/plugin-network-capture-browser
+
+
+
+
+
+## [1.6.6](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.6.5...@amplitude/plugin-network-capture-browser@1.6.6) (2025-10-14)
+
+**Note:** Version bump only for package @amplitude/plugin-network-capture-browser
+
+
+
+
+
+## [1.6.5](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.6.4...@amplitude/plugin-network-capture-browser@1.6.5) (2025-10-03)
+
+
+### Bug Fixes
+
+* add diagnostics to client and track autocapture getHierachy block time ([#1312](https://github.com/amplitude/Amplitude-TypeScript/issues/1312)) ([a919e22](https://github.com/amplitude/Amplitude-TypeScript/commit/a919e223428083a87954cffa50bc765baa5360b0))
+
+
+
+
+
+## [1.6.4](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.6.3...@amplitude/plugin-network-capture-browser@1.6.4) (2025-10-01)
+
+**Note:** Version bump only for package @amplitude/plugin-network-capture-browser
+
+
+
+
+
+## [1.6.3](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.6.2...@amplitude/plugin-network-capture-browser@1.6.3) (2025-09-25)
+
+**Note:** Version bump only for package @amplitude/plugin-network-capture-browser
+
+
+
+
+
+## [1.6.2](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.6.1...@amplitude/plugin-network-capture-browser@1.6.2) (2025-09-23)
+
+**Note:** Version bump only for package @amplitude/plugin-network-capture-browser
+
+
+
+
+
+## [1.6.1](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.6.0...@amplitude/plugin-network-capture-browser@1.6.1) (2025-09-18)
+
+
+### Bug Fixes
+
+* **analytics-browser:** stringify request/response bodies in Network Request Event ([#1292](https://github.com/amplitude/Amplitude-TypeScript/issues/1292)) ([a5dd03c](https://github.com/amplitude/Amplitude-TypeScript/commit/a5dd03cf19328e5d0bef5192480cea58db304da0))
+
+
+
+
+
+# [1.6.0](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.5.5...@amplitude/plugin-network-capture-browser@1.6.0) (2025-09-12)
+
+
+### Features
+
+* **analytics-browser:** add urlsRegex to remote capture rule for network tracking ([#1284](https://github.com/amplitude/Amplitude-TypeScript/issues/1284)) ([04392c9](https://github.com/amplitude/Amplitude-TypeScript/commit/04392c96844f5328e8d04d7c3840ad273ce38a43))
+
+
+
+
+
+## [1.5.5](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.5.4...@amplitude/plugin-network-capture-browser@1.5.5) (2025-09-05)
+
+**Note:** Version bump only for package @amplitude/plugin-network-capture-browser
+
+
+
+
+
+## [1.5.4](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.5.3...@amplitude/plugin-network-capture-browser@1.5.4) (2025-08-28)
+
+**Note:** Version bump only for package @amplitude/plugin-network-capture-browser
+
+
+
+
+
+## [1.5.3](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.5.2...@amplitude/plugin-network-capture-browser@1.5.3) (2025-08-26)
+
+**Note:** Version bump only for package @amplitude/plugin-network-capture-browser
+
+
+
+
+
+## [1.5.2](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.5.1...@amplitude/plugin-network-capture-browser@1.5.2) (2025-08-25)
+
+**Note:** Version bump only for package @amplitude/plugin-network-capture-browser
+
+
+
+
+
+## [1.5.1](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.5.0...@amplitude/plugin-network-capture-browser@1.5.1) (2025-08-22)
+
+**Note:** Version bump only for package @amplitude/plugin-network-capture-browser
+
+
+
+
+
+# [1.5.0](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.4.5...@amplitude/plugin-network-capture-browser@1.5.0) (2025-08-21)
+
+
+### Features
+
+* **analytics-browser:** add urls matching attribute to network capture rules (experimental) ([#1252](https://github.com/amplitude/Amplitude-TypeScript/issues/1252)) ([c28a98c](https://github.com/amplitude/Amplitude-TypeScript/commit/c28a98c13536d3eb2472edcce6ec225539db00aa))
+* **plugin-network-capture-browser:** add ability to capture headers (experimental) ([#1253](https://github.com/amplitude/Amplitude-TypeScript/issues/1253)) ([52cfc0c](https://github.com/amplitude/Amplitude-TypeScript/commit/52cfc0c6dab309f30cfce56c091065ff95d95fc2))
+* **plugin-network-capture-browser:** add request + response body capture (experimental) ([#1256](https://github.com/amplitude/Amplitude-TypeScript/issues/1256)) ([1850c58](https://github.com/amplitude/Amplitude-TypeScript/commit/1850c58d145973b3bd104ab70368eb4e2fdbafbc))
+
+
+
+
+
+## [1.4.5](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.4.4...@amplitude/plugin-network-capture-browser@1.4.5) (2025-08-13)
+
+**Note:** Version bump only for package @amplitude/plugin-network-capture-browser
+
+
+
+
+
+## [1.4.4](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.4.3...@amplitude/plugin-network-capture-browser@1.4.4) (2025-08-08)
+
+**Note:** Version bump only for package @amplitude/plugin-network-capture-browser
+
+
+
+
+
+## [1.4.3](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.4.2...@amplitude/plugin-network-capture-browser@1.4.3) (2025-08-05)
+
+**Note:** Version bump only for package @amplitude/plugin-network-capture-browser
+
+
+
+
+
+## [1.4.2](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.4.1...@amplitude/plugin-network-capture-browser@1.4.2) (2025-07-29)
+
+**Note:** Version bump only for package @amplitude/plugin-network-capture-browser
+
+
+
+
+
+## [1.4.1](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.4.0...@amplitude/plugin-network-capture-browser@1.4.1) (2025-07-17)
+
+**Note:** Version bump only for package @amplitude/plugin-network-capture-browser
+
+
+
+
+
+# [1.4.0](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.3.1...@amplitude/plugin-network-capture-browser@1.4.0) (2025-07-15)
+
+
+### Bug Fixes
+
+* **analytics-browser:** prevent infinite Amplitude network requests ([#1100](https://github.com/amplitude/Amplitude-TypeScript/issues/1100)) ([fde763c](https://github.com/amplitude/Amplitude-TypeScript/commit/fde763cd4889bda41edc55789ee18186711d825e))
+
+
+### Features
+
+* **analytics-browser:** add experimental frustrationInteractions ([#1209](https://github.com/amplitude/Amplitude-TypeScript/issues/1209)) ([e321744](https://github.com/amplitude/Amplitude-TypeScript/commit/e3217444c58be15e779ff1fd54a55027c93f5db0))
+
+
+
+
+
+## [1.3.1](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.3.0...@amplitude/plugin-network-capture-browser@1.3.1) (2025-07-08)
+
+**Note:** Version bump only for package @amplitude/plugin-network-capture-browser
+
+
+
+
+
+# [1.3.0](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.2.0...@amplitude/plugin-network-capture-browser@1.3.0) (2025-06-30)
+
+
+### Features
+
+* add getOptOut() and getIdentity() ([#1174](https://github.com/amplitude/Amplitude-TypeScript/issues/1174)) ([72017c8](https://github.com/amplitude/Amplitude-TypeScript/commit/72017c8a1a54d929542e883e61d61168f214a780))
+
+
+
+
+
+# [1.2.0](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.1.10...@amplitude/plugin-network-capture-browser@1.2.0) (2025-06-26)
+
+
+### Features
+
+* **plugin-autocapture-browser:** add rage+dead clicks to autocapture plugin ([#1146](https://github.com/amplitude/Amplitude-TypeScript/issues/1146)) ([c850f02](https://github.com/amplitude/Amplitude-TypeScript/commit/c850f020a6b56bbd8d64e0f946acaf0eac15ccf7))
+
+
+
+
+
+## [1.1.10](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.1.9...@amplitude/plugin-network-capture-browser@1.1.10) (2025-06-25)
+
+**Note:** Version bump only for package @amplitude/plugin-network-capture-browser
+
+
+
+
+
+## [1.1.9](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.1.8...@amplitude/plugin-network-capture-browser@1.1.9) (2025-06-11)
+
+**Note:** Version bump only for package @amplitude/plugin-network-capture-browser
+
+
+
+
+
+## [1.1.8](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.1.7...@amplitude/plugin-network-capture-browser@1.1.8) (2025-06-03)
+
+**Note:** Version bump only for package @amplitude/plugin-network-capture-browser
+
+
+
+
+
+## [1.1.7](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.1.7-main.0...@amplitude/plugin-network-capture-browser@1.1.7) (2025-05-27)
+
+
+### Bug Fixes
+
+* **analytics-browser:** support XHR in network capture ([#1089](https://github.com/amplitude/Amplitude-TypeScript/issues/1089)) ([339d49c](https://github.com/amplitude/Amplitude-TypeScript/commit/339d49cfa7b07ffc20fe085b8548f6489a3029f3))
+
+
+### Reverts
+
+* "chore(release): publish" ([#1094](https://github.com/amplitude/Amplitude-TypeScript/issues/1094)) ([f6db1ee](https://github.com/amplitude/Amplitude-TypeScript/commit/f6db1eed32ed77c7ce626624dc55972971f3b27d))
+
+
+
+
+
+## [1.1.6](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.1.5...@amplitude/plugin-network-capture-browser@1.1.6) (2025-05-14)
+
+**Note:** Version bump only for package @amplitude/plugin-network-capture-browser
+
+
+
+
+
+## [1.1.5](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.1.4...@amplitude/plugin-network-capture-browser@1.1.5) (2025-05-13)
+
+
+### Bug Fixes
+
+* **analytics-core:** make network observer event callbacks handle exceptions ([#1071](https://github.com/amplitude/Amplitude-TypeScript/issues/1071)) ([baf46e2](https://github.com/amplitude/Amplitude-TypeScript/commit/baf46e22585f58924b801e301db78c7aecda1b4a))
+
+
+
+
+
+## [1.1.4](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.1.3...@amplitude/plugin-network-capture-browser@1.1.4) (2025-05-07)
+
+
+### Bug Fixes
+
+* **plugin-network-capture:** fix bug that fails to capture relative URLs ([#1064](https://github.com/amplitude/Amplitude-TypeScript/issues/1064)) ([22ceea3](https://github.com/amplitude/Amplitude-TypeScript/commit/22ceea375a7d603f5b48d20682f93ac49f204670))
+
+
+
+
+
+## [1.1.3](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.1.2...@amplitude/plugin-network-capture-browser@1.1.3) (2025-05-05)
+
+**Note:** Version bump only for package @amplitude/plugin-network-capture-browser
+
+
+
+
+
+## [1.1.2](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.1.1...@amplitude/plugin-network-capture-browser@1.1.2) (2025-05-02)
+
+
+### Bug Fixes
+
+* change Network Request startTime and completionTime to Unix Epoch to match with iOS ([#1059](https://github.com/amplitude/Amplitude-TypeScript/issues/1059)) ([9cf0246](https://github.com/amplitude/Amplitude-TypeScript/commit/9cf02463d95e1d2d067d801e09cfed41864bd571))
+
+
+
+
+
+## [1.1.1](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-network-capture-browser@1.1.0...@amplitude/plugin-network-capture-browser@1.1.1) (2025-05-02)
+
+**Note:** Version bump only for package @amplitude/plugin-network-capture-browser
+
+
+
+
+
+# 1.1.0 (2025-05-02)
+
+
+### Features
+
+* **analytics-browser:** autocapture network errors ([#1050](https://github.com/amplitude/Amplitude-TypeScript/issues/1050)) ([104350f](https://github.com/amplitude/Amplitude-TypeScript/commit/104350ffe8b1bd1a7090482ac3bf24d85672bd43))

@@ -1,0 +1,513 @@
+<p align="center">
+  <a href="https://amplitude.com" target="_blank" align="center">
+    <img src="https://static.amplitude.com/lightning/46c85bfd91905de8047f1ee65c7c93d6fa9ee6ea/static/media/amplitude-logo-with-text.4fb9e463.svg" width="280">
+  </a>
+  <br />
+</p>
+
+# @amplitude/session-replay-browser
+
+Official Session Replay SDK
+
+## Installation
+
+This package is published on NPM registry and is available to be installed using npm and yarn.
+
+```sh
+# npm
+npm install @amplitude/session-replay-browser
+
+# yarn
+yarn add @amplitude/session-replay-browser
+```
+
+## Usage
+
+This SDK provides access to the Amplitude Session Replay product.
+
+This plugin requires that default tracking for sessions is enabled. If default tracking for sessions is not enabled in the config, the plugin will automatically enable it.
+
+### 1. Import Amplitude packages
+
+* `@amplitude/session-replay-browser`
+
+```typescript
+import * as sessionReplay from '@amplitude/session-replay-browser';
+```
+
+### 2. Initialize session replay collection
+
+The SDK must be configured via the following code. This call kicks off collection of replays for the user.
+
+```typescript
+sessionReplay.init(API_KEY, {
+  deviceId: DEVICE_ID,
+  sessionId: SESSION_ID,
+  sampleRate: 0.5,
+});
+```
+
+### 3. Evaluate targeting (optional)
+Any event that occurs within the span of a session replay must be passed to the SDK to evaluate against targeting conditions. This should be done *before* step 4, getting the event properties. If you are not using the targeting condition logic provided via the Amplitude UI, this step is not required.
+```typescript
+const sessionTargetingMatch = sessionReplay.evaluateTargetingAndCapture({ event: {
+  event_type: EVENT_NAME,
+  time: EVENT_TIMESTAMP,
+  event_properties: eventProperties
+} });
+```
+
+### 4. Get session replay event properties
+Any event that occurs within the span of a session replay must be tagged with properties that signal to Amplitude to include it in the scope of the replay. The following shows an example of how to use the properties
+```typescript
+const sessionReplayProperties = sessionReplay.getSessionReplayProperties();
+track(EVENT_NAME, {
+  ...eventProperties,
+  ...sessionReplayProperties
+})
+```
+
+### 5. Update session id
+Any time that the session id for the user changes, the session replay SDK must be notified of that change. Update the session id via the following method:
+```typescript
+sessionReplay.setSessionId(UNIX_TIMESTAMP)
+```
+You can optionally pass a new device id as a second argument as well:
+```typescript
+sessionReplay.setSessionId(UNIX_TIMESTAMP, deviceId)
+```
+
+### 6. Shutdown (optional)
+If at any point you would like to discontinue collection of session replays, for example in a part of your application where you would not like sessions to be collected, you can use the following method to stop collection and remove collection event listeners.
+```typescript
+sessionReplay.shutdown()
+```
+
+#### Options
+
+|Name|Type|Required|Default|Description|
+|-|-|-|-|-|
+|`deviceId`|`string`|Yes|`undefined`|Sets an identifier for the device running your application.|
+|`sessionId`|`number`|Yes|`undefined`|Sets an identifier for the users current session. The value must be in milliseconds since epoch (Unix Timestamp).|
+|`sampleRate`|`number`|No|`0`|Use this option to control how many sessions will be selected for replay collection. A selected session will be collected for replay, while sessions that are not selected will not.  <br></br>The number should be a decimal between 0 and 1, ie `0.01`, representing the fraction of sessions you would like to have randomly selected for replay collection. Over a large number of sessions, `0.01` would select `1%` of those sessions.|
+|`optOut`|`boolean`|No|`false`|Sets permission to collect replays for sessions. Setting a value of true prevents Amplitude from collecting session replays.|
+|`flushMaxRetries`|`number`|No|`2`|Sets the maximum number of retries for failed upload attempts. This is only applicable to retryable errors.|
+|`logLevel`|`number`|No|`LogLevel.Warn`|`LogLevel.None` or `LogLevel.Error` or `LogLevel.Warn` or `LogLevel.Verbose` or `LogLevel.Debug`. Sets the log level.|
+|`loggerProvider`|`Logger`|No|`Logger`|Sets a custom loggerProvider class from the Logger to emit log messages to desired destination.|
+|`serverZone`|`string`|No|`US`|EU or US. Sets the Amplitude server zone. Set this to EU for Amplitude projects created in EU data center.|
+|`privacyConfig`|`object`|No|`undefined`|Supports advanced masking configs with CSS selectors.|
+|`debugMode`|`boolean`|No|`false`|Adds additional debug event property to help debug instrumentation issues (such as mismatching apps). Only recommended for debugging initial setup, and not recommended for production.|
+|`configServerUrl`|`string`|No|`undefined`|Specifies the endpoint URL to fetch remote configuration. If provided, it overrides the default server zone configuration.|
+|`trackServerUrl`|`string`|No|`undefined`|Specifies the endpoint URL for sending session replay data. If provided, it overrides the default server zone configuration.|
+|`shouldInlineStylesheet`|`boolean`|No|`true`|If stylesheets are inlined, the contents of the stylesheet will be stored. During replay, the stored stylesheet will be used instead of attempting to fetch it remotely. This prevents replays from appearing broken due to missing stylesheets. Note: Inlining stylesheets may not work in all cases. If this is `undefined` stylesheets will be inlined.|
+|`storeType`|`string`|No|`idb`|Specifies how replay events should be stored. `idb` uses IndexedDB to persist replay events when all events cannot be sent during capture. `memory` stores replay events only in memory, meaning events are lost when the page is closed. If IndexedDB is unavailable, the system falls back to `memory`.|
+|`performanceConfig.enabled`|`boolean`|No|`true`|If enabled, event compression will be deferred to occur during the browser's idle periods.|
+|`performanceConfig.timeout`|`number`|No|`undefined`|Optional timeout in milliseconds for the `requestIdleCallback` API. If specified, this value will be used to set a maximum time for the browser to wait before executing the deferred compression task, even if the browser is not idle.|
+|`useWebWorker`|`boolean`|No|`false`|If true, the SDK will compress replay events using a web worker. This offloads compression to a separate thread, improving performance on the main thread.|
+|`crossOriginIframes.enabled`|`boolean`|No|`false`|Enables cross-origin iframe recording. Must be set to `true` on both the parent page and each child iframe page. See [Cross-Origin Iframe Recording](#cross-origin-iframe-recording).|
+|`crossOriginIframes.coordinateChildren`|`boolean`|No|`true`|When `true`, the parent SDK automatically sends start/stop signals to child iframes via `postMessage`. Set to `false` to manage child recording lifecycle yourself.|
+|`handleSendEvents`|`function`|No|`undefined`|Custom transport for replay event uploads. Lets you fully own the outbound HTTP call (e.g. to attach a JWT `Authorization` header and route through an authenticated proxy) while the SDK keeps batching, retry and serialization. See [Custom Transport](#custom-transport-authenticated-proxies--jwt).|
+|`handleFetchConfig`|`function`|No|`undefined`|Custom transport for the remote-config fetch. Same contract as `handleSendEvents`, for the config GET. See [Custom Transport](#custom-transport-authenticated-proxies--jwt).|
+
+## Custom Transport (authenticated proxies / JWT)
+
+By default the SDK sends replay events and fetches remote config with its own internal `fetch`.
+If your environment requires custom request logic on every outbound call — for example a JWT
+`Authorization` header validated by your own proxy before forwarding to Amplitude — provide the
+`handleSendEvents` and/or `handleFetchConfig` callbacks. The SDK hands each callback a
+fully-formed request and the callback's only job is to execute it and return the `Response`. The
+SDK keeps everything else: URL resolution (including `trackServerUrl` / `configServerUrl`),
+batching, retry/backoff, serialization, compression, and error handling.
+
+```ts
+import * as sessionReplay from '@amplitude/session-replay-browser';
+import type { SendEventsRequest, FetchConfigRequest } from '@amplitude/session-replay-browser';
+
+sessionReplay.init(API_KEY, {
+  deviceId,
+  sessionId,
+  // Optional: point at your proxy. The resolved URL is passed into the callbacks.
+  trackServerUrl: 'https://my-proxy.example.com/sr-events',
+  configServerUrl: 'https://my-proxy.example.com/sr-config',
+
+  handleSendEvents: async ({ url, method, headers, body, keepalive }: SendEventsRequest) => {
+    return fetch(url, {
+      method,
+      // Spread the SDK headers so you don't drop Content-Encoding etc., then add your auth.
+      headers: { ...headers, Authorization: `Bearer ${getJwt()}` },
+      body,
+      keepalive, // forward this so page-exit batches survive unload
+    });
+  },
+
+  handleFetchConfig: async ({ url, method, headers, signal }: FetchConfigRequest) => {
+    return fetch(url, {
+      method,
+      headers: { ...headers, Authorization: `Bearer ${getJwt()}` },
+      signal, // honor the SDK's fetch-timeout abort signal
+    });
+  },
+});
+```
+
+For a cookie-authenticated proxy, omit the `Authorization` header and add `credentials: 'include'`
+instead — the shape is otherwise identical.
+
+### Wiring it up for your integration
+
+The two callbacks are the same no matter how you install Session Replay — only *where you pass them
+in* changes. The example above is the **standalone** SDK. If you use the analytics plugin or the
+unified SDK, drop the same `handleSendEvents` / `handleFetchConfig` into your existing init instead:
+
+**Plugin — `@amplitude/plugin-session-replay-browser`** (alongside `@amplitude/analytics-browser`):
+
+```ts
+import * as amplitude from '@amplitude/analytics-browser';
+import { sessionReplayPlugin } from '@amplitude/plugin-session-replay-browser';
+
+amplitude.add(
+  sessionReplayPlugin({
+    sampleRate: 1,
+    trackServerUrl: 'https://my-proxy.example.com/sr-events',
+    configServerUrl: 'https://my-proxy.example.com/sr-config',
+    handleSendEvents: async ({ url, method, headers, body, keepalive }) =>
+      fetch(url, { method, headers: { ...headers, Authorization: `Bearer ${getJwt()}` }, body, keepalive }),
+    handleFetchConfig: async ({ url, method, headers, signal }) =>
+      fetch(url, { method, headers: { ...headers, Authorization: `Bearer ${getJwt()}` }, signal }),
+  }),
+);
+amplitude.init(API_KEY);
+```
+
+**Unified — `@amplitude/unified`** (the callbacks go under the `sessionReplay` block):
+
+```ts
+import { initAll } from '@amplitude/unified';
+
+initAll(API_KEY, {
+  sessionReplay: {
+    sampleRate: 1,
+    trackServerUrl: 'https://my-proxy.example.com/sr-events',
+    configServerUrl: 'https://my-proxy.example.com/sr-config',
+    handleSendEvents: async ({ url, method, headers, body, keepalive }) =>
+      fetch(url, { method, headers: { ...headers, Authorization: `Bearer ${getJwt()}` }, body, keepalive }),
+    handleFetchConfig: async ({ url, method, headers, signal }) =>
+      fetch(url, { method, headers: { ...headers, Authorization: `Bearer ${getJwt()}` }, signal }),
+  },
+});
+```
+
+Everything else in this section — the contract, the proxy-side requirements, web-worker support —
+applies identically across all three.
+
+### Contract
+
+What the SDK guarantees to your callback:
+
+- It passes a fully-formed request (resolved URL, default headers, serialized body). Your only job
+  is to execute it and return a `Response`.
+- It calls the callback **once per logical request attempt**. Retry/backoff is handled by the SDK
+  *around* the callback, so do not implement your own retry.
+- Non-2xx responses and thrown errors / rejected promises are surfaced to the SDK's existing retry
+  and logging logic, exactly as the built-in path treats them.
+
+What the SDK requires from your callback:
+
+- It MUST return a `Response` (or a Response-like object with `ok`, `status`, `text()`).
+- It MUST NOT change the semantics of the SDK-supplied body. Forward it unchanged — when transport
+  compression is active, `body` is a gzipped `Uint8Array` and `headers` already includes
+  `Content-Encoding: gzip`, so keep them together (don't drop that header while forwarding the
+  compressed body, or the payload won't decode server-side).
+
+### Notes
+
+- **You own auth, not Amplitude.** Amplitude never validates your JWT; authentication happens in
+  your proxy, which forwards the (re-authenticated) request to Amplitude.
+- **Web Worker mode is supported.** When `useWebWorker: true`, the SDK keeps compressing off the
+  main thread and delegates only the network call back to the main thread to run your callback.
+- **Page exit.** On unload the SDK normally uses `navigator.sendBeacon`, which can't carry custom
+  headers. When `handleSendEvents` is set, the SDK instead routes the final batch through your
+  callback with `keepalive: true`, so the exit batch is still authenticated.
+- **Covers all outbound traffic.** When `handleSendEvents` is set it is used for every outbound
+  Session Replay request: replay event uploads, the page-exit beacon, and interaction/scroll
+  beacons (these otherwise send via `navigator.sendBeacon` and would not carry your auth). So no
+  Session Replay request leaves the page unauthenticated.
+
+### Implementing the proxy side
+
+The callbacks above are only half the story — they get the request out of the browser with your
+auth attached. The other half is **your proxy**, which has to check that auth and then forward the
+request on to Amplitude. You build and run this proxy; Amplitude doesn't provide one, and you don't
+need us to stand up any new endpoint. Here's everything you need to get it right.
+
+#### Where to forward to
+
+Your proxy forwards to Amplitude's existing public Session Replay endpoints — the same ones the SDK
+would have hit directly. Pick the row that matches your project's data region:
+
+| What | US | EU |
+| ---- | -- | -- |
+| Replay events (the `POST` from `handleSendEvents`) | `https://api-sr.amplitude.com/sessions/v2/track` | `https://api-sr.eu.amplitude.com/sessions/v2/track` |
+| Remote config (the `GET` from `handleFetchConfig`) | `https://sr-client-cfg.amplitude.com/config` | `https://sr-client-cfg.eu.amplitude.com/config` |
+
+So the round trip is just: **browser → your proxy → Amplitude → your proxy → browser.** Your proxy
+sits in the middle, checks the JWT, and relays everything else through.
+
+#### What your proxy needs to do
+
+1. **Validate your auth, then strip it.** Read the JWT (or whatever you attached in the callback),
+   verify it however your security team wants, and reject the request if it's bad. Don't pass your
+   JWT on to Amplitude — Amplitude doesn't know what it is and doesn't need it.
+
+2. **Keep the path and query string exactly as-is.** The SDK builds URLs like
+   `…/sessions/v2/track?device_id=…&session_id=…&type=replay` and
+   `…/config/<apiKey>?config_group=browser`. Those query params matter — forward them unchanged.
+   Don't drop or rewrite them.
+
+3. **Forward the body untouched, and keep `Content-Encoding`.** The replay body is usually gzipped,
+   and the request carries a `Content-Encoding: gzip` header to say so. Pass the bytes through
+   exactly as received and keep that header on. If you decompress, re-compress, or drop the header,
+   Amplitude won't be able to read the payload.
+
+4. **Make sure Amplitude can still see your API key.** This is the one that trips people up — see
+   below.
+
+#### The API-key gotcha (read this one)
+
+Amplitude identifies your project from your **Amplitude API key**, which the SDK puts in the
+`Authorization: Bearer <amplitudeApiKey>` header. If your callback does the obvious thing and
+*overwrites* that header with your JWT, the API key is gone by the time the request leaves the
+browser — and Amplitude will reject the forwarded request because it can't tell which project it
+belongs to.
+
+Two ways to handle it. **We recommend the second one** — it's simpler and harder to get wrong:
+
+- **Option A — your proxy puts the API key back.** Your callback overwrites `Authorization` with
+  the JWT; your proxy validates the JWT and then swaps `Authorization` back to
+  `Bearer <amplitudeApiKey>` before forwarding. Works, but your proxy now has to know your Amplitude
+  API key.
+
+- **Option B (recommended) — send the JWT in a different header.** Leave the SDK's `Authorization`
+  header alone and put your JWT somewhere else, e.g. `X-Customer-Auth`. Your proxy checks that
+  header, strips it, and forwards everything else (including the untouched `Authorization`) straight
+  through. Your proxy never has to know or handle the Amplitude API key.
+
+  ```ts
+  handleSendEvents: async ({ url, method, headers, body, keepalive }) =>
+    fetch(url, {
+      method,
+      // Don't overwrite Authorization — add the JWT under your own header instead.
+      headers: { ...headers, 'X-Customer-Auth': await getJwt() },
+      body,
+      keepalive,
+    }),
+  ```
+
+#### Quick sanity check
+
+Once your proxy is up, do a quick end-to-end test: load a page with the SDK pointed at your proxy,
+interact a bit, and confirm (a) your proxy logs show the JWT arriving and getting validated, and
+(b) replays actually show up in Amplitude. If replays don't land, it's almost always one of the four
+points above — most often the API-key header (gotcha above) or a dropped `Content-Encoding`.
+
+## Cross-Origin Iframe Recording
+
+The SDK can capture events inside cross-origin `<iframe>` elements and merge them into the parent page's session replay.
+
+### How it works
+
+Both the parent page and each iframe page must load the SDK with `crossOriginIframes.enabled: true`. The parent SDK coordinates recording across all child iframes using `postMessage` signals and rrweb's built-in cross-origin relay.
+
+```
+Parent page (yoursite.com)
+┌─────────────────────────────────────────────────────────────────┐
+│  sessionReplay.init(API_KEY, { crossOriginIframes: { enabled: true } })
+│                                                                   │
+│  CrossOriginIframeCoordinator                                     │
+│  ┌────────────────────────┐                                       │
+│  │ MutationObserver       │  postMessage("start") ──────────────► │
+│  │ watches for <iframe>   │                                       │
+│  │ additions/removals     │  postMessage("stop")  ──────────────► │
+│  └────────────────────────┘                                       │
+│                                                                   │
+│  rrweb (recordCrossOriginIframes: true)                           │
+│  ◄─────────────── child rrweb events relayed via postMessage ──── │
+│  Merges child events into parent snapshot stream                  │
+└─────────────────────────────────────────────────────────────────┘
+         │ postMessage("start" / "stop")
+         ▼
+Child iframe page (payments.example.com)
+┌─────────────────────────────────────────────────────────────────┐
+│  sessionReplay.init(API_KEY, { crossOriginIframes: { enabled: true } })
+│                                                                   │
+│  isInIframe() === true → child mode                               │
+│  listenForParentSignals()                                         │
+│  ┌──────────────────────────────────┐                            │
+│  │ Waits for "start" signal         │                            │
+│  │   → initialises rrweb recording  │                            │
+│  │ On "stop" signal                 │                            │
+│  │   → stops rrweb, flushes events  │                            │
+│  └──────────────────────────────────┘                            │
+│                                                                   │
+│  rrweb events ──► postMessage relay ──► parent rrweb             │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+Child events are serialized by the child page's own rrweb instance and relayed to the parent via `postMessage`. The parent rrweb stream stores them inline, so the replay viewer can reconstruct both frames from a single session.
+
+### Setup
+
+**Parent page:**
+```typescript
+sessionReplay.init(API_KEY, {
+  deviceId: DEVICE_ID,
+  sessionId: SESSION_ID,
+  crossOriginIframes: { enabled: true },
+});
+```
+
+**Child iframe page** (must also load the SDK):
+```typescript
+sessionReplay.init(API_KEY, {
+  deviceId: DEVICE_ID,
+  sessionId: SESSION_ID,
+  crossOriginIframes: { enabled: true },
+});
+```
+
+The child SDK detects it is running inside an iframe and automatically enters child mode — it will wait for a start signal from the parent rather than begin recording immediately.
+
+### Options
+
+| Name | Type | Required | Default | Description |
+|-|-|-|-|-|
+| `crossOriginIframes.enabled` | `boolean` | Yes | — | Enables cross-origin iframe recording on both parent and child pages. |
+| `crossOriginIframes.coordinateChildren` | `boolean` | No | `true` | When `true`, the parent SDK sends start/stop signals to child iframes and keeps their recording lifecycle in sync. Set to `false` to manage child recording yourself. |
+
+### Privacy
+
+The child page's rrweb instance performs its own DOM serialisation. The parent's privacy config (mask levels, block selectors, etc.) does **not** automatically apply inside the iframe — configure privacy settings independently on the child page.
+
+### Limitations
+
+- **Third-party iframes** (e.g. Stripe, Google Maps) cannot be captured. Both the parent and child pages must load the SDK with `crossOriginIframes.enabled: true`.
+- `coordinateChildren: false` opts out of the coordinator; in this mode the child SDK will not start recording until you manage its lifecycle directly.
+
+## Network Request Capture
+
+The SDK can capture network requests made via `fetch` and include them as events in the session replay. This is opt-in and disabled by default.
+
+### Basic setup
+
+Enable network capture via remote configuration by setting `sr_logging_config.network.enabled: true`. No code changes are required beyond the standard SDK initialization.
+
+### Capturing request and response bodies
+
+Body capture is a separate opt-in within network capture. To enable it, set `body.request` and/or `body.response` in the network config:
+
+```typescript
+// This is configured server-side via sr_logging_config, not in the SDK init call.
+// The shape of the remote config that enables body capture:
+{
+  sr_logging_config: {
+    network: {
+      enabled: true,
+      body: {
+        request: true,   // capture fetch request bodies
+        response: true,  // capture fetch response bodies
+        maxBodySizeBytes: 10240, // optional, defaults to 10KB
+      }
+    }
+  }
+}
+```
+
+#### Behavior
+
+- **Request bodies**: Captured for `string`, `URLSearchParams`, and `FormData` body types. `Blob`, `ArrayBuffer`, and `ReadableStream` bodies are skipped.
+- **Response bodies**: Captured after the response is received. Binary content types (`image/*`, `audio/*`, `video/*`, `application/octet-stream`, `font/*`) are skipped and the event will have `responseBodyStatus: 'skipped_binary'`.
+- **Truncation**: Bodies exceeding `maxBodySizeBytes` are truncated to fit within the limit (byte-accurate for multi-byte characters). The event will have `responseBodyStatus: 'truncated'`.
+- **Errors**: If reading the response body fails, the event will have `responseBodyStatus: 'error'`.
+
+#### Network event fields
+
+| Field | Type | Description |
+|-|-|-|
+| `url` | `string` | Request URL |
+| `method` | `string` | HTTP method |
+| `status` | `number` | Response status code |
+| `duration` | `number` | Round-trip time in milliseconds |
+| `requestHeaders` | `object` | Request headers |
+| `responseHeaders` | `object` | Response headers |
+| `requestBody` | `string` | Request body (if body capture enabled) |
+| `responseBody` | `string` | Response body (if body capture enabled) |
+| `responseBodyStatus` | `string` | `'captured'`, `'truncated'`, `'skipped_binary'`, or `'error'` |
+| `error` | `object` | Error name and message if the request failed |
+
+## Releasing a Prerelease
+
+Prereleases are published to npm via the **Publish v2.x** GitHub Actions workflow. The published package will be tagged with the branch name (e.g. `@amplitude/session-replay-browser@SR-2728`) so it doesn't affect the `latest` dist-tag.
+
+### Steps
+
+1. Go to **Actions → Publish v2.x** in the GitHub repo
+2. Click **Run workflow**
+3. Set the inputs:
+   - **Use workflow from**: `main` (required — the workflow enforces this)
+   - **Release type**: `prerelease`
+   - **Branch to create pre-release from**: your feature branch (e.g. `SR-2728`)
+4. Click **Run workflow**
+
+The workflow will:
+- Check out your feature branch
+- Build and run tests
+- Bump the version using conventional commits with your branch name as the preid (e.g. `1.33.0-SR-2728.0`)
+- Publish to npm with `--tag <branch-name>`
+
+### Installing a prerelease
+
+```sh
+npm install @amplitude/session-replay-browser@SR-2728
+# or a specific version:
+npm install @amplitude/session-replay-browser@1.33.0-SR-2728.0
+```
+
+### Notes
+
+- The `--tag` value is derived from the branch name with non-alphanumeric characters (except `-`) stripped, so `SR-2728` → tag `SR-2728`, `feature/my-branch` → tag `featuremy-branch`
+- Triggering from a branch other than `main` will fail the authorization check — always use `main` in the "Use workflow from" dropdown
+
+## Bundle Size Optimization
+The Session Replay SDK uses dynamic imports to optimize bundle size and improve initial page load performance. Key modules are loaded on-demand rather than being included in the initial bundle:
+
+- **`@amplitude/rrweb-record`**: The core recording functionality is dynamically imported when `sessionReplay.init()` is called and capture should begin. In cases where users are not sampled or have opted out, then the Session Replay SDK will not import these dependencies. 
+
+This approach ensures that:
+- Your application's initial JavaScript bundle remains as small as possible.
+- Only the necessary Session Replay dependencies are loaded.
+
+The dynamic imports happen asynchronously and won't block your application's initialization. If the imports fail for any reason, the SDK will not initiate capture.
+
+## Privacy
+By default, the session replay will mask all inputs, meaning the text in inputs will appear in a session replay as asterisks: `***`. You may require more specific masking controls based on your use case, so we offer the following controls:
+
+#### 1. Unmask inputs
+In your application code, add the class `.amp-unmask` to any __input__ whose text you'd like to have unmasked in the replay. In the session replay, it will be possible to read the exact text entered into an input with this class, the text will not be converted to asterisks.
+
+#### 2. Mask non-input elements
+In your application code, add the class `.amp-mask` to any __non-input element__ whose text you'd like to have masked from the replay. The text in the element, as well as it's children, will all be converted to asterisks.
+
+#### 3. Block non-text elements
+In your application code, add the class `.amp-block` to any element you would like to have blocked from the collection of the replay. The element will appear in the replay as a placeholder with the same dimensions.
+
+#### 4. Block elements by CSS selectors. 
+In the SDK initialization code, you can configure the SDK to block elements based on CSS selectors.
+```typescript
+sessionReplay.init(AMPLITUDE_API_KEY, {
+  sampleRate: 0.01, 
+  privacyConfig: {
+      blockSelector: ['.ignoreClass', '#ignoreId']
+  }
+})
+```
+

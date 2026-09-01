@@ -1,0 +1,1478 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+## [1.28.12](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.28.11...@amplitude/plugin-autocapture-browser@1.28.12) (2026-08-24)
+
+
+### Bug Fixes
+
+* **autocapture:** prevent scroll gestures from triggering dead clicks ([#1941](https://github.com/amplitude/Amplitude-TypeScript/issues/1941)) ([0807d88](https://github.com/amplitude/Amplitude-TypeScript/commit/0807d88cc3218b75d15fdec1a3a3d88104b4ccfa))
+
+
+
+
+
+## [1.28.11](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.28.10...@amplitude/plugin-autocapture-browser@1.28.11) (2026-08-12)
+
+
+### Bug Fixes
+
+* **deps:** remediate Semgrep supply chain findings ([#1921](https://github.com/amplitude/Amplitude-TypeScript/issues/1921)) ([e131df0](https://github.com/amplitude/Amplitude-TypeScript/commit/e131df0b414933418e4c7159f1bfbdacc633a7d9))
+
+
+
+
+
+## [1.28.10](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.28.9...@amplitude/plugin-autocapture-browser@1.28.10) (2026-07-28)
+
+**Note:** Version bump only for package @amplitude/plugin-autocapture-browser
+
+
+
+
+
+## [1.28.9](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.28.8...@amplitude/plugin-autocapture-browser@1.28.9) (2026-07-22)
+
+**Note:** Version bump only for package @amplitude/plugin-autocapture-browser
+
+
+
+
+
+## [1.28.8](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.28.7...@amplitude/plugin-autocapture-browser@1.28.8) (2026-07-20)
+
+
+### Bug Fixes
+
+* **element-selector:** resolve config race condition ([#1892](https://github.com/amplitude/Amplitude-TypeScript/issues/1892)) ([8f9a310](https://github.com/amplitude/Amplitude-TypeScript/commit/8f9a310f5e41ed69647cfff0300db17677e2c8de))
+
+
+
+
+
+## [1.28.7](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.28.6...@amplitude/plugin-autocapture-browser@1.28.7) (2026-07-17)
+
+**Note:** Version bump only for package @amplitude/plugin-autocapture-browser
+
+
+
+
+
+## [1.28.6](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.28.5...@amplitude/plugin-autocapture-browser@1.28.6) (2026-07-15)
+
+
+### Bug Fixes
+
+* **autocapture:** use correct elementSelector remote config key ([#1884](https://github.com/amplitude/Amplitude-TypeScript/issues/1884)) ([0132562](https://github.com/amplitude/Amplitude-TypeScript/commit/013256227756f3073ceeef61e515ceb806ea45af))
+
+
+
+
+
+## [1.28.5](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.28.4...@amplitude/plugin-autocapture-browser@1.28.5) (2026-07-14)
+
+**Note:** Version bump only for package @amplitude/plugin-autocapture-browser
+
+
+
+
+
+## [1.28.4](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.28.3...@amplitude/plugin-autocapture-browser@1.28.4) (2026-07-13)
+
+**Note:** Version bump only for package @amplitude/plugin-autocapture-browser
+
+
+
+
+
+## [1.28.3](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.28.2...@amplitude/plugin-autocapture-browser@1.28.3) (2026-07-09)
+
+**Note:** Version bump only for package @amplitude/plugin-autocapture-browser
+
+
+
+
+
+## [1.28.2](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.28.1...@amplitude/plugin-autocapture-browser@1.28.2) (2026-06-30)
+
+**Note:** Version bump only for package @amplitude/plugin-autocapture-browser
+
+
+
+
+
+## [1.28.1](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.28.0...@amplitude/plugin-autocapture-browser@1.28.1) (2026-06-25)
+
+**Note:** Version bump only for package @amplitude/plugin-autocapture-browser
+
+
+
+
+
+# [1.28.0](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.27.4...@amplitude/plugin-autocapture-browser@1.28.0) (2026-06-24)
+
+
+### Features
+
+* **autocapture:** route Element Path through the element-selector engine ([#1842](https://github.com/amplitude/Amplitude-TypeScript/issues/1842)) ([f7b6f51](https://github.com/amplitude/Amplitude-TypeScript/commit/f7b6f51813cccb5a67228746df982b2d69ba09ab))
+
+
+
+
+
+## [1.27.4](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.27.3...@amplitude/plugin-autocapture-browser@1.27.4) (2026-06-11)
+
+**Note:** Version bump only for package @amplitude/plugin-autocapture-browser
+
+
+
+
+
+## [1.27.3](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.27.2...@amplitude/plugin-autocapture-browser@1.27.3) (2026-06-05)
+
+**Note:** Version bump only for package @amplitude/plugin-autocapture-browser
+
+
+
+
+
+## [1.27.2](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.27.1...@amplitude/plugin-autocapture-browser@1.27.2) (2026-05-21)
+
+**Note:** Version bump only for package @amplitude/plugin-autocapture-browser
+
+
+
+
+
+## [1.27.1](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.27.0...@amplitude/plugin-autocapture-browser@1.27.1) (2026-05-05)
+
+
+### Bug Fixes
+
+* **autocapture:** add code lines to event properties for long task ([#1701](https://github.com/amplitude/Amplitude-TypeScript/issues/1701)) ([dbca5c0](https://github.com/amplitude/Amplitude-TypeScript/commit/dbca5c000447907d7ae5570ef9fa03f7ad4d5a81))
+* **plugin-autocapture-browser:** strip URL params from Page URL in Viewport Content Updated ([#1713](https://github.com/amplitude/Amplitude-TypeScript/issues/1713)) ([9797cd7](https://github.com/amplitude/Amplitude-TypeScript/commit/9797cd74790efa89fc7ef218a919993898d0dbee))
+
+
+
+
+
+# [1.27.0](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.26.1...@amplitude/plugin-autocapture-browser@1.27.0) (2026-04-28)
+
+
+### Features
+
+* remove experimental request body compression backdoor ([#1699](https://github.com/amplitude/Amplitude-TypeScript/issues/1699)) ([98ecb9d](https://github.com/amplitude/Amplitude-TypeScript/commit/98ecb9dc1f3658cf6d0dfae1e9784335c9d33b5e))
+
+
+
+
+
+## [1.26.1](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.26.0...@amplitude/plugin-autocapture-browser@1.26.1) (2026-04-22)
+
+**Note:** Version bump only for package @amplitude/plugin-autocapture-browser
+
+
+
+
+
+# [1.26.0](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.25.3...@amplitude/plugin-autocapture-browser@1.26.0) (2026-04-21)
+
+
+### Features
+
+* add long task tracking ([#1622](https://github.com/amplitude/Amplitude-TypeScript/issues/1622)) ([d995e1f](https://github.com/amplitude/Amplitude-TypeScript/commit/d995e1f2c098441808d65f6c171e171587e37ac2))
+
+
+
+
+
+## [1.25.3](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.25.2...@amplitude/plugin-autocapture-browser@1.25.3) (2026-04-14)
+
+**Note:** Version bump only for package @amplitude/plugin-autocapture-browser
+
+
+
+
+
+## [1.25.2](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.25.1...@amplitude/plugin-autocapture-browser@1.25.2) (2026-04-09)
+
+**Note:** Version bump only for package @amplitude/plugin-autocapture-browser
+
+
+
+
+
+## [1.25.1](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.25.0...@amplitude/plugin-autocapture-browser@1.25.1) (2026-04-01)
+
+**Note:** Version bump only for package @amplitude/plugin-autocapture-browser
+
+
+
+
+
+# [1.25.0](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.24.2...@amplitude/plugin-autocapture-browser@1.25.0) (2026-03-26)
+
+
+### Features
+
+* **autocapture:** add viewportContentUpdated support to remote config ([#1621](https://github.com/amplitude/Amplitude-TypeScript/issues/1621)) ([f40b150](https://github.com/amplitude/Amplitude-TypeScript/commit/f40b150ddb44da9c69bc97da69f9ba003d1eb7d6))
+
+
+
+
+
+## [1.24.2](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.24.1...@amplitude/plugin-autocapture-browser@1.24.2) (2026-03-23)
+
+**Note:** Version bump only for package @amplitude/plugin-autocapture-browser
+
+
+
+
+
+## [1.24.1](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.24.0...@amplitude/plugin-autocapture-browser@1.24.1) (2026-03-20)
+
+
+### Bug Fixes
+
+* **analytics-browser:** double thrashed cursor threshold ([#1604](https://github.com/amplitude/Amplitude-TypeScript/issues/1604)) ([32cb4b6](https://github.com/amplitude/Amplitude-TypeScript/commit/32cb4b63ddce39dc6b68d3ae3b3798b0ae73ccd4))
+
+
+
+
+
+# [1.24.0](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.23.7...@amplitude/plugin-autocapture-browser@1.24.0) (2026-03-19)
+
+
+### Features
+
+* **autocapture:** zoning beta  ([#1589](https://github.com/amplitude/Amplitude-TypeScript/issues/1589)) ([2bb3608](https://github.com/amplitude/Amplitude-TypeScript/commit/2bb36088dc1342512ba0289fb1108ed8a61361f6))
+
+
+
+
+
+## [1.23.7](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.23.6...@amplitude/plugin-autocapture-browser@1.23.7) (2026-03-17)
+
+**Note:** Version bump only for package @amplitude/plugin-autocapture-browser
+
+
+
+
+
+## [1.23.6](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.23.5...@amplitude/plugin-autocapture-browser@1.23.6) (2026-03-16)
+
+**Note:** Version bump only for package @amplitude/plugin-autocapture-browser
+
+
+
+
+
+## [1.23.5](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.23.4...@amplitude/plugin-autocapture-browser@1.23.5) (2026-03-13)
+
+**Note:** Version bump only for package @amplitude/plugin-autocapture-browser
+
+
+
+
+
+## [1.23.4](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.23.3...@amplitude/plugin-autocapture-browser@1.23.4) (2026-03-12)
+
+**Note:** Version bump only for package @amplitude/plugin-autocapture-browser
+
+
+
+
+
+## [1.23.3](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.23.2...@amplitude/plugin-autocapture-browser@1.23.3) (2026-03-09)
+
+**Note:** Version bump only for package @amplitude/plugin-autocapture-browser
+
+
+
+
+
+## [1.23.2](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.23.1...@amplitude/plugin-autocapture-browser@1.23.2) (2026-03-05)
+
+**Note:** Version bump only for package @amplitude/plugin-autocapture-browser
+
+
+
+
+
+## [1.23.1](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.23.0...@amplitude/plugin-autocapture-browser@1.23.1) (2026-03-03)
+
+**Note:** Version bump only for package @amplitude/plugin-autocapture-browser
+
+
+
+
+
+# [1.23.0](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.22.3...@amplitude/plugin-autocapture-browser@1.23.0) (2026-03-03)
+
+
+### Features
+
+* manual opt in gzip ([#1568](https://github.com/amplitude/Amplitude-TypeScript/issues/1568)) ([303c130](https://github.com/amplitude/Amplitude-TypeScript/commit/303c130429c51b0913f3903db4ace5263e1c78e7))
+
+
+
+
+
+## [1.22.3](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.22.2...@amplitude/plugin-autocapture-browser@1.22.3) (2026-02-26)
+
+**Note:** Version bump only for package @amplitude/plugin-autocapture-browser
+
+
+
+
+
+## [1.22.2](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.22.1...@amplitude/plugin-autocapture-browser@1.22.2) (2026-02-24)
+
+**Note:** Version bump only for package @amplitude/plugin-autocapture-browser
+
+
+
+
+
+## [1.22.1](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.22.0...@amplitude/plugin-autocapture-browser@1.22.1) (2026-02-20)
+
+
+### Bug Fixes
+
+* **autocapture:** remove cloneNode in getText can cause duplicate network requests ([#1546](https://github.com/amplitude/Amplitude-TypeScript/issues/1546)) ([b75f696](https://github.com/amplitude/Amplitude-TypeScript/commit/b75f6969e5cc1baf7f6fc6bd585bd8f976b87620))
+
+
+
+
+
+# [1.22.0](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.21.0...@amplitude/plugin-autocapture-browser@1.22.0) (2026-02-19)
+
+
+### Features
+
+* screenshot capture messenger ([#1535](https://github.com/amplitude/Amplitude-TypeScript/issues/1535)) ([93ef551](https://github.com/amplitude/Amplitude-TypeScript/commit/93ef551ff0ab7dc48014aa5fa25841437d641993))
+
+
+
+
+
+# [1.21.0](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.20.0...@amplitude/plugin-autocapture-browser@1.21.0) (2026-02-17)
+
+
+### Features
+
+* **analytics-browser:** add setIdentity() ([#1517](https://github.com/amplitude/Amplitude-TypeScript/issues/1517)) ([314b3c1](https://github.com/amplitude/Amplitude-TypeScript/commit/314b3c1b7ee5b0ef135848a66156eb2874daec5f))
+
+
+
+
+
+# [1.20.0](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.19.0...@amplitude/plugin-autocapture-browser@1.20.0) (2026-02-10)
+
+
+### Bug Fixes
+
+* ignore errors that are not ErrorEvent ([#1512](https://github.com/amplitude/Amplitude-TypeScript/issues/1512)) ([366d7eb](https://github.com/amplitude/Amplitude-TypeScript/commit/366d7ebed2e10d46cf46e301650f0c52d82047ed))
+
+
+### Features
+
+* **analytics-browser:** [@experimental](https://github.com/experimental) add Thrashed Cursor frustration signal ([#1523](https://github.com/amplitude/Amplitude-TypeScript/issues/1523)) ([376b034](https://github.com/amplitude/Amplitude-TypeScript/commit/376b0342716057c82430ab72c0fc5bab55bc0dba))
+
+
+
+
+
+# [1.19.0](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.18.7...@amplitude/plugin-autocapture-browser@1.19.0) (2026-01-26)
+
+
+### Features
+
+* **analytics-browser:** support Error Clicks in frustration interactions ([#1491](https://github.com/amplitude/Amplitude-TypeScript/issues/1491)) ([d6f4c59](https://github.com/amplitude/Amplitude-TypeScript/commit/d6f4c59b4d71f8fe1e0e906221f2c6469a643cf9))
+
+
+
+
+
+## [1.18.7](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.18.6...@amplitude/plugin-autocapture-browser@1.18.7) (2026-01-21)
+
+
+### Bug Fixes
+
+* **analytics-browser:** ignore right clicks when tracking dead clicks ([#1496](https://github.com/amplitude/Amplitude-TypeScript/issues/1496)) ([752b4c0](https://github.com/amplitude/Amplitude-TypeScript/commit/752b4c0d9f22fcaa4b920b6fff09455a58f92da2))
+* **autocapture:** fix config key for page actions ([#1488](https://github.com/amplitude/Amplitude-TypeScript/issues/1488)) ([267b73d](https://github.com/amplitude/Amplitude-TypeScript/commit/267b73d8e857e170fbff615b75ddf6887093a25a))
+
+
+
+
+
+## [1.18.6](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.18.5...@amplitude/plugin-autocapture-browser@1.18.6) (2026-01-15)
+
+**Note:** Version bump only for package @amplitude/plugin-autocapture-browser
+
+
+
+
+
+## [1.18.5](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.18.4...@amplitude/plugin-autocapture-browser@1.18.5) (2026-01-14)
+
+
+### Bug Fixes
+
+* **plugin-autocapture-browser:** allow selective configuration of frustration interactions ([#1489](https://github.com/amplitude/Amplitude-TypeScript/issues/1489)) ([5350f5b](https://github.com/amplitude/Amplitude-TypeScript/commit/5350f5b53d134b516f1e0e0cd202090015751ce0))
+
+
+
+
+
+## [1.18.4](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.18.3...@amplitude/plugin-autocapture-browser@1.18.4) (2026-01-14)
+
+
+### Bug Fixes
+
+* **plugin-autocapture-browser:** apply rage clicks to window over viewport ([#1459](https://github.com/amplitude/Amplitude-TypeScript/issues/1459)) ([ee71e48](https://github.com/amplitude/Amplitude-TypeScript/commit/ee71e48b81a5c22f236df67ad6aa23c25ce0bffc))
+* **plugin-autocapture-browser:** do not trigger rage click when text being highlighted ([#1471](https://github.com/amplitude/Amplitude-TypeScript/issues/1471)) ([7564033](https://github.com/amplitude/Amplitude-TypeScript/commit/7564033a7a4759c49015738fe3ea49ec1475dbe8))
+* **plugin-autocapture-browser:** Remove unused rxjs dependency in plugin-autocapture-browser ([#1484](https://github.com/amplitude/Amplitude-TypeScript/issues/1484)) ([dcbce97](https://github.com/amplitude/Amplitude-TypeScript/commit/dcbce97c86f2907bfae9cc421821f21d193feb06))
+
+
+
+
+
+## [1.18.3](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.18.2...@amplitude/plugin-autocapture-browser@1.18.3) (2025-12-24)
+
+**Note:** Version bump only for package @amplitude/plugin-autocapture-browser
+
+
+
+
+
+## [1.18.2](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.18.1...@amplitude/plugin-autocapture-browser@1.18.2) (2025-12-16)
+
+**Note:** Version bump only for package @amplitude/plugin-autocapture-browser
+
+
+
+
+
+## [1.18.1](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.18.0...@amplitude/plugin-autocapture-browser@1.18.1) (2025-12-09)
+
+
+### Bug Fixes
+
+* truncate large href ([#1427](https://github.com/amplitude/Amplitude-TypeScript/issues/1427)) ([a4b626b](https://github.com/amplitude/Amplitude-TypeScript/commit/a4b626be02c4d3805bd8378bbdc0bad1eeb21089))
+
+
+
+
+
+# [1.18.0](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.17.4...@amplitude/plugin-autocapture-browser@1.18.0) (2025-11-21)
+
+
+### Features
+
+* **analytics-browser:** reduce bundle size via refactoring out rxjs ([#1391](https://github.com/amplitude/Amplitude-TypeScript/issues/1391)) ([09ade0b](https://github.com/amplitude/Amplitude-TypeScript/commit/09ade0b37cfdbaacb0e328cb812168d60dc25124))
+
+
+
+
+
+## [1.17.4](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.17.3...@amplitude/plugin-autocapture-browser@1.17.4) (2025-11-20)
+
+**Note:** Version bump only for package @amplitude/plugin-autocapture-browser
+
+
+
+
+
+## [1.17.3](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.17.2...@amplitude/plugin-autocapture-browser@1.17.3) (2025-11-17)
+
+**Note:** Version bump only for package @amplitude/plugin-autocapture-browser
+
+
+
+
+
+## [1.17.2](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.17.1...@amplitude/plugin-autocapture-browser@1.17.2) (2025-11-17)
+
+**Note:** Version bump only for package @amplitude/plugin-autocapture-browser
+
+
+
+
+
+## [1.17.1](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.17.0...@amplitude/plugin-autocapture-browser@1.17.1) (2025-11-05)
+
+**Note:** Version bump only for package @amplitude/plugin-autocapture-browser
+
+
+
+
+
+# [1.17.0](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.16.2...@amplitude/plugin-autocapture-browser@1.17.0) (2025-10-29)
+
+
+### Features
+
+* more diagnostics metrics ([#1371](https://github.com/amplitude/Amplitude-TypeScript/issues/1371)) ([40e255c](https://github.com/amplitude/Amplitude-TypeScript/commit/40e255c89c98f4ffffd883296d3d8a9947326aaa))
+
+
+
+
+
+## [1.16.2](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.16.1...@amplitude/plugin-autocapture-browser@1.16.2) (2025-10-23)
+
+**Note:** Version bump only for package @amplitude/plugin-autocapture-browser
+
+
+
+
+
+## [1.16.1](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.16.0...@amplitude/plugin-autocapture-browser@1.16.1) (2025-10-23)
+
+**Note:** Version bump only for package @amplitude/plugin-autocapture-browser
+
+
+
+
+
+# [1.16.0](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.15.3...@amplitude/plugin-autocapture-browser@1.16.0) (2025-10-21)
+
+
+### Features
+
+* **session-replay-browser:** migrate to new remote config client ([#1351](https://github.com/amplitude/Amplitude-TypeScript/issues/1351)) ([d9e0c2c](https://github.com/amplitude/Amplitude-TypeScript/commit/d9e0c2c5df47147bd89c6bfd5e5d2fe3254c8b27))
+
+
+
+
+
+## [1.15.3](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.15.2...@amplitude/plugin-autocapture-browser@1.15.3) (2025-10-17)
+
+**Note:** Version bump only for package @amplitude/plugin-autocapture-browser
+
+
+
+
+
+## [1.15.2](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.15.1...@amplitude/plugin-autocapture-browser@1.15.2) (2025-10-15)
+
+**Note:** Version bump only for package @amplitude/plugin-autocapture-browser
+
+
+
+
+
+## [1.15.1](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.15.0...@amplitude/plugin-autocapture-browser@1.15.1) (2025-10-14)
+
+**Note:** Version bump only for package @amplitude/plugin-autocapture-browser
+
+
+
+
+
+# [1.15.0](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.14.4...@amplitude/plugin-autocapture-browser@1.15.0) (2025-10-14)
+
+
+### Features
+
+* **autocapture:** refactor getPageTitle from autocapture to make it reusable ([#1331](https://github.com/amplitude/Amplitude-TypeScript/issues/1331)) ([44eabd1](https://github.com/amplitude/Amplitude-TypeScript/commit/44eabd1139252ed71845d29a86ceccd2ef119d15))
+* **plugin-network-capture-browser:** make networkTracking headers + body capturing GA ([#1334](https://github.com/amplitude/Amplitude-TypeScript/issues/1334)) ([8b57656](https://github.com/amplitude/Amplitude-TypeScript/commit/8b576569d28f323b21f6c82d708867d91c641063))
+
+
+
+
+
+## [1.14.4](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.14.3...@amplitude/plugin-autocapture-browser@1.14.4) (2025-10-07)
+
+
+### Bug Fixes
+
+* Revert "feat(analytics-client-common): refactor getPageTitle from aut… ([#1328](https://github.com/amplitude/Amplitude-TypeScript/issues/1328)) ([3976910](https://github.com/amplitude/Amplitude-TypeScript/commit/3976910d2e17a61f9f8e588a006cd44012f2f250))
+
+
+
+
+
+## [1.14.3](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.14.2...@amplitude/plugin-autocapture-browser@1.14.3) (2025-10-03)
+
+
+### Bug Fixes
+
+* add diagnostics to client and track autocapture getHierachy block time ([#1312](https://github.com/amplitude/Amplitude-TypeScript/issues/1312)) ([a919e22](https://github.com/amplitude/Amplitude-TypeScript/commit/a919e223428083a87954cffa50bc765baa5360b0))
+
+
+
+
+
+## [1.14.2](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.14.1...@amplitude/plugin-autocapture-browser@1.14.2) (2025-10-01)
+
+**Note:** Version bump only for package @amplitude/plugin-autocapture-browser
+
+
+
+
+
+## [1.14.1](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.14.0...@amplitude/plugin-autocapture-browser@1.14.1) (2025-09-25)
+
+**Note:** Version bump only for package @amplitude/plugin-autocapture-browser
+
+
+
+
+
+# [1.14.0](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.13.0...@amplitude/plugin-autocapture-browser@1.14.0) (2025-09-23)
+
+
+### Features
+
+* **analytics-client-common:** refactor getPageTitle from autocapture to make it reusable ([#1298](https://github.com/amplitude/Amplitude-TypeScript/issues/1298)) ([3c931ee](https://github.com/amplitude/Amplitude-TypeScript/commit/3c931eeb7bb4d2482523c48cf796113187d9b078))
+
+
+
+
+
+# [1.13.0](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.12.2...@amplitude/plugin-autocapture-browser@1.13.0) (2025-09-18)
+
+
+### Bug Fixes
+
+* **analytics-browser:** add URI decoding to Element Clicked event attribute ([#1297](https://github.com/amplitude/Amplitude-TypeScript/issues/1297)) ([ebb2120](https://github.com/amplitude/Amplitude-TypeScript/commit/ebb212080948e8acbaeadbdc410580e04202f818))
+
+
+### Features
+
+* **autocapture:** add data masking in title ([#1289](https://github.com/amplitude/Amplitude-TypeScript/issues/1289)) ([6b8d1eb](https://github.com/amplitude/Amplitude-TypeScript/commit/6b8d1eb3c72d0b49f86153c9b7a5b25efd2b771b))
+
+
+
+
+
+## [1.12.2](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.12.1...@amplitude/plugin-autocapture-browser@1.12.2) (2025-09-12)
+
+
+### Bug Fixes
+
+* **plugin-autocapture-browser:** no dead click on target=_blank ([#1285](https://github.com/amplitude/Amplitude-TypeScript/issues/1285)) ([f2758a1](https://github.com/amplitude/Amplitude-TypeScript/commit/f2758a173e53a09781ae7ad4687e8a8f9e16f243))
+
+
+
+
+
+## [1.12.1](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.12.0...@amplitude/plugin-autocapture-browser@1.12.1) (2025-09-09)
+
+
+### Bug Fixes
+
+* **autocapture:** make the default for patterns in mask-text-regex to be case insensitive ([#1282](https://github.com/amplitude/Amplitude-TypeScript/issues/1282)) ([e4995ac](https://github.com/amplitude/Amplitude-TypeScript/commit/e4995acbeda81d3bcf11f2d97743aa844b0240d2))
+
+
+
+
+
+# [1.12.0](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.11.1...@amplitude/plugin-autocapture-browser@1.12.0) (2025-09-05)
+
+
+### Features
+
+* **autocapture:** attribute value mask ([#1263](https://github.com/amplitude/Amplitude-TypeScript/issues/1263)) ([54916ef](https://github.com/amplitude/Amplitude-TypeScript/commit/54916ef1ae39c2d476b256e387238c252cf2509c))
+* **autocapture:** exclude text with data-amp-mask element attribute ([#1260](https://github.com/amplitude/Amplitude-TypeScript/issues/1260)) ([07da789](https://github.com/amplitude/Amplitude-TypeScript/commit/07da78921a8cde931b9f2aae207b65263c066392))
+* **autocapture:** include pageUrlExcludelist ([#1264](https://github.com/amplitude/Amplitude-TypeScript/issues/1264)) ([dd2aa7f](https://github.com/amplitude/Amplitude-TypeScript/commit/dd2aa7fbb476ead45831f2dc39a94db224131699))
+
+
+
+
+
+## [1.11.1](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.11.0...@amplitude/plugin-autocapture-browser@1.11.1) (2025-08-28)
+
+**Note:** Version bump only for package @amplitude/plugin-autocapture-browser
+
+
+
+
+
+# [1.11.0](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.10.2...@amplitude/plugin-autocapture-browser@1.11.0) (2025-08-26)
+
+
+### Features
+
+* **autocapture:** add maskTextRegex option to autocapture ([#1259](https://github.com/amplitude/Amplitude-TypeScript/issues/1259)) ([2f1cf07](https://github.com/amplitude/Amplitude-TypeScript/commit/2f1cf075b3e0728f4124bb5c30c8a7e7c21d5a12))
+
+
+
+
+
+## [1.10.2](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.10.1...@amplitude/plugin-autocapture-browser@1.10.2) (2025-08-25)
+
+
+### Bug Fixes
+
+* **plugin-autocapture-browser:** make rage click less noisy ([#1265](https://github.com/amplitude/Amplitude-TypeScript/issues/1265)) ([a31acd3](https://github.com/amplitude/Amplitude-TypeScript/commit/a31acd34f2389d12427daba776ce22a262db7874))
+
+
+
+
+
+## [1.10.1](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.10.0...@amplitude/plugin-autocapture-browser@1.10.1) (2025-08-22)
+
+**Note:** Version bump only for package @amplitude/plugin-autocapture-browser
+
+
+
+
+
+# [1.10.0](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.9.0...@amplitude/plugin-autocapture-browser@1.10.0) (2025-08-21)
+
+
+### Features
+
+* **autocapture:** add filtering for email in isNonSensitiveString ([#1257](https://github.com/amplitude/Amplitude-TypeScript/issues/1257)) ([9cdd425](https://github.com/amplitude/Amplitude-TypeScript/commit/9cdd425f039d94bb0db6f9f82cbcaa97eeb8e39d))
+
+
+
+
+
+# [1.9.0](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.8.3...@amplitude/plugin-autocapture-browser@1.9.0) (2025-08-13)
+
+
+### Features
+
+* **autocapture:** pass autocapture version to Visual Labeling ([#1247](https://github.com/amplitude/Amplitude-TypeScript/issues/1247)) ([f13f795](https://github.com/amplitude/Amplitude-TypeScript/commit/f13f795ba0795278d88d795a395dd9e05d9512ba))
+
+
+
+
+
+## [1.8.3](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.8.2...@amplitude/plugin-autocapture-browser@1.8.3) (2025-08-08)
+
+**Note:** Version bump only for package @amplitude/plugin-autocapture-browser
+
+
+
+
+
+## [1.8.2](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.8.1...@amplitude/plugin-autocapture-browser@1.8.2) (2025-08-05)
+
+**Note:** Version bump only for package @amplitude/plugin-autocapture-browser
+
+
+
+
+
+## [1.8.1](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.8.0...@amplitude/plugin-autocapture-browser@1.8.1) (2025-07-30)
+
+
+### Bug Fixes
+
+* **analytics-browser:** use pointerdown instead of click for rage clicks ([#1210](https://github.com/amplitude/Amplitude-TypeScript/issues/1210)) ([321bb0f](https://github.com/amplitude/Amplitude-TypeScript/commit/321bb0fe345b0da2e5d0101b6de5c1e5209df6c1))
+
+
+
+
+
+# [1.8.0](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.7.1...@amplitude/plugin-autocapture-browser@1.8.0) (2025-07-29)
+
+
+### Features
+
+* **autocapture:** fetch page actions from remote config ([#1168](https://github.com/amplitude/Amplitude-TypeScript/issues/1168)) ([da213cc](https://github.com/amplitude/Amplitude-TypeScript/commit/da213cc33c4986bcebff2b4264b2c17314f5f310))
+
+
+
+
+
+## [1.7.1](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.7.0...@amplitude/plugin-autocapture-browser@1.7.1) (2025-07-17)
+
+**Note:** Version bump only for package @amplitude/plugin-autocapture-browser
+
+
+
+
+
+# [1.7.0](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.6.1...@amplitude/plugin-autocapture-browser@1.7.0) (2025-07-15)
+
+
+### Features
+
+* **analytics-browser:** add experimental frustrationInteractions ([#1209](https://github.com/amplitude/Amplitude-TypeScript/issues/1209)) ([e321744](https://github.com/amplitude/Amplitude-TypeScript/commit/e3217444c58be15e779ff1fd54a55027c93f5db0))
+
+
+
+
+
+## [1.6.1](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.6.0...@amplitude/plugin-autocapture-browser@1.6.1) (2025-07-11)
+
+
+### Bug Fixes
+
+* use sliding window to capture rage clicks ([#1202](https://github.com/amplitude/Amplitude-TypeScript/issues/1202)) ([b80f09e](https://github.com/amplitude/Amplitude-TypeScript/commit/b80f09e5ed9a92a7f7d26bd6761c0cd11f306ec3))
+
+
+
+
+
+# [1.6.0](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.5.0...@amplitude/plugin-autocapture-browser@1.6.0) (2025-07-08)
+
+
+### Bug Fixes
+
+* **plugin-autocapture-browser:** remove cursor pointer ([#1187](https://github.com/amplitude/Amplitude-TypeScript/issues/1187)) ([6894b93](https://github.com/amplitude/Amplitude-TypeScript/commit/6894b93b713c6a2dbdb453155e6261ff7e8ddeb4))
+
+
+### Features
+
+* **analytics-browser:** change definition of rage click ([#1183](https://github.com/amplitude/Amplitude-TypeScript/issues/1183)) ([108f930](https://github.com/amplitude/Amplitude-TypeScript/commit/108f930114629fdb3d600532a2c6b8b4f6cafd01))
+
+
+
+
+
+# [1.5.0](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.4.0...@amplitude/plugin-autocapture-browser@1.5.0) (2025-06-30)
+
+
+### Features
+
+* add getOptOut() and getIdentity() ([#1174](https://github.com/amplitude/Amplitude-TypeScript/issues/1174)) ([72017c8](https://github.com/amplitude/Amplitude-TypeScript/commit/72017c8a1a54d929542e883e61d61168f214a780))
+
+
+
+
+
+# [1.4.0](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.3.0...@amplitude/plugin-autocapture-browser@1.4.0) (2025-06-26)
+
+
+### Features
+
+* **plugin-autocapture-browser:** add rage+dead clicks to autocapture plugin ([#1146](https://github.com/amplitude/Amplitude-TypeScript/issues/1146)) ([c850f02](https://github.com/amplitude/Amplitude-TypeScript/commit/c850f020a6b56bbd8d64e0f946acaf0eac15ccf7))
+
+
+
+
+
+# [1.3.0](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.2.9...@amplitude/plugin-autocapture-browser@1.3.0) (2025-06-25)
+
+
+### Features
+
+* **autocapture:** Added config to capture event properties ([#1111](https://github.com/amplitude/Amplitude-TypeScript/issues/1111)) ([109c3e2](https://github.com/amplitude/Amplitude-TypeScript/commit/109c3e220293fff92f870f8efe1a6cb4a20bebf4))
+
+
+
+
+
+## [1.2.9](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.2.8...@amplitude/plugin-autocapture-browser@1.2.9) (2025-06-11)
+
+**Note:** Version bump only for package @amplitude/plugin-autocapture-browser
+
+
+
+
+
+## [1.2.8](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.2.7...@amplitude/plugin-autocapture-browser@1.2.8) (2025-06-03)
+
+**Note:** Version bump only for package @amplitude/plugin-autocapture-browser
+
+
+
+
+
+## [1.2.7](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.2.7-main.0...@amplitude/plugin-autocapture-browser@1.2.7) (2025-05-27)
+
+
+### Reverts
+
+* "chore(release): publish" ([#1094](https://github.com/amplitude/Amplitude-TypeScript/issues/1094)) ([f6db1ee](https://github.com/amplitude/Amplitude-TypeScript/commit/f6db1eed32ed77c7ce626624dc55972971f3b27d))
+
+
+
+
+
+## [1.2.6](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.2.5...@amplitude/plugin-autocapture-browser@1.2.6) (2025-05-14)
+
+**Note:** Version bump only for package @amplitude/plugin-autocapture-browser
+
+
+
+
+
+## [1.2.5](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.2.4...@amplitude/plugin-autocapture-browser@1.2.5) (2025-05-13)
+
+**Note:** Version bump only for package @amplitude/plugin-autocapture-browser
+
+
+
+
+
+## [1.2.4](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.2.3...@amplitude/plugin-autocapture-browser@1.2.4) (2025-05-07)
+
+**Note:** Version bump only for package @amplitude/plugin-autocapture-browser
+
+
+
+
+
+## [1.2.3](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.2.2...@amplitude/plugin-autocapture-browser@1.2.3) (2025-05-05)
+
+**Note:** Version bump only for package @amplitude/plugin-autocapture-browser
+
+
+
+
+
+## [1.2.2](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.2.1...@amplitude/plugin-autocapture-browser@1.2.2) (2025-05-02)
+
+**Note:** Version bump only for package @amplitude/plugin-autocapture-browser
+
+
+
+
+
+## [1.2.1](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.2.0...@amplitude/plugin-autocapture-browser@1.2.1) (2025-05-02)
+
+**Note:** Version bump only for package @amplitude/plugin-autocapture-browser
+
+
+
+
+
+# [1.2.0](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.1.10...@amplitude/plugin-autocapture-browser@1.2.0) (2025-05-02)
+
+
+### Features
+
+* **analytics-browser:** autocapture network errors ([#1050](https://github.com/amplitude/Amplitude-TypeScript/issues/1050)) ([104350f](https://github.com/amplitude/Amplitude-TypeScript/commit/104350ffe8b1bd1a7090482ac3bf24d85672bd43))
+
+
+
+
+
+## [1.1.10](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.1.9...@amplitude/plugin-autocapture-browser@1.1.10) (2025-04-30)
+
+**Note:** Version bump only for package @amplitude/plugin-autocapture-browser
+
+
+
+
+
+## [1.1.9](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.1.8...@amplitude/plugin-autocapture-browser@1.1.9) (2025-04-22)
+
+**Note:** Version bump only for package @amplitude/plugin-autocapture-browser
+
+
+
+
+
+## [1.1.8](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.1.7...@amplitude/plugin-autocapture-browser@1.1.8) (2025-04-17)
+
+**Note:** Version bump only for package @amplitude/plugin-autocapture-browser
+
+
+
+
+
+## [1.1.7](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.1.6...@amplitude/plugin-autocapture-browser@1.1.7) (2025-04-15)
+
+**Note:** Version bump only for package @amplitude/plugin-autocapture-browser
+
+
+
+
+
+## [1.1.6](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.1.5...@amplitude/plugin-autocapture-browser@1.1.6) (2025-04-10)
+
+**Note:** Version bump only for package @amplitude/plugin-autocapture-browser
+
+
+
+
+
+## [1.1.5](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.1.4...@amplitude/plugin-autocapture-browser@1.1.5) (2025-04-07)
+
+**Note:** Version bump only for package @amplitude/plugin-autocapture-browser
+
+
+
+
+
+## [1.1.4](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.1.3...@amplitude/plugin-autocapture-browser@1.1.4) (2025-04-07)
+
+**Note:** Version bump only for package @amplitude/plugin-autocapture-browser
+
+
+
+
+
+## [1.1.3](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.1.2...@amplitude/plugin-autocapture-browser@1.1.3) (2025-04-02)
+
+**Note:** Version bump only for package @amplitude/plugin-autocapture-browser
+
+
+
+
+
+## [1.1.2](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.1.1...@amplitude/plugin-autocapture-browser@1.1.2) (2025-03-24)
+
+**Note:** Version bump only for package @amplitude/plugin-autocapture-browser
+
+
+
+
+
+## [1.1.1](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.1.0...@amplitude/plugin-autocapture-browser@1.1.1) (2025-03-21)
+
+
+### Bug Fixes
+
+* **autocapture:** removed deprecated Element Selector event property … ([#1001](https://github.com/amplitude/Amplitude-TypeScript/issues/1001)) ([590d3f4](https://github.com/amplitude/Amplitude-TypeScript/commit/590d3f4c38c336fd490786babdfde292f9350101))
+
+
+
+
+
+# [1.1.0](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.0.5...@amplitude/plugin-autocapture-browser@1.1.0) (2025-03-14)
+
+
+### Bug Fixes
+
+* **autocapture:** remove time assignment for element interactions tracking ([#981](https://github.com/amplitude/Amplitude-TypeScript/issues/981)) ([c837a07](https://github.com/amplitude/Amplitude-TypeScript/commit/c837a07e62285a7e033014f5ea9d38cf246f4f89))
+
+
+### Features
+
+* **analytics-core:** merge analytics-types ([#989](https://github.com/amplitude/Amplitude-TypeScript/issues/989)) ([9f7ed68](https://github.com/amplitude/Amplitude-TypeScript/commit/9f7ed68e8ec468f5c597ce427c70ffd855dde629))
+
+
+
+
+
+## 1.0.5 (2025-02-28)
+
+
+### Reverts
+
+* Revert "chore(release): publish" ([d392f62](https://github.com/amplitude/Amplitude-TypeScript/commit/d392f6290b8bb4dd955d6e6f20b00191679489c4))
+
+
+
+
+
+# Change Log
+
+All notable changes to this project will be documented in this file. See
+[Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+## [1.0.4](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.0.3...@amplitude/plugin-autocapture-browser@1.0.4) (2024-11-25)
+
+### Bug Fixes
+
+- missing body for fetch intercepts in ga events forwarder
+  ([#922](https://github.com/amplitude/Amplitude-TypeScript/issues/922))
+  ([3257610](https://github.com/amplitude/Amplitude-TypeScript/commit/3257610eedaef7f694859fb432fe62faca769331))
+
+# Change Log
+
+All notable changes to this project will be documented in this file. See
+[Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+## [1.0.3](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.0.2...@amplitude/plugin-autocapture-browser@1.0.3) (2024-09-23)
+
+### Bug Fixes
+
+- **analytics-react-native:** should export extendSession in client
+  ([#884](https://github.com/amplitude/Amplitude-TypeScript/issues/884))
+  ([ff2e9b5](https://github.com/amplitude/Amplitude-TypeScript/commit/ff2e9b56c71636fec79d56e5a6d2fd3f567a29b3))
+
+# Change Log
+
+All notable changes to this project will be documented in this file. See
+[Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+## [1.0.2](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.0.1...@amplitude/plugin-autocapture-browser@1.0.2) (2024-09-18)
+
+### Bug Fixes
+
+- **autocapture:** use getAttribute to more safely access attributes and cast properties to string
+  ([#875](https://github.com/amplitude/Amplitude-TypeScript/issues/875))
+  ([9bef4b7](https://github.com/amplitude/Amplitude-TypeScript/commit/9bef4b7aadee113dea870d12ee3cd1ff351eee57))
+- **plugin-autocapture-browser:** import types from analytics-types
+  ([#879](https://github.com/amplitude/Amplitude-TypeScript/issues/879))
+  ([9d00976](https://github.com/amplitude/Amplitude-TypeScript/commit/9d00976708f749dfbf4ad2e4627bd3981fd8fa2a))
+
+# Change Log
+
+All notable changes to this project will be documented in this file. See
+[Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+## [1.0.1](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.0.0...@amplitude/plugin-autocapture-browser@1.0.1) (2024-09-05)
+
+### Bug Fixes
+
+- **autocapture:** prevent potential memory exhaustion when generating combinations
+  ([#863](https://github.com/amplitude/Amplitude-TypeScript/issues/863))
+  ([6fd6495](https://github.com/amplitude/Amplitude-TypeScript/commit/6fd6495d4fa889882b45af844e38cba488c6bc31))
+
+# Change Log
+
+All notable changes to this project will be documented in this file. See
+[Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+# [1.0.0](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.0.0-beta.5...@amplitude/plugin-autocapture-browser@1.0.0) (2024-08-01)
+
+**Note:** Version bump only for package @amplitude/plugin-autocapture-browser
+
+# Change Log
+
+All notable changes to this project will be documented in this file. See
+[Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+# [1.0.0-beta.5](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.0.0-beta.4...@amplitude/plugin-autocapture-browser@1.0.0-beta.5) (2024-08-01)
+
+### Features
+
+- **autocapture:** add more elements to the default cssSelectorAllowlist
+  ([#833](https://github.com/amplitude/Amplitude-TypeScript/issues/833))
+  ([cf4070a](https://github.com/amplitude/Amplitude-TypeScript/commit/cf4070a30286be04aa050100f6fac202533e1d7e))
+
+# Change Log
+
+All notable changes to this project will be documented in this file. See
+[Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+# [1.0.0-beta.4](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.0.0-beta.3...@amplitude/plugin-autocapture-browser@1.0.0-beta.4) (2024-07-30)
+
+### Bug Fixes
+
+- **autocapture:** Remove click tracking buffer and duplicate action clicks
+  ([#830](https://github.com/amplitude/Amplitude-TypeScript/issues/830))
+  ([e1fefd4](https://github.com/amplitude/Amplitude-TypeScript/commit/e1fefd4a529dcec92a929a6003f384f05b6084c3))
+
+# Change Log
+
+All notable changes to this project will be documented in this file. See
+[Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+# [1.0.0-beta.3](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.0.0-beta.2...@amplitude/plugin-autocapture-browser@1.0.0-beta.3) (2024-07-23)
+
+### Features
+
+- **autocapture:** track DOM mutations and navigation events to capture action clicks
+  ([#813](https://github.com/amplitude/Amplitude-TypeScript/issues/813))
+  ([52947a3](https://github.com/amplitude/Amplitude-TypeScript/commit/52947a30b452f51a5bcf74009bacd0beb3a6fdaa))
+
+# Change Log
+
+All notable changes to this project will be documented in this file. See
+[Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+# [1.0.0-beta.2](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.0.0-beta.1...@amplitude/plugin-autocapture-browser@1.0.0-beta.2) (2024-07-23)
+
+### Bug Fixes
+
+- **autocapture:** reverse hierarchy order and use more accurate property size calculation
+  ([#807](https://github.com/amplitude/Amplitude-TypeScript/issues/807))
+  ([24afd6a](https://github.com/amplitude/Amplitude-TypeScript/commit/24afd6a6a87cc12d8766df92156ee8e2ef785d9b))
+
+# Change Log
+
+All notable changes to this project will be documented in this file. See
+[Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+# [1.0.0-beta.1](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@1.0.0-beta.0...@amplitude/plugin-autocapture-browser@1.0.0-beta.1) (2024-07-06)
+
+### Features
+
+- **plugin-autocapture-browser:** update visual labeling to latest 1.0.0 alpha
+  ([#803](https://github.com/amplitude/Amplitude-TypeScript/issues/803))
+  ([7ac6b0e](https://github.com/amplitude/Amplitude-TypeScript/commit/7ac6b0e2a97d78fde3bb1ec26701ba63831d99ef))
+
+# Change Log
+
+All notable changes to this project will be documented in this file. See
+[Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+# [1.0.0-beta.0](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@0.11.0...@amplitude/plugin-autocapture-browser@1.0.0-beta.0) (2024-07-06)
+
+**Note:** Version bump only for package @amplitude/plugin-autocapture-browser
+
+# Change Log
+
+All notable changes to this project will be documented in this file. See
+[Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+# [0.11.0](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@0.10.0...@amplitude/plugin-autocapture-browser@0.11.0) (2024-07-01)
+
+### Features
+
+- **autocapture:** Add element hierarchy tracking and improve attribute filtering
+  ([#786](https://github.com/amplitude/Amplitude-TypeScript/issues/786))
+  ([03e3f9d](https://github.com/amplitude/Amplitude-TypeScript/commit/03e3f9d8e56355d3af1e1335d9a099b58d16e1a6))
+
+# Change Log
+
+All notable changes to this project will be documented in this file. See
+[Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+# [0.10.0](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@0.9.2...@amplitude/plugin-autocapture-browser@0.10.0) (2024-06-24)
+
+### Features
+
+- **autocapture-browser:** Adding async request/response pattern to Autocapture messenger
+  ([#781](https://github.com/amplitude/Amplitude-TypeScript/issues/781))
+  ([f7e26fc](https://github.com/amplitude/Amplitude-TypeScript/commit/f7e26fc1ffed3589934935cede4432ff915c424c))
+
+# Change Log
+
+All notable changes to this project will be documented in this file. See
+[Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+## [0.9.2](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@0.9.1...@amplitude/plugin-autocapture-browser@0.9.2) (2024-06-07)
+
+### Bug Fixes
+
+- **plugin-autocapture-browser:** export AutocaptureOptions
+  ([#766](https://github.com/amplitude/Amplitude-TypeScript/issues/766))
+  ([a2558c8](https://github.com/amplitude/Amplitude-TypeScript/commit/a2558c83d3373aabeaf26b9196883f52028b5f67))
+
+# Change Log
+
+All notable changes to this project will be documented in this file. See
+[Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+## [0.9.1](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-autocapture-browser@0.9.0...@amplitude/plugin-autocapture-browser@0.9.1) (2024-05-28)
+
+**Note:** Version bump only for package @amplitude/plugin-autocapture-browser
+
+# Change Log
+
+All notable changes to this project will be documented in this file. See
+[Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+# 0.9.0 (2024-04-23)
+
+### Features
+
+- rename deta to autocapture ([#725](https://github.com/amplitude/Amplitude-TypeScript/issues/725))
+  ([28a71ac](https://github.com/amplitude/Amplitude-TypeScript/commit/28a71ac398eb47e5a01fd6c893521180ff01aa7e))
+
+# Change Log
+
+All notable changes to this project will be documented in this file. See
+[Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+# [0.8.0](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-default-event-tracking-advanced-browser@0.7.2...@amplitude/plugin-default-event-tracking-advanced-browser@0.8.0) (2024-03-20)
+
+### Features
+
+- pass iselementselectable to visual selector ([#684](https://github.com/amplitude/Amplitude-TypeScript/issues/684))
+  ([4ca7f9c](https://github.com/amplitude/Amplitude-TypeScript/commit/4ca7f9c2ea546eb79415f2b9ba3336df8f9352ff))
+
+# Change Log
+
+All notable changes to this project will be documented in this file. See
+[Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+## [0.7.2](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-default-event-tracking-advanced-browser@0.7.1...@amplitude/plugin-default-event-tracking-advanced-browser@0.7.2) (2024-03-08)
+
+**Note:** Version bump only for package @amplitude/plugin-default-event-tracking-advanced-browser
+
+# Change Log
+
+All notable changes to this project will be documented in this file. See
+[Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+## [0.7.1](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-default-event-tracking-advanced-browser@0.7.0...@amplitude/plugin-default-event-tracking-advanced-browser@0.7.1) (2024-03-02)
+
+**Note:** Version bump only for package @amplitude/plugin-default-event-tracking-advanced-browser
+
+# Change Log
+
+All notable changes to this project will be documented in this file. See
+[Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+# [0.7.0](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-default-event-tracking-advanced-browser@0.6.0...@amplitude/plugin-default-event-tracking-advanced-browser@0.7.0) (2024-03-01)
+
+### Features
+
+- **deta:** support eu and staging origins ([#671](https://github.com/amplitude/Amplitude-TypeScript/issues/671))
+  ([9d6144f](https://github.com/amplitude/Amplitude-TypeScript/commit/9d6144fa2f4cba70458c499e0e04255330c57386))
+
+# Change Log
+
+All notable changes to this project will be documented in this file. See
+[Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+# [0.6.0](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-default-event-tracking-advanced-browser@0.5.1...@amplitude/plugin-default-event-tracking-advanced-browser@0.6.0) (2024-02-13)
+
+### Features
+
+- **deta:** pass the on track message for instrumentations
+  ([#661](https://github.com/amplitude/Amplitude-TypeScript/issues/661))
+  ([c87a63b](https://github.com/amplitude/Amplitude-TypeScript/commit/c87a63b42e8f314c9dbe6cc634847cb195563913))
+
+# Change Log
+
+All notable changes to this project will be documented in this file. See
+[Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+## [0.5.1](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-default-event-tracking-advanced-browser@0.5.0...@amplitude/plugin-default-event-tracking-advanced-browser@0.5.1) (2024-02-10)
+
+### Bug Fixes
+
+- **deta plugin:** type and error issues ([#660](https://github.com/amplitude/Amplitude-TypeScript/issues/660))
+  ([276ad85](https://github.com/amplitude/Amplitude-TypeScript/commit/276ad85bf61f24ccabe13bfc4a60194c1a5db42e))
+
+# Change Log
+
+All notable changes to this project will be documented in this file. See
+[Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+# [0.5.0](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-default-event-tracking-advanced-browser@0.4.2...@amplitude/plugin-default-event-tracking-advanced-browser@0.5.0) (2024-01-31)
+
+### Features
+
+- bump selector version to 0.1.1 ([#656](https://github.com/amplitude/Amplitude-TypeScript/issues/656))
+  ([f6e7ef7](https://github.com/amplitude/Amplitude-TypeScript/commit/f6e7ef7bfc6f1ac6697cc3f005fb702636df2d55))
+
+# Change Log
+
+All notable changes to this project will be documented in this file. See
+[Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+## [0.4.2](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-default-event-tracking-advanced-browser@0.4.1...@amplitude/plugin-default-event-tracking-advanced-browser@0.4.2) (2024-01-16)
+
+**Note:** Version bump only for package @amplitude/plugin-default-event-tracking-advanced-browser
+
+# Change Log
+
+All notable changes to this project will be documented in this file. See
+[Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+## [0.4.1](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-default-event-tracking-advanced-browser@0.4.0...@amplitude/plugin-default-event-tracking-advanced-browser@0.4.1) (2024-01-10)
+
+**Note:** Version bump only for package @amplitude/plugin-default-event-tracking-advanced-browser
+
+# Change Log
+
+All notable changes to this project will be documented in this file. See
+[Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+# [0.4.0](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-default-event-tracking-advanced-browser@0.3.1...@amplitude/plugin-default-event-tracking-advanced-browser@0.4.0) (2024-01-05)
+
+### Features
+
+- **deta:** use same method for element properties
+  ([#643](https://github.com/amplitude/Amplitude-TypeScript/issues/643))
+  ([69efb79](https://github.com/amplitude/Amplitude-TypeScript/commit/69efb79c3953ec981f909553d1ac62eb3d549562))
+
+# Change Log
+
+All notable changes to this project will be documented in this file. See
+[Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+## [0.3.1](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-default-event-tracking-advanced-browser@0.3.0...@amplitude/plugin-default-event-tracking-advanced-browser@0.3.1) (2023-12-19)
+
+**Note:** Version bump only for package @amplitude/plugin-default-event-tracking-advanced-browser
+
+# Change Log
+
+All notable changes to this project will be documented in this file. See
+[Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+# [0.3.0](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-default-event-tracking-advanced-browser@0.2.1...@amplitude/plugin-default-event-tracking-advanced-browser@0.3.0) (2023-11-16)
+
+### Features
+
+- integrate with selector ([#620](https://github.com/amplitude/Amplitude-TypeScript/issues/620))
+  ([7afb5c7](https://github.com/amplitude/Amplitude-TypeScript/commit/7afb5c72aba497b7feba980fdf49f061a1009de2))
+
+# Change Log
+
+All notable changes to this project will be documented in this file. See
+[Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+## [0.2.1](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-default-event-tracking-advanced-browser@0.2.0...@amplitude/plugin-default-event-tracking-advanced-browser@0.2.1) (2023-11-03)
+
+### Bug Fixes
+
+- skip parent element event when it is not target ([#613](https://github.com/amplitude/Amplitude-TypeScript/issues/613))
+  ([cd378b3](https://github.com/amplitude/Amplitude-TypeScript/commit/cd378b36200345721bc69a95c5d6daf7cf8b52cd))
+
+# Change Log
+
+All notable changes to this project will be documented in this file. See
+[Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+# [0.2.0](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-default-event-tracking-advanced-browser@0.1.3...@amplitude/plugin-default-event-tracking-advanced-browser@0.2.0) (2023-11-01)
+
+### Features
+
+- add default data attr selector ([#612](https://github.com/amplitude/Amplitude-TypeScript/issues/612))
+  ([c0f0c2d](https://github.com/amplitude/Amplitude-TypeScript/commit/c0f0c2dcbcb43959992380fe26b0df961a4ea9f4))
+
+# Change Log
+
+All notable changes to this project will be documented in this file. See
+[Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+## [0.1.3](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-default-event-tracking-advanced-browser@0.1.2...@amplitude/plugin-default-event-tracking-advanced-browser@0.1.3) (2023-10-27)
+
+### Bug Fixes
+
+- handle text node throw error issue ([#610](https://github.com/amplitude/Amplitude-TypeScript/issues/610))
+  ([b425d44](https://github.com/amplitude/Amplitude-TypeScript/commit/b425d441753b298cc3a6717b00e38230612f19a3))
+
+# Change Log
+
+All notable changes to this project will be documented in this file. See
+[Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+## [0.1.2](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-default-event-tracking-advanced-browser@0.1.1...@amplitude/plugin-default-event-tracking-advanced-browser@0.1.2) (2023-10-27)
+
+### Bug Fixes
+
+- add filter back to handle current node ([#609](https://github.com/amplitude/Amplitude-TypeScript/issues/609))
+  ([92c412b](https://github.com/amplitude/Amplitude-TypeScript/commit/92c412b106158e57d57d526c05df0ec23977b388))
+
+# Change Log
+
+All notable changes to this project will be documented in this file. See
+[Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+## [0.1.1](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-default-event-tracking-advanced-browser@0.1.0...@amplitude/plugin-default-event-tracking-advanced-browser@0.1.1) (2023-10-27)
+
+### Bug Fixes
+
+- remove event stopPropagation ([#608](https://github.com/amplitude/Amplitude-TypeScript/issues/608))
+  ([afe1cc2](https://github.com/amplitude/Amplitude-TypeScript/commit/afe1cc2567b2bcc50a3416299b16f4721a50866a))
+
+# Change Log
+
+All notable changes to this project will be documented in this file. See
+[Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+# [0.1.0](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-default-event-tracking-advanced-browser@0.0.2...@amplitude/plugin-default-event-tracking-advanced-browser@0.1.0) (2023-10-27)
+
+### Features
+
+- make auto-tracking solely use css selector allowlist
+  ([#606](https://github.com/amplitude/Amplitude-TypeScript/issues/606))
+  ([404d09e](https://github.com/amplitude/Amplitude-TypeScript/commit/404d09ecc7a7923d7016fc2de3df26af442e123d))
+
+# Change Log
+
+All notable changes to this project will be documented in this file. See
+[Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+## [0.0.2](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-default-event-tracking-advanced-browser@0.0.1...@amplitude/plugin-default-event-tracking-advanced-browser@0.0.2) (2023-10-26)
+
+**Note:** Version bump only for package @amplitude/plugin-default-event-tracking-advanced-browser
+
+# Change Log
+
+All notable changes to this project will be documented in this file. See
+[Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+## 0.0.1 (2023-10-11)
+
+**Note:** Version bump only for package @amplitude/plugin-default-event-tracking-advanced-browser

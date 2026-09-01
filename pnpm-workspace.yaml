@@ -1,0 +1,22 @@
+packages:
+  - packages/*
+  - apps/*
+  - examples/react-native/app
+
+blockExoticSubdeps: true
+
+minimumReleaseAge: 4320
+
+minimumReleaseAgeExclude:
+  - '@amplitude/*'
+
+# These are dependencies that run the postinstall script
+# Only add dependencies to this if they have been vetted for security
+onlyBuiltDependencies:
+  - core-js
+  - esbuild
+  - msw
+  - nx
+  - unrs-resolver
+
+trustPolicy: true

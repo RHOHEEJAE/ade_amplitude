@@ -1,0 +1,122 @@
+import { ILogger } from '@amplitude/analytics-core';
+import { DEFAULT_MAX_PERSISTED_EVENTS_SIZE_BYTES, MAX_INTERVAL, MIN_INTERVAL } from '../constants';
+import { Events, EventsStore, SendingSequencesReturn } from '../typings/session-replay';
+
+export type InstanceArgs = {
+  loggerProvider: ILogger;
+  minInterval?: number;
+  maxInterval?: number;
+  maxPersistedEventsSize?: number;
+};
+
+export abstract class BaseEventsStore<KeyType> implements EventsStore<KeyType> {
+  protected readonly loggerProvider: ILogger;
+  private minInterval = MIN_INTERVAL;
+  private maxInterval = MAX_INTERVAL;
+  private maxPersistedEventsSize = DEFAULT_MAX_PERSISTED_EVENTS_SIZE_BYTES;
+  // Assigned in the constructor after `minInterval` is overridden by `args`. Class-field
+  // initializers run before the constructor body, so initializing here would freeze
+  // `interval` at the class-field default (500ms) — defeating any caller-supplied minInterval
+  // for the very first split.
+  private interval!: number;
+  private _timeAtLastSplit = Date.now(); // Initialize this so we have a point of comparison when events are recorded
+
+  public get timeAtLastSplit() {
+    return this._timeAtLastSplit;
+  }
+
+  constructor(args: InstanceArgs) {
+    this.loggerProvider = args.loggerProvider;
+    this.minInterval = args.minInterval ?? this.minInterval;
+    this.maxInterval = args.maxInterval ?? this.maxInterval;
+    this.maxPersistedEventsSize = args.maxPersistedEventsSize ?? this.maxPersistedEventsSize;
+    this.interval = this.minInterval;
+  }
+
+  abstract addEventToCurrentSequence(
+    sessionId: string | number,
+    event: string,
+  ): Promise<SendingSequencesReturn<KeyType> | undefined>;
+  abstract getSequencesToSend(): Promise<SendingSequencesReturn<KeyType>[] | undefined>;
+  abstract storeCurrentSequence(sessionId: number): Promise<SendingSequencesReturn<KeyType> | undefined>;
+  abstract storeSendingEvents(sessionId: string | number, events: Events): Promise<KeyType | undefined>;
+  abstract cleanUpSessionEventsStore(sessionId: number, sequenceId: KeyType): Promise<void>;
+
+  /**
+   * Returns the UTF-8 byte size of a string without buffer allocation, matching the
+   * actual wire byte count for non-ASCII content (Base64 image data, emoji, etc.).
+   */
+  private getStringSize(str: string): number {
+    let bytes = 0;
+    for (let i = 0; i < str.length; i++) {
+      const code = str.charCodeAt(i);
+      if (code <= 0x7f) {
+        bytes++;
+      } else if (code <= 0x7ff) {
+        bytes += 2;
+      } else if (code >= 0xd800 && code <= 0xdbff) {
+        // High surrogate — check for a valid low surrogate before consuming the pair.
+        const next = i + 1 < str.length ? str.charCodeAt(i + 1) : NaN;
+        if (next >= 0xdc00 && next <= 0xdfff) {
+          // Valid surrogate pair → encodes a code point above U+FFFF (4 UTF-8 bytes).
+          bytes += 4;
+          i++;
+        } else {
+          // Orphaned high surrogate — treated as a replacement character (3 UTF-8 bytes).
+          bytes += 3;
+        }
+      } else if (code >= 0xdc00 && code <= 0xdfff) {
+        // Orphaned low surrogate — treated as a replacement character (3 UTF-8 bytes).
+        bytes += 3;
+      } else {
+        // Other BMP character (U+0800–U+FFFF, excluding surrogates): 3 UTF-8 bytes.
+        bytes += 3;
+      }
+    }
+    return bytes;
+  }
+
+  /**
+   * Calculates the total UTF-8 byte size of events array
+   * Accounts for JSON serialization overhead when sent to backend
+   */
+  private getEventsArraySize(events: Events): number {
+    let totalSize = 0;
+    for (const event of events) {
+      totalSize += this.getStringSize(event);
+    }
+
+    // Approximate overhead from the array portion of the JSON payload:
+    // - Array brackets: [] = 2 bytes
+    // - Commas between events: events.length - 1 bytes
+    // - Double quotes wrapping each event string: events.length * 2 bytes
+    // Note: does not include the outer { version, events } wrapper (~22 bytes) or
+    // per-event JSON-escaping of " and \ characters; the 2 MB MAX_EVENT_LIST_SIZE cap
+    // stays well under the server's 10 MB decompressed split threshold even with those.
+    const overhead = 2 + Math.max(0, events.length - 1) + events.length * 2;
+
+    return totalSize + overhead;
+  }
+
+  /**
+   * Determines whether to send the events list to the backend and start a new
+   * empty events list, based on the size of the list as well as the last time sent
+   * @param nextEventString
+   * @returns boolean
+   */
+  shouldSplitEventsList = (events: Events, nextEventString: string): boolean => {
+    const sizeOfNextEvent = this.getStringSize(nextEventString);
+    const sizeOfEventsList = this.getEventsArraySize(events);
+
+    // Check size constraint first (most likely to trigger)
+    if (sizeOfEventsList + sizeOfNextEvent >= this.maxPersistedEventsSize) {
+      return true;
+    }
+    if (Date.now() - this.timeAtLastSplit > this.interval && events.length) {
+      this.interval = Math.min(this.maxInterval, this.interval + this.minInterval);
+      this._timeAtLastSplit = Date.now();
+      return true;
+    }
+    return false;
+  };
+}

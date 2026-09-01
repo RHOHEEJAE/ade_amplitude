@@ -1,0 +1,160 @@
+package com.amplitude.sessionreplayreactnative
+
+import com.amplitude.android.sessionreplay.SessionReplay
+import com.amplitude.android.sessionreplay.config.MaskLevel
+import com.amplitude.android.sessionreplay.config.PrivacyConfig
+import com.amplitude.common.Logger
+import com.amplitude.common.android.LogcatLogger
+import com.amplitude.core.ServerZone
+import com.facebook.react.bridge.ReactApplicationContext
+import com.facebook.react.bridge.ReactMethod
+import com.facebook.react.bridge.Promise
+import com.facebook.react.bridge.ReadableMap
+
+// `@ReactMethod` is required on the legacy architecture and ignored on the new
+// one, so it stays on the overrides below.
+class SessionReplayReactNativeModule(private val reactContext: ReactApplicationContext) :
+  SessionReplayReactNativeSpec(reactContext) {
+  private lateinit var sessionReplay: SessionReplay
+
+  override fun getName(): String {
+    return NAME
+  }
+
+  @ReactMethod
+  override fun setup(config: ReadableMap, promise: Promise) {
+    try {
+      val apiKey = config.getString("apiKey") ?: throw IllegalArgumentException("apiKey is required")
+      val deviceId = config.getString("deviceId")
+      val sessionId = config.getDouble("sessionId").toLong()
+      val serverZone = config.getString("serverZone") ?: "US"
+      val sampleRate = config.getDouble("sampleRate")
+      val enableRemoteConfig = config.getBoolean("enableRemoteConfig")
+      val logLevel = config.getInt("logLevel")
+      val optOut = config.getBoolean("optOut")
+      val maskLevel = when ((config.getString("maskLevel") ?: "medium").lowercase()) {
+        "light" -> MaskLevel.LIGHT
+        "medium" -> MaskLevel.MEDIUM
+        "conservative" -> MaskLevel.CONSERVATIVE
+        else -> MaskLevel.MEDIUM
+      }
+
+      LogcatLogger.logger.logMode = when (logLevel) {
+          0 -> Logger.LogMode.OFF
+          1 -> Logger.LogMode.ERROR
+          2 -> Logger.LogMode.WARN
+          3 -> Logger.LogMode.INFO
+          4 -> Logger.LogMode.DEBUG
+          else -> Logger.LogMode.WARN
+      }
+
+      LogcatLogger.logger.debug("""
+          setup:
+          API Key: $apiKey
+          Device Id: $deviceId
+          Session Id: $sessionId
+          Server Zone: $serverZone
+          Sample Rate: $sampleRate
+          Enable Remote Config: $enableRemoteConfig
+          Log Level: $logLevel
+          Mask Level: $maskLevel
+          Opt Out: $optOut
+      """.trimIndent())
+
+      sessionReplay = SessionReplay(
+        apiKey = apiKey,
+        context = reactContext.applicationContext,
+        deviceId = deviceId ?: "",
+        sessionId = sessionId,
+        optOut = optOut,
+        sampleRate = sampleRate,
+        logger = LogcatLogger.logger,
+        enableRemoteConfig = enableRemoteConfig,
+        serverZone = when (serverZone) {
+          "EU" -> ServerZone.EU
+          else -> ServerZone.US
+        },
+        autoStart = false,
+        privacyConfig = PrivacyConfig(maskLevel = maskLevel),
+      )
+      
+      promise.resolve(null)
+    } catch (e: Exception) {
+      promise.reject("SETUP_ERROR", e.message, e)
+    }
+  }
+
+  @ReactMethod
+  override fun setSessionId(sessionId: Double, promise: Promise) {
+    try {
+      sessionReplay.setSessionId(sessionId.toLong())
+      promise.resolve(null)
+    } catch (e: Exception) {
+      promise.reject("SET_SESSION_ID_ERROR", e.message, e)
+    }
+  }
+
+  @ReactMethod
+  override fun setDeviceId(deviceId: String?, promise: Promise) {
+    try {
+      sessionReplay.setDeviceId(deviceId ?: "")
+      promise.resolve(null)
+    } catch (e: Exception) {
+      promise.reject("SET_DEVICE_ID_ERROR", e.message, e)
+    }
+  }
+
+  @ReactMethod
+  override fun getSessionId(promise: Promise) {
+    try {
+      promise.resolve(sessionReplay.getSessionId().toDouble())
+    } catch (e: Exception) {
+      promise.reject("GET_SESSION_ID_ERROR", e.message, e)
+    }
+  }
+
+  @ReactMethod
+  override fun start(promise: Promise) {
+    try {
+      sessionReplay.start()
+      promise.resolve(null)
+    } catch (e: Exception) {
+      promise.reject("START_ERROR", e.message, e)
+    }
+  }
+
+  @ReactMethod
+  override fun stop(promise: Promise) {
+    try {
+      sessionReplay.stop()
+      promise.resolve(null)
+    } catch (e: Exception) {
+      promise.reject("STOP_ERROR", e.message, e)
+    }
+  }
+
+  @ReactMethod
+  override fun flush(promise: Promise) {
+    try {
+      sessionReplay.flush()
+      promise.resolve(null)
+    } catch (e: Exception) {
+      promise.reject("FLUSH_ERROR", e.message, e)
+    }
+  }
+
+  @ReactMethod
+  fun teardown() {
+    sessionReplay.shutdown()
+  }
+
+  override fun invalidate() {
+    if (::sessionReplay.isInitialized) {
+      sessionReplay.shutdown()
+    }
+  }
+
+  companion object {
+    const val NAME = "AMPNativeSessionReplay"
+  }
+}

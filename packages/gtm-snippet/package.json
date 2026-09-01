@@ -1,0 +1,35 @@
+{
+  "private": true,
+  "name": "@amplitude/gtm-snippet",
+  "description": "Amplitude JS SDK Wrapper for use with Google Tag Manager",
+  "publishConfig": {
+    "access": "public",
+    "tag": "latest"
+  },
+  "scripts": {
+    "build": "pnpm build:template && pnpm build:bundle",
+    "build:bundle": "rollup --config rollup.config.js",
+    "build:template": "node ./scripts/build-snippet.js",
+    "prepublishOnly": "pnpm build",
+    "publish:s3": "node ./scripts/upload-to-s3.js",
+    "version": "node ./scripts/version.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/amplitude/Amplitude-TypeScript.git"
+  },
+  "author": "Amplitude <support@amplitude.com>",
+  "license": "MIT",
+  "dependencies": {
+    "@amplitude/analytics-browser": "workspace:*",
+    "@amplitude/plugin-session-replay-browser": "workspace:*"
+  },
+  "devDependencies": {
+    "@aws-sdk/client-s3": "^3.229.0",
+    "@rollup/plugin-json": "5.0.0",
+    "ejs": "^3.1.9",
+    "rollup": "^2.80.0",
+    "rollup-plugin-gzip": "^3.1.0",
+    "rollup-plugin-terser": "^7.0.2"
+  }
+}

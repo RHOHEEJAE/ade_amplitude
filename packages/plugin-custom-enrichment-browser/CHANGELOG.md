@@ -1,0 +1,197 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+## [0.1.22](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-custom-enrichment-browser@0.1.21...@amplitude/plugin-custom-enrichment-browser@0.1.22) (2026-08-24)
+
+**Note:** Version bump only for package @amplitude/plugin-custom-enrichment-browser
+
+
+
+
+
+## [0.1.21](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-custom-enrichment-browser@0.1.20...@amplitude/plugin-custom-enrichment-browser@0.1.21) (2026-08-12)
+
+
+### Bug Fixes
+
+* **deps:** remediate Semgrep supply chain findings ([#1921](https://github.com/amplitude/Amplitude-TypeScript/issues/1921)) ([e131df0](https://github.com/amplitude/Amplitude-TypeScript/commit/e131df0b414933418e4c7159f1bfbdacc633a7d9))
+
+
+
+
+
+## [0.1.20](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-custom-enrichment-browser@0.1.19...@amplitude/plugin-custom-enrichment-browser@0.1.20) (2026-07-28)
+
+**Note:** Version bump only for package @amplitude/plugin-custom-enrichment-browser
+
+
+
+
+
+## [0.1.19](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-custom-enrichment-browser@0.1.18...@amplitude/plugin-custom-enrichment-browser@0.1.19) (2026-07-22)
+
+**Note:** Version bump only for package @amplitude/plugin-custom-enrichment-browser
+
+
+
+
+
+## [0.1.18](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-custom-enrichment-browser@0.1.17...@amplitude/plugin-custom-enrichment-browser@0.1.18) (2026-07-20)
+
+**Note:** Version bump only for package @amplitude/plugin-custom-enrichment-browser
+
+
+
+
+
+## [0.1.17](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-custom-enrichment-browser@0.1.16...@amplitude/plugin-custom-enrichment-browser@0.1.17) (2026-07-17)
+
+**Note:** Version bump only for package @amplitude/plugin-custom-enrichment-browser
+
+
+
+
+
+## [0.1.16](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-custom-enrichment-browser@0.1.15...@amplitude/plugin-custom-enrichment-browser@0.1.16) (2026-07-14)
+
+**Note:** Version bump only for package @amplitude/plugin-custom-enrichment-browser
+
+
+
+
+
+## [0.1.15](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-custom-enrichment-browser@0.1.14...@amplitude/plugin-custom-enrichment-browser@0.1.15) (2026-07-13)
+
+**Note:** Version bump only for package @amplitude/plugin-custom-enrichment-browser
+
+
+
+
+
+## [0.1.14](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-custom-enrichment-browser@0.1.13...@amplitude/plugin-custom-enrichment-browser@0.1.14) (2026-07-09)
+
+**Note:** Version bump only for package @amplitude/plugin-custom-enrichment-browser
+
+
+
+
+
+## [0.1.13](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-custom-enrichment-browser@0.1.12...@amplitude/plugin-custom-enrichment-browser@0.1.13) (2026-06-30)
+
+**Note:** Version bump only for package @amplitude/plugin-custom-enrichment-browser
+
+
+
+
+
+## [0.1.12](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-custom-enrichment-browser@0.1.11...@amplitude/plugin-custom-enrichment-browser@0.1.12) (2026-06-25)
+
+**Note:** Version bump only for package @amplitude/plugin-custom-enrichment-browser
+
+
+
+
+
+## [0.1.11](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-custom-enrichment-browser@0.1.10...@amplitude/plugin-custom-enrichment-browser@0.1.11) (2026-06-11)
+
+**Note:** Version bump only for package @amplitude/plugin-custom-enrichment-browser
+
+
+
+
+
+## [0.1.10](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-custom-enrichment-browser@0.1.9...@amplitude/plugin-custom-enrichment-browser@0.1.10) (2026-06-05)
+
+**Note:** Version bump only for package @amplitude/plugin-custom-enrichment-browser
+
+
+
+
+
+## [0.1.9](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-custom-enrichment-browser@0.1.8...@amplitude/plugin-custom-enrichment-browser@0.1.9) (2026-05-21)
+
+**Note:** Version bump only for package @amplitude/plugin-custom-enrichment-browser
+
+
+
+
+
+## [0.1.8](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-custom-enrichment-browser@0.1.7...@amplitude/plugin-custom-enrichment-browser@0.1.8) (2026-04-28)
+
+**Note:** Version bump only for package @amplitude/plugin-custom-enrichment-browser
+
+
+
+
+
+## [0.1.7](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-custom-enrichment-browser@0.1.6...@amplitude/plugin-custom-enrichment-browser@0.1.7) (2026-04-22)
+
+**Note:** Version bump only for package @amplitude/plugin-custom-enrichment-browser
+
+
+
+
+
+## [0.1.6](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-custom-enrichment-browser@0.1.5...@amplitude/plugin-custom-enrichment-browser@0.1.6) (2026-04-21)
+
+**Note:** Version bump only for package @amplitude/plugin-custom-enrichment-browser
+
+
+
+
+
+## [0.1.5](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-custom-enrichment-browser@0.1.4...@amplitude/plugin-custom-enrichment-browser@0.1.5) (2026-04-14)
+
+**Note:** Version bump only for package @amplitude/plugin-custom-enrichment-browser
+
+
+
+
+
+## [0.1.4](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-custom-enrichment-browser@0.1.3...@amplitude/plugin-custom-enrichment-browser@0.1.4) (2026-04-09)
+
+**Note:** Version bump only for package @amplitude/plugin-custom-enrichment-browser
+
+
+
+
+
+## [0.1.3](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-custom-enrichment-browser@0.1.2...@amplitude/plugin-custom-enrichment-browser@0.1.3) (2026-04-01)
+
+**Note:** Version bump only for package @amplitude/plugin-custom-enrichment-browser
+
+
+
+
+
+## [0.1.2](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-custom-enrichment-browser@0.1.1...@amplitude/plugin-custom-enrichment-browser@0.1.2) (2026-03-26)
+
+**Note:** Version bump only for package @amplitude/plugin-custom-enrichment-browser
+
+
+
+
+
+## [0.1.1](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/plugin-custom-enrichment-browser@0.1.0...@amplitude/plugin-custom-enrichment-browser@0.1.1) (2026-03-23)
+
+**Note:** Version bump only for package @amplitude/plugin-custom-enrichment-browser
+
+
+
+
+
+# 0.1.0 (2026-03-20)
+
+
+### Features
+
+* **plugin-custom-enrichment:** add custom enrichment plugin ([#1339](https://github.com/amplitude/Amplitude-TypeScript/issues/1339)) ([b236190](https://github.com/amplitude/Amplitude-TypeScript/commit/b236190fa30d0e4325c37b8896824e11f980e20c))
+* **plugin-custom-enrichment:** add plugin based on remote config settings ([#1586](https://github.com/amplitude/Amplitude-TypeScript/issues/1586)) ([617ebfe](https://github.com/amplitude/Amplitude-TypeScript/commit/617ebfe7aaee04b0aef3db09b48ed11bad9a6ca3))
+
+
+
+
+
+# Change Log

@@ -1,0 +1,70 @@
+import * as Config from '../src/config';
+import * as core from '@amplitude/analytics-core';
+import { LogLevel } from '@amplitude/analytics-core';
+import { Http } from '../src/transports/http';
+
+describe('config', () => {
+  const API_KEY = 'apiKey';
+
+  describe('NodeConfig', () => {
+    test('should create overwrite config', () => {
+      const logger = new core.Logger();
+      logger.enable(LogLevel.Warn);
+      const config = new Config.NodeConfig(API_KEY);
+      expect(config).toEqual({
+        apiKey: API_KEY,
+        flushIntervalMillis: 10000,
+        flushMaxRetries: 12,
+        flushQueueSize: 200,
+        instanceName: '$default_instance',
+        loggerProvider: logger,
+        logLevel: LogLevel.Warn,
+        minIdLength: undefined,
+        requestTimeoutMillis: 10000,
+        offline: false,
+        _optOut: false,
+        plan: undefined,
+        ingestionMetadata: undefined,
+        serverUrl: 'https://api2.amplitude.com/2/httpapi',
+        serverZone: 'US',
+        storageProvider: undefined,
+        transportProvider: new Http(),
+        useBatch: false,
+      });
+    });
+
+    test('should overwrite the request timeout', () => {
+      const config = new Config.NodeConfig(API_KEY, { requestTimeoutMillis: 500 });
+      expect(config.requestTimeoutMillis).toBe(500);
+      expect(config.transportProvider).toEqual(new Http(500));
+    });
+  });
+
+  describe('useNodeConfig', () => {
+    test('should create default config', () => {
+      const logger = new core.Logger();
+      logger.enable(LogLevel.Warn);
+      const config = Config.useNodeConfig(API_KEY, undefined);
+      expect(config).toEqual({
+        apiKey: API_KEY,
+        flushIntervalMillis: 10000,
+        flushMaxRetries: 12,
+        flushQueueSize: 200,
+        instanceName: '$default_instance',
+        loggerProvider: logger,
+        logLevel: LogLevel.Warn,
+        minIdLength: undefined,
+        requestTimeoutMillis: 10000,
+        offline: false,
+        _optOut: false,
+        plan: undefined,
+        ingestionMetadata: undefined,
+        serverUrl: 'https://api2.amplitude.com/2/httpapi',
+        serverZone: 'US',
+        storageProvider: undefined,
+        transportProvider: new Http(),
+        useBatch: false,
+      });
+    });
+  });
+});

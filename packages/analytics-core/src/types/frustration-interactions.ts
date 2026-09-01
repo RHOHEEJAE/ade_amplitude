@@ -1,0 +1,193 @@
+import { ActionType } from './element-interactions';
+
+/**
+ * Configuration options for dead clicks tracking
+ */
+export interface DeadClickOptions {
+  /**
+   * CSS selectors to define which elements on the page to track for dead clicks.
+   * A dead click is a click that doesn't result in any visible change or navigation.
+   */
+  cssSelectorAllowlist?: string[];
+}
+
+/**
+ * Configuration options for rage clicks tracking
+ */
+export interface RageClickOptions {
+  /**
+   * CSS selectors to define which elements on the page to track for rage clicks.
+   * A rage click is multiple rapid clicks on the same element within a 3s time window.
+   */
+  cssSelectorAllowlist?: string[];
+}
+
+/**
+ * Configuration options for thrashed cursor tracking
+ */
+export interface ThrashedCursorOptions {
+  /**
+   * Number of direction changes required to consider a thrashed cursor.
+   * Minimum of 5
+   * (x axis changes and y axis changes are counted separately)
+   * @default 20
+   */
+  directionChanges?: number;
+  /**
+   * Time window in milliseconds to consider a thrashed cursor.
+   * Maximum of of 4000
+   * @default 2000
+   */
+  threshold?: number;
+}
+
+/**
+ * Configuration options for error clicks tracking
+ */
+export interface ErrorClickOptions {
+  /**
+   * CSS selectors to define which elements on the page to track for error clicks.
+   * An error click is a click that results in an error.
+   */
+  cssSelectorAllowlist?: string[];
+}
+
+/**
+ * Configuration options for frustration interactions tracking.
+ * This includes dead clicks and rage clicks tracking.
+ */
+export interface FrustrationInteractionsOptions {
+  /**
+   * List of page URLs to allow auto tracking on.
+   * When provided, only allow tracking on these URLs.
+   * Both full URLs and regex are supported.
+   */
+  pageUrlAllowlist?: (string | RegExp)[];
+
+  /**
+   * List of page URLs to exclude from auto tracking.
+   * When provided, tracking will be blocked on these URLs.
+   * Both full URLs and regex are supported.
+   * This takes precedence over pageUrlAllowlist.
+   */
+  pageUrlExcludelist?: (string | RegExp)[];
+
+  /**
+   * Function to determine whether an event should be tracked.
+   * When provided, this function overwrites all other allowlists and configurations.
+   * If the function returns true, the event will be tracked.
+   * If the function returns false, the event will not be tracked.
+   * @param actionType - The type of action that triggered the event.
+   * @param element - The [Element](https://developer.mozilla.org/en-US/docs/Web/API/Element) that triggered the event.
+   */
+  shouldTrackEventResolver?: (actionType: ActionType, element: DomElement) => boolean;
+
+  /**
+   * Prefix for data attributes to allow auto collecting.
+   * Default is 'data-amp-track-'.
+   */
+  dataAttributePrefix?: string;
+
+  /**
+   * Configuration for dead clicks tracking.
+   * Set to `false` to disable dead click tracking.
+   * Set to `true` or an options object to enable with default or custom settings.
+   * Default is false.
+   */
+  deadClicks?: boolean | DeadClickOptions;
+
+  /**
+   * Configuration for rage clicks tracking.
+   * Set to `false` to disable rage click tracking.
+   * Set to `true` or an options object to enable with default settings.
+   * Default is false.
+   */
+  rageClicks?: boolean | RageClickOptions;
+
+  /**
+   * Configuration for error clicks tracking
+   * Set to `false` to disable error click tracking.
+   * Set to `true` or an options object to enable with default settings.
+   * Default is false.
+   */
+  errorClicks?: boolean | ErrorClickOptions;
+  /**
+   * Configuration for thrashed cursor tracking.
+   * Set to `false` to disable thrashed cursor tracking.
+   * Set to `true` or an options object to enable with default settings.
+   * Default is false.
+   */
+  thrashedCursor?: boolean | ThrashedCursorOptions;
+
+  /**
+   * RegExp pattern list to allow custom patterns for text masking
+   */
+  maskTextRegex?: (RegExp | { pattern: string; description: string })[];
+}
+
+const CLICKABLE_ELEMENT_SELECTORS = [
+  'a',
+  'button',
+  '[role="button"]',
+  '[role="link"]',
+  '[role="menuitem"]',
+  '[role="menuitemcheckbox"]',
+  '[role="menuitemradio"]',
+  '[role="option"]',
+  '[role="tab"]',
+  '[role="treeitem"]',
+  '[contenteditable="true" i]',
+];
+
+const DEFAULT_ERROR_AND_DEAD_CLICK_ALLOWLIST = [
+  'input[type="button"]',
+  'input[type="submit"]',
+  'input[type="reset"]',
+  'input[type="image"]',
+  'input[type="file"]',
+  ...CLICKABLE_ELEMENT_SELECTORS,
+];
+
+/**
+ * Default CSS selectors for dead clicks tracking
+ */
+export const DEFAULT_DEAD_CLICK_ALLOWLIST = DEFAULT_ERROR_AND_DEAD_CLICK_ALLOWLIST;
+
+/**
+ * Default CSS selectors for error tracking
+ */
+export const DEFAULT_ERROR_CLICK_ALLOWLIST = DEFAULT_ERROR_AND_DEAD_CLICK_ALLOWLIST;
+
+/**
+ * Default CSS selectors for rage clicks tracking
+ */
+export const DEFAULT_RAGE_CLICK_ALLOWLIST = ['*'];
+
+/**
+ * Default time window for dead clicks (3 seconds)
+ */
+export const DEFAULT_DEAD_CLICK_WINDOW_MS = 3_000;
+
+/**
+ * Default time window for rage clicks (1 second)
+ */
+export const DEFAULT_RAGE_CLICK_WINDOW_MS = 1_000;
+
+/**
+ * Default threshold for rage clicks (4 clicks)
+ */
+export const DEFAULT_RAGE_CLICK_THRESHOLD = 4;
+
+/**
+ * Default threshold for rage clicks to be considered out of bounds (50 pixels)
+ */
+export const DEFAULT_RAGE_CLICK_OUT_OF_BOUNDS_THRESHOLD = 50; // pixels
+
+// DomElement is [Element](https://developer.mozilla.org/en-US/docs/Web/API/Element) if the dom library is included in tsconfig.json
+// and never if it is not included
+// eslint-disable-next-line no-restricted-globals
+type DomElement = typeof globalThis extends {
+  Element: new (...args: any) => infer T;
+}
+  ? T
+  : never;

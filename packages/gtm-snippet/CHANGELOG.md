@@ -1,0 +1,496 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+# [2.41.0](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/gtm-snippet@2.39.1...@amplitude/gtm-snippet@2.41.0) (2026-04-21)
+
+**Note:** Version bump only for package @amplitude/gtm-snippet
+
+
+
+
+
+# [2.40.0](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/gtm-snippet@2.39.1...@amplitude/gtm-snippet@2.40.0) (2026-04-16)
+
+**Note:** Version bump only for package @amplitude/gtm-snippet
+
+
+
+
+
+# [2.40.0](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/gtm-snippet@2.39.0...@amplitude/gtm-snippet@2.40.0) (2026-04-14)
+
+**Note:** Version bump only for package @amplitude/gtm-snippet
+
+
+
+
+
+# [2.39.0](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/gtm-snippet@2.38.1...@amplitude/gtm-snippet@2.39.0) (2026-04-09)
+
+
+### Features
+
+* **session-replay-browser:** improve replay data delivery (SR-3115) ([#1637](https://github.com/amplitude/Amplitude-TypeScript/issues/1637)) ([21bd1c8](https://github.com/amplitude/Amplitude-TypeScript/commit/21bd1c870eea801878aea0fc4e952fe2b8908675))
+
+
+
+
+
+## [2.38.1](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/gtm-snippet@2.37.3...@amplitude/gtm-snippet@2.38.1) (2026-04-01)
+
+**Note:** Version bump only for package @amplitude/gtm-snippet
+
+
+
+
+
+# [2.38.0](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/gtm-snippet@2.37.2...@amplitude/gtm-snippet@2.38.0) (2026-03-26)
+
+**Note:** Version bump only for package @amplitude/gtm-snippet
+
+
+
+
+
+## [2.37.2](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/gtm-snippet@2.37.2...@amplitude/gtm-snippet@2.37.2) (2026-03-24)
+
+**Note:** Version bump only for package @amplitude/gtm-snippet
+
+
+
+
+
+## [2.37.2](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/gtm-snippet@2.37.1...@amplitude/gtm-snippet@2.37.2) (2026-03-24)
+
+**Note:** Version bump only for package @amplitude/gtm-snippet
+
+
+
+
+
+## [2.37.1](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/gtm-snippet@2.36.9...@amplitude/gtm-snippet@2.37.1) (2026-03-23)
+
+**Note:** Version bump only for package @amplitude/gtm-snippet
+
+
+
+
+
+# [2.37.0](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/gtm-snippet@2.36.8...@amplitude/gtm-snippet@2.37.0) (2026-03-20)
+
+**Note:** Version bump only for package @amplitude/gtm-snippet
+
+
+
+
+
+## [2.36.8](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/gtm-snippet@2.36.7...@amplitude/gtm-snippet@2.36.8) (2026-03-19)
+
+**Note:** Version bump only for package @amplitude/gtm-snippet
+
+
+
+
+
+## [2.36.7](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/gtm-snippet@2.36.6...@amplitude/gtm-snippet@2.36.7) (2026-03-17)
+
+**Note:** Version bump only for package @amplitude/gtm-snippet
+
+
+
+
+
+## [2.36.6](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/gtm-snippet@2.36.5...@amplitude/gtm-snippet@2.36.6) (2026-03-16)
+
+**Note:** Version bump only for package @amplitude/gtm-snippet
+
+
+
+
+
+## [2.36.5](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/gtm-snippet@2.36.4...@amplitude/gtm-snippet@2.36.5) (2026-03-13)
+
+**Note:** Version bump only for package @amplitude/gtm-snippet
+
+
+
+
+
+## [2.36.4](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/gtm-snippet@2.36.3...@amplitude/gtm-snippet@2.36.4) (2026-03-12)
+
+**Note:** Version bump only for package @amplitude/gtm-snippet
+
+
+
+
+
+## [2.36.3](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/gtm-snippet@2.36.3...@amplitude/gtm-snippet@2.36.3) (2026-03-11)
+
+**Note:** Version bump only for package @amplitude/gtm-snippet
+
+
+
+
+
+## [2.36.3](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/gtm-snippet@2.36.2...@amplitude/gtm-snippet@2.36.3) (2026-03-09)
+
+
+### Bug Fixes
+
+* **session-replay:** guarantee in-order batch delivery including retries ([#1576](https://github.com/amplitude/Amplitude-TypeScript/issues/1576)) ([0afcac6](https://github.com/amplitude/Amplitude-TypeScript/commit/0afcac6cd42b999b74ba797717f7cf0d447029ef))
+
+
+
+
+
+## [2.36.2](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/gtm-snippet@2.36.2...@amplitude/gtm-snippet@2.36.2) (2026-03-06)
+
+
+### Bug Fixes
+
+* **session-replay:** guarantee in-order batch delivery including retries ([#1576](https://github.com/amplitude/Amplitude-TypeScript/issues/1576)) ([0afcac6](https://github.com/amplitude/Amplitude-TypeScript/commit/0afcac6cd42b999b74ba797717f7cf0d447029ef))
+
+
+
+
+
+## [2.36.2](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/gtm-snippet@2.36.2...@amplitude/gtm-snippet@2.36.2) (2026-03-06)
+
+
+### Bug Fixes
+
+* **session-replay:** guarantee in-order batch delivery including retries ([#1576](https://github.com/amplitude/Amplitude-TypeScript/issues/1576)) ([0afcac6](https://github.com/amplitude/Amplitude-TypeScript/commit/0afcac6cd42b999b74ba797717f7cf0d447029ef))
+
+
+
+
+
+## [2.36.2](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/gtm-snippet@2.36.2...@amplitude/gtm-snippet@2.36.2) (2026-03-06)
+
+**Note:** Version bump only for package @amplitude/gtm-snippet
+
+
+
+
+
+## [2.36.2](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/gtm-snippet@2.36.1...@amplitude/gtm-snippet@2.36.2) (2026-03-05)
+
+**Note:** Version bump only for package @amplitude/gtm-snippet
+
+
+
+
+
+## [2.36.1](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/gtm-snippet@2.35.5...@amplitude/gtm-snippet@2.36.1) (2026-03-03)
+
+**Note:** Version bump only for package @amplitude/gtm-snippet
+
+
+
+
+
+# [2.36.0](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/gtm-snippet@2.35.4...@amplitude/gtm-snippet@2.36.0) (2026-03-03)
+
+**Note:** Version bump only for package @amplitude/gtm-snippet
+
+
+
+
+
+## [2.35.4](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/gtm-snippet@2.35.3...@amplitude/gtm-snippet@2.35.4) (2026-02-26)
+
+**Note:** Version bump only for package @amplitude/gtm-snippet
+
+
+
+
+
+## [2.35.3](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/gtm-snippet@2.35.2...@amplitude/gtm-snippet@2.35.3) (2026-02-24)
+
+**Note:** Version bump only for package @amplitude/gtm-snippet
+
+
+
+
+
+## [2.35.2](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/gtm-snippet@2.35.1...@amplitude/gtm-snippet@2.35.2) (2026-02-20)
+
+**Note:** Version bump only for package @amplitude/gtm-snippet
+
+
+
+
+
+## [2.35.1](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/gtm-snippet@2.34.2...@amplitude/gtm-snippet@2.35.1) (2026-02-19)
+
+**Note:** Version bump only for package @amplitude/gtm-snippet
+
+
+
+
+
+# [2.35.0](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/gtm-snippet@2.35.0...@amplitude/gtm-snippet@2.35.0) (2026-02-17)
+
+**Note:** Version bump only for package @amplitude/gtm-snippet
+
+
+
+
+
+## [2.34.1](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/gtm-snippet@2.34.1...@amplitude/gtm-snippet@2.34.1) (2026-02-11)
+
+
+### Features
+
+* **gtm-snippet:** update GTM package's engagement sdk snippet to support split bun… ([#1528](https://github.com/amplitude/Amplitude-TypeScript/issues/1528)) ([ce5da08](https://github.com/amplitude/Amplitude-TypeScript/commit/ce5da08398a9cbaa468217d36e73a5f9eefcdb32))
+
+
+
+
+
+## [2.34.1](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/gtm-snippet@2.33.6...@amplitude/gtm-snippet@2.34.1) (2026-02-10)
+
+
+### Bug Fixes
+
+* **analytics-browser:** defer session_start and attribution when optOut is "true" ([#1509](https://github.com/amplitude/Amplitude-TypeScript/issues/1509)) ([3a3818d](https://github.com/amplitude/Amplitude-TypeScript/commit/3a3818d19bd84e4aa8405e10f8538886dd647f38))
+
+
+
+
+
+# [2.34.0](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/gtm-snippet@2.33.5...@amplitude/gtm-snippet@2.34.0) (2026-01-26)
+
+**Note:** Version bump only for package @amplitude/gtm-snippet
+
+
+
+
+
+## [2.33.5](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/gtm-snippet@2.33.4...@amplitude/gtm-snippet@2.33.5) (2026-01-21)
+
+
+### Bug Fixes
+
+* **analytics-browser:** ignore right clicks when tracking dead clicks ([#1496](https://github.com/amplitude/Amplitude-TypeScript/issues/1496)) ([752b4c0](https://github.com/amplitude/Amplitude-TypeScript/commit/752b4c0d9f22fcaa4b920b6fff09455a58f92da2))
+
+
+
+
+
+## [2.33.4](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/gtm-snippet@2.33.3...@amplitude/gtm-snippet@2.33.4) (2026-01-15)
+
+**Note:** Version bump only for package @amplitude/gtm-snippet
+
+
+
+
+
+## [2.33.3](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/gtm-snippet@2.33.2...@amplitude/gtm-snippet@2.33.3) (2026-01-14)
+
+**Note:** Version bump only for package @amplitude/gtm-snippet
+
+
+
+
+
+## [2.33.2](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/gtm-snippet@2.33.1...@amplitude/gtm-snippet@2.33.2) (2026-01-14)
+
+
+### Bug Fixes
+
+* **deps:** bump node-forge from 1.3.1 to 1.3.3 in /packages/analytics-browser/playground/react-spa ([#1438](https://github.com/amplitude/Amplitude-TypeScript/issues/1438)) ([ffacc88](https://github.com/amplitude/Amplitude-TypeScript/commit/ffacc8888217249e6c8084ef7327872e1fa375ca))
+
+
+
+
+
+## [2.33.1](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/gtm-snippet@2.32.3...@amplitude/gtm-snippet@2.33.1) (2025-12-30)
+
+**Note:** Version bump only for package @amplitude/gtm-snippet
+
+
+
+
+
+# [2.33.0](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/gtm-snippet@2.32.3...@amplitude/gtm-snippet@2.33.0) (2025-12-30)
+
+**Note:** Version bump only for package @amplitude/gtm-snippet
+
+
+
+
+
+# [2.33.0](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/gtm-snippet@2.32.2...@amplitude/gtm-snippet@2.33.0) (2025-12-24)
+
+**Note:** Version bump only for package @amplitude/gtm-snippet
+
+
+
+
+
+## [2.32.2](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/gtm-snippet@2.32.2...@amplitude/gtm-snippet@2.32.2) (2025-12-22)
+
+**Note:** Version bump only for package @amplitude/gtm-snippet
+
+
+
+
+
+## [2.32.2](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/gtm-snippet@2.32.1...@amplitude/gtm-snippet@2.32.2) (2025-12-16)
+
+**Note:** Version bump only for package @amplitude/gtm-snippet
+
+
+
+
+
+## [2.32.1](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/gtm-snippet@2.31.5...@amplitude/gtm-snippet@2.32.1) (2025-12-12)
+
+**Note:** Version bump only for package @amplitude/gtm-snippet
+
+
+
+
+
+# [2.32.0](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/gtm-snippet@2.31.4...@amplitude/gtm-snippet@2.32.0) (2025-12-09)
+
+**Note:** Version bump only for package @amplitude/gtm-snippet
+
+
+
+
+
+## [2.31.4](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/gtm-snippet@2.31.3...@amplitude/gtm-snippet@2.31.4) (2025-12-08)
+
+**Note:** Version bump only for package @amplitude/gtm-snippet
+
+
+
+
+
+## [2.31.3](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/gtm-snippet@2.31.3...@amplitude/gtm-snippet@2.31.3) (2025-12-05)
+
+**Note:** Version bump only for package @amplitude/gtm-snippet
+
+
+
+
+
+## [2.31.3](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/gtm-snippet@2.31.2...@amplitude/gtm-snippet@2.31.3) (2025-11-21)
+
+**Note:** Version bump only for package @amplitude/gtm-snippet
+
+
+
+
+
+## [2.31.2](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/gtm-snippet@2.31.1...@amplitude/gtm-snippet@2.31.2) (2025-11-20)
+
+**Note:** Version bump only for package @amplitude/gtm-snippet
+
+
+
+
+
+## [2.31.1](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/gtm-snippet@2.30.2...@amplitude/gtm-snippet@2.31.1) (2025-11-17)
+
+**Note:** Version bump only for package @amplitude/gtm-snippet
+
+
+
+
+
+# [2.31.0](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/gtm-snippet@2.30.1...@amplitude/gtm-snippet@2.31.0) (2025-11-17)
+
+**Note:** Version bump only for package @amplitude/gtm-snippet
+
+
+
+
+
+## [2.30.1](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/gtm-snippet@2.29.1...@amplitude/gtm-snippet@2.30.1) (2025-11-05)
+
+**Note:** Version bump only for package @amplitude/gtm-snippet
+
+
+
+
+
+# [2.30.0](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/gtm-snippet@2.28.1...@amplitude/gtm-snippet@2.30.0) (2025-10-29)
+
+**Note:** Version bump only for package @amplitude/gtm-snippet
+
+
+
+
+
+# [2.29.0](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/gtm-snippet@2.27.2...@amplitude/gtm-snippet@2.29.0) (2025-10-23)
+
+**Note:** Version bump only for package @amplitude/gtm-snippet
+
+
+
+
+
+# [2.28.0](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/gtm-snippet@2.27.1...@amplitude/gtm-snippet@2.28.0) (2025-10-23)
+
+**Note:** Version bump only for package @amplitude/gtm-snippet
+
+
+
+
+
+## [2.27.1](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/gtm-snippet@2.26.3...@amplitude/gtm-snippet@2.27.1) (2025-10-21)
+
+**Note:** Version bump only for package @amplitude/gtm-snippet
+
+
+
+
+
+# [2.27.0](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/gtm-snippet@2.26.2...@amplitude/gtm-snippet@2.27.0) (2025-10-17)
+
+**Note:** Version bump only for package @amplitude/gtm-snippet
+
+
+
+
+
+## [2.26.2](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/gtm-snippet@2.26.1...@amplitude/gtm-snippet@2.26.2) (2025-10-15)
+
+**Note:** Version bump only for package @amplitude/gtm-snippet
+
+
+
+
+
+## [2.26.1](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/gtm-snippet@2.25.5...@amplitude/gtm-snippet@2.26.1) (2025-10-14)
+
+**Note:** Version bump only for package @amplitude/gtm-snippet
+
+
+
+
+
+# [2.26.0](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/gtm-snippet@2.25.4...@amplitude/gtm-snippet@2.26.0) (2025-10-14)
+
+**Note:** Version bump only for package @amplitude/gtm-snippet
+
+
+
+
+
+## [2.25.4](https://github.com/amplitude/Amplitude-TypeScript/compare/@amplitude/gtm-snippet@2.25.3...@amplitude/gtm-snippet@2.25.4) (2025-10-07)
+
+**Note:** Version bump only for package @amplitude/gtm-snippet
+
+
+
+
+
+## 2.25.3 (2025-10-06)
+
+**Note:** Version bump only for package @amplitude/gtm-snippet

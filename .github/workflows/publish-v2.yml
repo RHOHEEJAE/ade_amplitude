@@ -1,0 +1,393 @@
+name: Publish v2.x
+
+on:
+  workflow_dispatch:
+    inputs:
+      releaseType:
+        type: choice
+        description: Release type (release for main branch, prerelease for feature branches)
+        required: true
+        default: prerelease
+        options:
+          - release
+          - prerelease
+          - dry-run
+      branch:
+        type: string
+        description: Branch to create pre-release from (only applies to prerelease/dry-run).
+        required: false
+      skipLernaVersion:
+        type: boolean
+        description: Skip `lerna version` and E2E for release/prerelease recovery runs, then only run the publish step. Use this to recover from a partial npm publish where some packages were already released.
+        required: false
+        default: false
+
+jobs:
+  authorize:
+    name: Authorize
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check branch protection
+        env:
+          RELEASE_TYPE: ${{ github.event.inputs.releaseType }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          if [ "$RELEASE_TYPE" = "dry-run" ]; then
+            echo "✅ Branch check skipped: dry-run mode allows any branch"
+            echo "Current branch: $REF_NAME"
+            exit 0
+          fi
+          case "$REF_NAME" in
+            main|hotfix/*)
+              echo "✅ Branch check passed: workflow is running from allowed branch ($REF_NAME)"
+              ;;
+            *)
+              echo "❌ This workflow can only be triggered from main or hotfix/* branches."
+              echo "Current branch: $REF_NAME"
+              exit 1
+              ;;
+          esac
+
+      - name: ${{ github.actor }} permission check to do a release
+        uses: 'lannonbr/repo-permission-check-action@2bb8c89ba8bf115c4bfab344d6a6f442b24c9a1f'
+        with:
+          permission: 'write'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  e2e:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+    needs: [authorize]
+    container:
+      image: mcr.microsoft.com/playwright:v1.55.1
+    outputs:
+      head_sha: ${{ steps.head-sha.outputs.sha }}
+
+    steps:
+      - name: Skip E2E for recovery publish
+        if: ${{ github.event.inputs.skipLernaVersion == 'true' }}
+        run: echo "Skipping E2E because skipLernaVersion is true"
+
+      - name: Check out git repository
+        if: ${{ github.event.inputs.skipLernaVersion != 'true' }}
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.inputs.branch || github.ref_name }}
+
+      - name: Capture E2E HEAD SHA
+        id: head-sha
+        if: ${{ github.event.inputs.skipLernaVersion != 'true' }}
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Run E2E tests
+        if: ${{ github.event.inputs.skipLernaVersion != 'true' }}
+        uses: ./.github/actions/e2e-test
+        with:
+          amplitude-api-key: ${{ secrets.AMPLITUDE_API_KEY }}
+
+  build-and-test:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    needs: [authorize]
+
+    steps:
+      - name: Skip build and test for recovery publish
+        if: ${{ github.event.inputs.skipLernaVersion == 'true' }}
+        run: echo "Skipping build and test because skipLernaVersion is true"
+
+      - name: Check out git repository
+        if: ${{ github.event.inputs.skipLernaVersion != 'true' }}
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.inputs.branch || github.ref_name }}
+
+      - name: Build and Test
+        if: ${{ github.event.inputs.skipLernaVersion != 'true' }}
+        uses: ./.github/actions/build-and-test
+        with:
+          node-version: 20.x
+          configure-git: 'false'
+          configure-aws: 'false'
+
+  e2e-react-native:
+    name: E2E Tests - React Native (${{ matrix.platform }}, newArch=${{ matrix.new-arch }})
+    runs-on: ${{ matrix.runs-on }}
+    needs: [authorize]
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: ios
+            new-arch: 'true'
+            runs-on: macos-14
+          - platform: ios
+            new-arch: 'false'
+            runs-on: macos-14
+          - platform: android
+            new-arch: 'true'
+            runs-on: ubuntu-latest
+          - platform: android
+            new-arch: 'false'
+            runs-on: ubuntu-latest
+    env:
+      LANG: en_US.UTF-8
+      LC_ALL: en_US.UTF-8
+
+    steps:
+      - name: Skip E2E for recovery publish
+        if: ${{ github.event.inputs.skipLernaVersion == 'true' }}
+        run: echo "Skipping E2E because skipLernaVersion is true"
+
+      - name: Check out git repository
+        if: ${{ github.event.inputs.skipLernaVersion != 'true' }}
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.inputs.branch || github.ref_name }}
+
+      - name: Run React Native E2E harness
+        if: ${{ github.event.inputs.skipLernaVersion != 'true' }}
+        uses: ./.github/actions/e2e-react-native
+        with:
+          platform: ${{ matrix.platform }}
+          new-arch: ${{ matrix.new-arch }}
+
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    environment: npm-release
+    needs: [authorize, build-and-test, e2e, e2e-react-native]
+    if: ${{ github.event.inputs.releaseType == 'release' }}
+    permissions:
+      id-token: write # Required for OIDC
+      contents: write
+    strategy:
+      matrix:
+        node-version: [24.x] # Ensure npm 11.5.1 or later is installed for OIDC, node 24.6 is minimal 
+
+    steps:
+      - name: Validate protected branch
+        env:
+          REF: ${{ github.event.inputs.branch || github.ref_name }}
+        run: |
+          case "$REF" in
+            main)
+              echo "✅ Branch check passed: main"
+              ;;
+            hotfix/*)
+              echo "✅ Branch check passed: hotfix branch ($REF)"
+              ;;
+            *)
+              echo "❌ Deploy can only run from main or hotfix/* branches."
+              echo "Current branch: $REF"
+              exit 1
+              ;;
+          esac
+
+      # Mint a short-lived GitHub App installation token. The app is on the branch
+      # ruleset bypass list, so it can push the lerna version commit + tags directly
+      # to the protected branch (a plain PAT/GITHUB_TOKEN is rejected by the ruleset).
+      - name: Generate GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          app-id: ${{ secrets.AMPLITUDE_DEV_EXP_APP_ID }}
+          private-key: ${{ secrets.AMPLITUDE_DEV_EXP_PRIVATE_KEY }}
+
+      - name: Check out git repository
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3
+        with:
+          fetch-depth: 0
+          token: ${{ steps.app-token.outputs.token }}
+          ref: ${{ github.event.inputs.branch || github.ref_name }}
+
+      # Normal releases already ran unit tests/lint in the build-and-test job.
+      # Recovery publishes (skipLernaVersion) skip that job, so run them here.
+      - name: ${{ github.event.inputs.skipLernaVersion == 'true' && 'Build and Test' || 'Build' }}
+        uses: ./.github/actions/build-and-test
+        with:
+          node-version: ${{ matrix.node-version }}
+          run-tests: ${{ github.event.inputs.skipLernaVersion }}
+          run-lint: ${{ github.event.inputs.skipLernaVersion }}
+
+      - name: Verify ref has not advanced since e2e checkout
+        if: ${{ github.event.inputs.skipLernaVersion != 'true' }}
+        env:
+          EXPECTED_SHA: ${{ needs.e2e.outputs.head_sha }}
+          REF: ${{ github.event.inputs.branch || github.ref_name }}
+        run: bash scripts/publish/check-ref-not-advanced.sh
+
+      # Only create release version when using from-git (default behavior)
+      # from-package mode uses existing package.json versions and doesn't need git tags
+      - name: Create release version
+        if: ${{ github.event.inputs.skipLernaVersion != 'true' }}
+        run: |
+          echo "Running lerna version..."
+          
+          # Temporarily disable exit on error to capture output even when command fails
+          set +e
+          OUTPUT=$(GH_TOKEN=${{ steps.app-token.outputs.token }} pnpm deploy:version -y --no-private --create-release github 2>&1)
+          EXIT_CODE=$?
+          set -e
+          
+          # Always display the output first
+          echo "=== Lerna Version Output ==="
+          echo "$OUTPUT"
+          echo "=== End Output ==="
+          
+          # Now handle the exit code
+          if [ $EXIT_CODE -ne 0 ]; then
+            echo "❌ Command failed with exit code: $EXIT_CODE"
+            exit $EXIT_CODE
+          fi
+          
+          # Check if the output indicates no changed packages
+          if echo "$OUTPUT" | grep -q "No changed packages to version"; then
+            echo "❌ No changed packages found to version. Failing the job."
+            exit 1
+          fi
+          
+          echo "✅ Successfully created release version"
+
+      # Publish to NPM (also uploads minified JS and source maps to S3)
+      - name: Publish Release to NPM
+        run: |
+          GH_TOKEN=${{ steps.app-token.outputs.token }} pnpm deploy:publish
+        env:
+          S3_BUCKET_NAME: ${{ secrets.S3_BUCKET_NAME }}
+
+      # Record the published release in Linear (continuous pipeline). Runs only after a
+      # successful npm publish, so each Linear release maps 1:1 to a real release, named
+      # after the analytics-browser version. Because lerna versions packages independently,
+      # only sync when this release actually bumped analytics-browser (its package.json
+      # changed in the lerna release commit) — otherwise its unchanged version would collide
+      # with the label of a previous Linear release. Tracking is best-effort: a Linear
+      # failure must not fail an already-published release.
+      - name: Determine analytics-browser release
+        id: linear-version
+        run: |
+          version=$(node -p "require('./packages/analytics-browser/package.json').version")
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          if git diff --name-only HEAD~1 HEAD -- packages/analytics-browser/package.json | grep -q .; then
+            echo "published=true" >> "$GITHUB_OUTPUT"
+            echo "analytics-browser bumped to $version in this release; will sync to Linear"
+          else
+            echo "published=false" >> "$GITHUB_OUTPUT"
+            echo "analytics-browser not part of this release; skipping Linear sync"
+          fi
+
+      - name: Sync release to Linear
+        if: ${{ steps.linear-version.outputs.published == 'true' }}
+        continue-on-error: true
+        uses: linear/linear-release-action@3b634623620454bac33390451a1dd15ba78e3dc4 # v0
+        with:
+          access_key: ${{ secrets.LINEAR_ACCESS_KEY }}
+          command: sync
+          version: ${{ steps.linear-version.outputs.version }}
+
+  prerelease:
+    name: Prerelease feature branch
+    runs-on: ubuntu-latest
+    environment: npm-release
+    needs: [authorize, build-and-test, e2e, e2e-react-native]
+    if: ${{ github.event.inputs.releaseType == 'prerelease' || github.event.inputs.releaseType == 'dry-run' }}
+    permissions:
+      id-token: write # Required for OIDC
+      contents: write
+    strategy:
+      matrix:
+        node-version: [24.x] # Ensure npm 11.5.1 or later is installed for OIDC, node 24.6 is minimal
+
+    steps:
+      - name: Determine branch to use
+        id: determine-branch
+        env:
+          BRANCH: ${{ github.event.inputs.branch }}
+        run: |
+          if [ -n "$BRANCH" ]; then
+            if ! git check-ref-format --branch "$BRANCH"; then
+              echo "Invalid branch name: $BRANCH"
+              exit 1
+            fi
+            echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
+          else
+            echo "❌ No branch specified. Please specify a branch to create pre-release from."
+            exit 1
+          fi
+
+      - name: Generate GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          app-id: ${{ secrets.AMPLITUDE_DEV_EXP_APP_ID }}
+          private-key: ${{ secrets.AMPLITUDE_DEV_EXP_PRIVATE_KEY }}
+
+      - name: Check out git repository
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3
+        with:
+          ref: ${{ steps.determine-branch.outputs.branch }}
+          fetch-depth: 0
+          token: ${{ steps.app-token.outputs.token }}
+
+      # Normal releases already ran unit tests/lint in the build-and-test job.
+      # Recovery publishes (skipLernaVersion) skip that job, so run them here.
+      - name: ${{ github.event.inputs.skipLernaVersion == 'true' && 'Build and Test' || 'Build' }}
+        uses: ./.github/actions/build-and-test
+        with:
+          node-version: ${{ matrix.node-version }}
+          run-tests: ${{ github.event.inputs.skipLernaVersion }}
+          run-lint: ${{ github.event.inputs.skipLernaVersion }}
+
+      # Keep alphanumeric characters and hyphens, remove other invalid characters
+      # Examples:
+      #   - SR-1858 -> SR-1858
+      #   - feature/my-branch -> featuremy-branch
+      #   - fix_bug_123 -> fixbug123
+      #   - user@company.com -> usercompanycom
+      - name: Transform feature branch name
+        env:
+          BRANCH: ${{ steps.determine-branch.outputs.branch }}
+        run: |
+          echo "PREID=$(echo "$BRANCH" | tr -cd '[:alnum:]-')" >> "$GITHUB_ENV"
+
+      # Use --no-push to prevent pushing to remote
+      # Version example: 1.0.0 -> 1.1.0-{preid}.0
+      - name: Dry run pre-release version
+        if: ${{ github.event.inputs.releaseType == 'dry-run' }}
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          PREID: ${{ env.PREID }}
+        run: |
+          pnpm deploy:version:dry-run -y --preid "$PREID"
+
+      - name: Pre-release version
+        if: ${{ github.event.inputs.releaseType == 'prerelease' && github.event.inputs.skipLernaVersion != 'true' }}
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          PREID: ${{ env.PREID }}
+          BRANCH: ${{ steps.determine-branch.outputs.branch }}
+        run: |
+          pnpm deploy:version -y --no-private --conventional-prerelease --preid "$PREID" --allow-branch "$BRANCH" --create-release github
+
+      # Publish to NPM (also uploads minified JS and source maps to S3)
+      - name: Publish Pre-release to NPM
+        if: ${{ github.event.inputs.releaseType == 'prerelease' }}
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          PREID: ${{ env.PREID }}
+          S3_BUCKET_NAME: ${{ secrets.S3_BUCKET_NAME }}
+        run: |
+          pnpm deploy:publish --no-git-checks --ignore-scripts --tag "$PREID"
+
+      - name: Dry run publish release to NPM
+        if: ${{ github.event.inputs.releaseType == 'dry-run' }}
+        env:
+          DRY_RUN: true
+        run: |
+          pnpm deploy:publish:dry-run
