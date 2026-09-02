@@ -167,8 +167,8 @@ describe('trackRageClicks', () => {
     expect(mockAmplitude.track).toHaveBeenCalledWith(
       AMPLITUDE_ELEMENT_RAGE_CLICKED_EVENT,
       expect.objectContaining({
-        '[Amplitude] Click Count': DEFAULT_RAGE_CLICK_THRESHOLD,
-        '[Amplitude] Clicks': expect.arrayContaining([
+        'click_count': DEFAULT_RAGE_CLICK_THRESHOLD,
+        'clicks': expect.arrayContaining([
           expect.objectContaining({
             X: 100,
             Y: 100,
@@ -205,8 +205,8 @@ describe('trackRageClicks', () => {
     expect(mockAmplitude.track).toHaveBeenCalledWith(
       AMPLITUDE_ELEMENT_RAGE_CLICKED_EVENT,
       expect.objectContaining({
-        '[Amplitude] Click Count': DEFAULT_RAGE_CLICK_THRESHOLD,
-        '[Amplitude] Clicks': expect.arrayContaining([
+        'click_count': DEFAULT_RAGE_CLICK_THRESHOLD,
+        'clicks': expect.arrayContaining([
           expect.objectContaining({
             X: 100,
             Y: 100,
@@ -411,8 +411,8 @@ describe('trackRageClicks', () => {
     expect(mockAmplitude.track).toHaveBeenCalledWith(
       AMPLITUDE_ELEMENT_RAGE_CLICKED_EVENT,
       expect.objectContaining({
-        '[Amplitude] Click Count': DEFAULT_RAGE_CLICK_THRESHOLD,
-        '[Amplitude] Clicks': expect.arrayContaining([
+        'click_count': DEFAULT_RAGE_CLICK_THRESHOLD,
+        'clicks': expect.arrayContaining([
           expect.objectContaining({
             X: 100,
             Y: 100,

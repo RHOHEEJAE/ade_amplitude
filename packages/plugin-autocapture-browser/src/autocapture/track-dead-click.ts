@@ -5,8 +5,8 @@ import { AMPLITUDE_ELEMENT_DEAD_CLICKED_EVENT } from '../constants';
 const DEAD_CLICK_TIMEOUT = 3000; // 3 seconds to wait for an activity to happen
 
 type EventDeadClick = {
-  '[Amplitude] X': number;
-  '[Amplitude] Y': number;
+  'x': number;
+  'y': number;
 };
 
 const CHANGE_EVENTS = ['mutation', 'navigate'];
@@ -71,8 +71,8 @@ export function trackDeadClick({
   return deadClickObservable.subscribe((actionClick) => {
     if (!actionClick) return;
     const deadClickEvent: EventDeadClick = {
-      '[Amplitude] X': (actionClick.event as MouseEvent).clientX,
-      '[Amplitude] Y': (actionClick.event as MouseEvent).clientY,
+      'x': (actionClick.event as MouseEvent).clientX,
+      'y': (actionClick.event as MouseEvent).clientY,
     };
     amplitude.track(
       AMPLITUDE_ELEMENT_DEAD_CLICKED_EVENT,

@@ -12,7 +12,7 @@ import { createEventCapture, EventCapture } from '../helpers/event-capture';
 import { mockApiUrl } from '../helpers/mock-api';
 
 const API_KEY = 'dummyApiKey';
-const NETWORK_REQUEST_EVENT = '[Amplitude] Network Request';
+const NETWORK_REQUEST_EVENT = 'ade_network_request';
 let client: Types.ReactNativeClient;
 
 describe('autocapture.networkTracking', () => {
@@ -53,8 +53,8 @@ describe('autocapture.networkTracking', () => {
 
     await capture.waitForEvents(1);
     expect(capture.events[0]?.event_type).toBe(NETWORK_REQUEST_EVENT);
-    expect(capture.events[0]?.event_properties?.['[Amplitude] Status Code']).toBe(500);
-    expect(capture.events[0]?.event_properties?.['[Amplitude] Request Method']).toBe('GET');
+    expect(capture.events[0]?.event_properties?.['status_code']).toBe(500);
+    expect(capture.events[0]?.event_properties?.['request_method']).toBe('GET');
   });
 
   it('does not track requests with a 200 status code', async () => {

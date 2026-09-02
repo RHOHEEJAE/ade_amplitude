@@ -1,6 +1,6 @@
 export const PLUGIN_NAME = '@amplitude/plugin-network-capture-browser';
 
-export const AMPLITUDE_NETWORK_REQUEST_EVENT = '[Amplitude] Network Request';
+export const AMPLITUDE_NETWORK_REQUEST_EVENT = 'ade_network_request';
 
 // TODO: when @experimental is removed from responseHeaders and requestHeaders,
 // remove this constant or set it to false

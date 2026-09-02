@@ -145,7 +145,7 @@ export const autocapturePlugin = (
   // Page-level state shared across trackers, emitted in a single Page View End event on beforeunload
   // elementExposedForPage holds the total set of elements seen during the entire page view lifetime
   const elementExposedForPage = new Set<string>();
-  // currentElementExposed only holds the set of elements that will be flushed during the next [Amplitude] Viewport Content Updated event
+  // currentElementExposed only holds the set of elements that will be flushed during the next ade_viewport_content_updated event
   const currentElementExposed = new Set<string>();
 
   let beforeUnloadCleanup: () => void;

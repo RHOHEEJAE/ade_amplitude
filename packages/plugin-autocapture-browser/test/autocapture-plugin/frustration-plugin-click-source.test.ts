@@ -72,9 +72,9 @@ describe('frustrationPlugin click sources', () => {
     expect(instance.track).toHaveBeenCalledWith(
       AMPLITUDE_ELEMENT_DEAD_CLICKED_EVENT,
       expect.objectContaining({
-        '[Amplitude] Element Tag': 'a',
-        '[Amplitude] X': 50,
-        '[Amplitude] Y': 100,
+        'element_tag': 'a',
+        'x': 50,
+        'y': 100,
       }),
       expect.any(Object),
     );

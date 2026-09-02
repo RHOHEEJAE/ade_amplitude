@@ -63,9 +63,9 @@
         execute: async (event) => {
           const summary = {
             type: event.event_type,
-            'Page Location': event.event_properties?.['[Amplitude] Page Location'],
-            'Previous Page Location': event.event_properties?.['[Amplitude] Previous Page Location'],
-            'Previous Page Type': event.event_properties?.['[Amplitude] Previous Page Type'],
+            'Page Location': event.event_properties?.['page_location'],
+            'Previous Page Location': event.event_properties?.['previous_page_location'],
+            'Previous Page Type': event.event_properties?.['previous_page_type'],
           };
           const line = `[${new Date().toLocaleTimeString()}] ${JSON.stringify(summary, null, 2)}`;
           eventsEl.textContent =

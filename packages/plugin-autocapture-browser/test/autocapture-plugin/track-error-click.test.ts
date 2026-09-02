@@ -96,12 +96,12 @@ describe('trackErrorClicks', () => {
     expect(mockAmplitude.track).toHaveBeenCalledWith(
       AMPLITUDE_ELEMENT_ERROR_CLICKED_EVENT,
       expect.objectContaining({
-        ['[Amplitude] Kind']: 'error',
-        ['[Amplitude] Message']: 'Test error message',
-        ['[Amplitude] Stack']: 'Error stack trace',
-        ['[Amplitude] Filename']: 'test.js',
-        ['[Amplitude] Line Number']: 42,
-        ['[Amplitude] Column Number']: 10,
+        ['kind']: 'error',
+        ['message']: 'Test error message',
+        ['stack']: 'Error stack trace',
+        ['filename']: 'test.js',
+        ['line_number']: 42,
+        ['column_number']: 10,
         id: 'test-button',
       }),
     );

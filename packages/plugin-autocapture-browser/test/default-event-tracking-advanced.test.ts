@@ -177,7 +177,7 @@ describe('autoTrackingPlugin', () => {
 
       // Should not be exposed before custom duration
       jest.advanceTimersByTime(customDuration - 50);
-      expect(track).not.toHaveBeenCalledWith('[Amplitude] Viewport Content Updated', expect.anything());
+      expect(track).not.toHaveBeenCalledWith('ade_viewport_content_updated', expect.anything());
 
       // Should be exposed after custom duration
       jest.advanceTimersByTime(100);
@@ -186,9 +186,9 @@ describe('autoTrackingPlugin', () => {
       window.dispatchEvent(new Event('beforeunload'));
 
       expect(track).toHaveBeenCalledWith(
-        '[Amplitude] Viewport Content Updated',
+        'ade_viewport_content_updated',
         expect.objectContaining({
-          '[Amplitude] Element Exposed': expect.arrayContaining(['button#exposure-test-button']),
+          'element_exposed': expect.arrayContaining(['button#exposure-test-button']),
         }),
       );
 
@@ -244,16 +244,16 @@ describe('autoTrackingPlugin', () => {
       ]);
 
       jest.advanceTimersByTime(customDuration - 50);
-      expect(track).not.toHaveBeenCalledWith('[Amplitude] Viewport Content Updated', expect.anything());
+      expect(track).not.toHaveBeenCalledWith('ade_viewport_content_updated', expect.anything());
 
       jest.advanceTimersByTime(100);
 
       window.dispatchEvent(new Event('beforeunload'));
 
       expect(track).toHaveBeenCalledWith(
-        '[Amplitude] Viewport Content Updated',
+        'ade_viewport_content_updated',
         expect.objectContaining({
-          '[Amplitude] Element Exposed': expect.arrayContaining(['button#exposure-test-button']),
+          'element_exposed': expect.arrayContaining(['button#exposure-test-button']),
         }),
       );
 
@@ -311,16 +311,16 @@ describe('autoTrackingPlugin', () => {
 
       // Should not fire at nestedDuration - 50
       jest.advanceTimersByTime(nestedDuration - 50);
-      expect(track).not.toHaveBeenCalledWith('[Amplitude] Viewport Content Updated', expect.anything());
+      expect(track).not.toHaveBeenCalledWith('ade_viewport_content_updated', expect.anything());
 
       // Should fire after nestedDuration (not flatDuration)
       jest.advanceTimersByTime(100);
       window.dispatchEvent(new Event('beforeunload'));
 
       expect(track).toHaveBeenCalledWith(
-        '[Amplitude] Viewport Content Updated',
+        'ade_viewport_content_updated',
         expect.objectContaining({
-          '[Amplitude] Element Exposed': expect.arrayContaining(['button#precedence-test-button']),
+          'element_exposed': expect.arrayContaining(['button#precedence-test-button']),
         }),
       );
 
@@ -356,7 +356,7 @@ describe('autoTrackingPlugin', () => {
 
       window.dispatchEvent(new Event('beforeunload'));
 
-      expect(track).not.toHaveBeenCalledWith('[Amplitude] Viewport Content Updated', expect.anything());
+      expect(track).not.toHaveBeenCalledWith('ade_viewport_content_updated', expect.anything());
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (window as any).IntersectionObserver = undefined;
@@ -430,9 +430,9 @@ describe('autoTrackingPlugin', () => {
       jest.advanceTimersByTime(TESTING_DEBOUNCE_TIME + 3);
 
       expect(track).toHaveBeenCalledTimes(1);
-      expect(track).toHaveBeenNthCalledWith(1, '[Amplitude] Element Clicked', {
-        '[Amplitude] Element Class': 'my-link-class',
-        '[Amplitude] Element Hierarchy': [
+      expect(track).toHaveBeenNthCalledWith(1, 'ade_element_clicked', {
+        'element_class': 'my-link-class',
+        'element_hierarchy': [
           {
             attrs: {
               'aria-label': 'my-link',
@@ -451,18 +451,18 @@ describe('autoTrackingPlugin', () => {
             tag: 'body',
           },
         ],
-        '[Amplitude] Element Href': 'https://www.amplitude.com/click-link',
-        '[Amplitude] Element ID': 'my-link-id',
-        '[Amplitude] Element Position Left': 0,
-        '[Amplitude] Element Position Top': 0,
-        '[Amplitude] Element Tag': 'a',
-        '[Amplitude] Element Text': 'my-link-text',
-        '[Amplitude] Element Aria Label': 'my-link',
-        '[Amplitude] Element Parent Label': 'my-h2-text',
-        '[Amplitude] Element Path': 'a#my-link-id',
-        '[Amplitude] Page URL': 'https://www.amplitude.com/unit-test',
-        '[Amplitude] Viewport Height': 768,
-        '[Amplitude] Viewport Width': 1024,
+        'element_href': 'https://www.amplitude.com/click-link',
+        'element_id': 'my-link-id',
+        'element_position_left': 0,
+        'element_position_top': 0,
+        'element_tag': 'a',
+        'element_text': 'my-link-text',
+        'element_aria_label': 'my-link',
+        'element_parent_label': 'my-h2-text',
+        'element_path': 'a#my-link-id',
+        'page_url': 'https://www.amplitude.com/unit-test',
+        'viewport_height': 768,
+        'viewport_width': 1024,
       });
 
       // stop observer and listeners
@@ -492,9 +492,9 @@ describe('autoTrackingPlugin', () => {
       expect(track).toHaveBeenCalledTimes(1);
       expect(track).toHaveBeenNthCalledWith(
         1,
-        '[Amplitude] Element Clicked',
+        'ade_element_clicked',
         expect.objectContaining({
-          '[Amplitude] Element Hierarchy': [
+          'element_hierarchy': [
             {
               attrs: {
                 'aria-label': 'my-link',
@@ -569,9 +569,9 @@ describe('autoTrackingPlugin', () => {
       expect(track).toHaveBeenCalledTimes(1);
       expect(track).toHaveBeenNthCalledWith(
         1,
-        '[Amplitude] Element Clicked',
+        'ade_element_clicked',
         expect.objectContaining({
-          '[Amplitude] Element Hierarchy': [
+          'element_hierarchy': [
             { attrs: { type: 'submit' }, index: 1, indexOfType: 0, prevSib: 'input', tag: 'button' },
             {
               attrs: { 'data-attr': 'testing' },
@@ -616,9 +616,9 @@ describe('autoTrackingPlugin', () => {
       jest.advanceTimersByTime(TESTING_DEBOUNCE_TIME + 3);
 
       expect(track).toHaveBeenCalledTimes(1);
-      expect(track).toHaveBeenNthCalledWith(1, '[Amplitude] Element Clicked', {
-        '[Amplitude] Element Class': 'my-link-class',
-        '[Amplitude] Element Hierarchy': [
+      expect(track).toHaveBeenNthCalledWith(1, 'ade_element_clicked', {
+        'element_class': 'my-link-class',
+        'element_hierarchy': [
           {
             attrs: {
               'aria-label': 'my-link',
@@ -637,18 +637,18 @@ describe('autoTrackingPlugin', () => {
             tag: 'body',
           },
         ],
-        '[Amplitude] Element Href': 'https://www.amplitude.com/click-link',
-        '[Amplitude] Element ID': 'my-link-id',
-        '[Amplitude] Element Position Left': 0,
-        '[Amplitude] Element Position Top': 0,
-        '[Amplitude] Element Tag': 'a',
-        '[Amplitude] Element Text': 'my-link-text',
-        '[Amplitude] Element Aria Label': 'my-link',
-        '[Amplitude] Element Parent Label': 'my-h2-text',
-        '[Amplitude] Element Path': 'a#my-link-id',
-        '[Amplitude] Page URL': 'https://www.amplitude.com/unit-test',
-        '[Amplitude] Viewport Height': 768,
-        '[Amplitude] Viewport Width': 1024,
+        'element_href': 'https://www.amplitude.com/click-link',
+        'element_id': 'my-link-id',
+        'element_position_left': 0,
+        'element_position_top': 0,
+        'element_tag': 'a',
+        'element_text': 'my-link-text',
+        'element_aria_label': 'my-link',
+        'element_parent_label': 'my-h2-text',
+        'element_path': 'a#my-link-id',
+        'page_url': 'https://www.amplitude.com/unit-test',
+        'viewport_height': 768,
+        'viewport_width': 1024,
       });
 
       // stop observer and listeners
@@ -691,9 +691,9 @@ describe('autoTrackingPlugin', () => {
       expect(track).toHaveBeenCalledTimes(1);
       expect(track).toHaveBeenNthCalledWith(
         1,
-        '[Amplitude] Element Clicked',
+        'ade_element_clicked',
         expect.not.objectContaining({
-          '[Amplitude] Element Text': 'CONFIDENTIAL_TEXT',
+          'element_text': 'CONFIDENTIAL_TEXT',
         }),
       );
     });
@@ -718,9 +718,9 @@ describe('autoTrackingPlugin', () => {
 
       jest.advanceTimersByTime(TESTING_DEBOUNCE_TIME + 3);
       expect(track).toHaveBeenCalledTimes(1);
-      expect(track).toHaveBeenNthCalledWith(1, '[Amplitude] Element Clicked', {
-        '[Amplitude] Element Class': 'my-button-class',
-        '[Amplitude] Element Hierarchy': [
+      expect(track).toHaveBeenNthCalledWith(1, 'ade_element_clicked', {
+        'element_class': 'my-button-class',
+        'element_hierarchy': [
           {
             attrs: {
               'aria-label': 'my-button',
@@ -739,17 +739,17 @@ describe('autoTrackingPlugin', () => {
             tag: 'body',
           },
         ],
-        '[Amplitude] Element ID': 'my-button-id',
-        '[Amplitude] Element Position Left': 0,
-        '[Amplitude] Element Position Top': 0,
-        '[Amplitude] Element Tag': 'button',
-        '[Amplitude] Element Text': 'submit',
-        '[Amplitude] Element Aria Label': 'my-button',
-        '[Amplitude] Element Parent Label': 'my-h2-text',
-        '[Amplitude] Element Path': 'button#my-button-id',
-        '[Amplitude] Page URL': 'https://www.amplitude.com/unit-test',
-        '[Amplitude] Viewport Height': 768,
-        '[Amplitude] Viewport Width': 1024,
+        'element_id': 'my-button-id',
+        'element_position_left': 0,
+        'element_position_top': 0,
+        'element_tag': 'button',
+        'element_text': 'submit',
+        'element_aria_label': 'my-button',
+        'element_parent_label': 'my-h2-text',
+        'element_path': 'button#my-button-id',
+        'page_url': 'https://www.amplitude.com/unit-test',
+        'viewport_height': 768,
+        'viewport_width': 1024,
       });
 
       // stop observer and listeners
@@ -790,9 +790,9 @@ describe('autoTrackingPlugin', () => {
       jest.advanceTimersByTime(TESTING_DEBOUNCE_TIME + 3);
 
       expect(track).toHaveBeenCalledTimes(1);
-      expect(track).toHaveBeenNthCalledWith(1, '[Amplitude] Element Clicked', {
-        '[Amplitude] Element Class': 'my-button-class',
-        '[Amplitude] Element Hierarchy': [
+      expect(track).toHaveBeenNthCalledWith(1, 'ade_element_clicked', {
+        'element_class': 'my-button-class',
+        'element_hierarchy': [
           {
             attrs: {
               'aria-label': 'my-button',
@@ -811,17 +811,17 @@ describe('autoTrackingPlugin', () => {
             tag: 'body',
           },
         ],
-        '[Amplitude] Element ID': 'my-button-id',
-        '[Amplitude] Element Position Left': 0,
-        '[Amplitude] Element Position Top': 0,
-        '[Amplitude] Element Tag': 'button',
-        '[Amplitude] Element Text': 'submit',
-        '[Amplitude] Element Aria Label': 'my-button',
-        '[Amplitude] Element Parent Label': 'my-h2-text',
-        '[Amplitude] Element Path': 'button#my-button-id',
-        '[Amplitude] Page URL': 'https://www.amplitude.com/unit-test',
-        '[Amplitude] Viewport Height': 768,
-        '[Amplitude] Viewport Width': 1024,
+        'element_id': 'my-button-id',
+        'element_position_left': 0,
+        'element_position_top': 0,
+        'element_tag': 'button',
+        'element_text': 'submit',
+        'element_aria_label': 'my-button',
+        'element_parent_label': 'my-h2-text',
+        'element_path': 'button#my-button-id',
+        'page_url': 'https://www.amplitude.com/unit-test',
+        'viewport_height': 768,
+        'viewport_width': 1024,
       });
 
       // stop observer and listeners
@@ -1149,9 +1149,9 @@ describe('autoTrackingPlugin', () => {
       jest.advanceTimersByTime(TESTING_DEBOUNCE_TIME + 3);
 
       expect(track).toHaveBeenCalledTimes(1);
-      expect(track).toHaveBeenNthCalledWith(1, '[Amplitude] Element Clicked', {
-        '[Amplitude] Element Class': 'my-button-class',
-        '[Amplitude] Element Hierarchy': [
+      expect(track).toHaveBeenNthCalledWith(1, 'ade_element_clicked', {
+        'element_class': 'my-button-class',
+        'element_hierarchy': [
           {
             attrs: {
               'data-amp-test-hello': 'world',
@@ -1173,17 +1173,17 @@ describe('autoTrackingPlugin', () => {
             tag: 'body',
           },
         ],
-        '[Amplitude] Element ID': 'my-button-id',
-        '[Amplitude] Element Position Left': 0,
-        '[Amplitude] Element Position Top': 0,
-        '[Amplitude] Element Tag': 'button',
-        '[Amplitude] Element Text': 'submit',
-        '[Amplitude] Element Parent Label': 'my-h2-text',
-        '[Amplitude] Element Path': 'button#my-button-id',
-        '[Amplitude] Page URL': 'https://www.amplitude.com/unit-test',
-        '[Amplitude] Viewport Height': 768,
-        '[Amplitude] Viewport Width': 1024,
-        '[Amplitude] Element Attributes': {
+        'element_id': 'my-button-id',
+        'element_position_left': 0,
+        'element_position_top': 0,
+        'element_tag': 'button',
+        'element_text': 'submit',
+        'element_parent_label': 'my-h2-text',
+        'element_path': 'button#my-button-id',
+        'page_url': 'https://www.amplitude.com/unit-test',
+        'viewport_height': 768,
+        'viewport_width': 1024,
+        'element_attributes': {
           hello: 'world',
           time: 'machine',
           test: '',
@@ -1385,9 +1385,9 @@ describe('autoTrackingPlugin', () => {
         expect(track).toHaveBeenCalledTimes(1);
         expect(track).toHaveBeenNthCalledWith(
           1,
-          '[Amplitude] Element Clicked',
+          'ade_element_clicked',
           expect.objectContaining({
-            '[Amplitude] Element ID': 'inner',
+            'element_id': 'inner',
           }),
         );
 
@@ -1398,9 +1398,9 @@ describe('autoTrackingPlugin', () => {
         expect(track).toHaveBeenCalledTimes(2);
         expect(track).toHaveBeenNthCalledWith(
           2,
-          '[Amplitude] Element Clicked',
+          'ade_element_clicked',
           expect.objectContaining({
-            '[Amplitude] Element ID': 'container1',
+            'element_id': 'container1',
           }),
         );
       });
@@ -1441,9 +1441,9 @@ describe('autoTrackingPlugin', () => {
         expect(track).toHaveBeenCalledTimes(1);
         expect(track).toHaveBeenNthCalledWith(
           1,
-          '[Amplitude] Element Clicked',
+          'ade_element_clicked',
           expect.objectContaining({
-            '[Amplitude] Element ID': 'container1',
+            'element_id': 'container1',
           }),
         );
 
@@ -1454,9 +1454,9 @@ describe('autoTrackingPlugin', () => {
         expect(track).toHaveBeenCalledTimes(2);
         expect(track).toHaveBeenNthCalledWith(
           2,
-          '[Amplitude] Element Clicked',
+          'ade_element_clicked',
           expect.objectContaining({
-            '[Amplitude] Element ID': 'container1',
+            'element_id': 'container1',
           }),
         );
       });
@@ -1493,9 +1493,9 @@ describe('autoTrackingPlugin', () => {
         expect(track).toHaveBeenCalledTimes(1);
         expect(track).toHaveBeenNthCalledWith(
           1,
-          '[Amplitude] Element Clicked',
+          'ade_element_clicked',
           expect.objectContaining({
-            '[Amplitude] Element ID': 'container',
+            'element_id': 'container',
           }),
         );
 
@@ -1506,9 +1506,9 @@ describe('autoTrackingPlugin', () => {
         expect(track).toHaveBeenCalledTimes(2);
         expect(track).toHaveBeenNthCalledWith(
           2,
-          '[Amplitude] Element Clicked',
+          'ade_element_clicked',
           expect.objectContaining({
-            '[Amplitude] Element ID': 'container',
+            'element_id': 'container',
           }),
         );
       });
@@ -1546,9 +1546,9 @@ describe('autoTrackingPlugin', () => {
         expect(track).toHaveBeenCalledTimes(1);
         expect(track).toHaveBeenNthCalledWith(
           1,
-          '[Amplitude] Element Clicked',
+          'ade_element_clicked',
           expect.objectContaining({
-            '[Amplitude] Element ID': 'inner',
+            'element_id': 'inner',
           }),
         );
 
@@ -1559,9 +1559,9 @@ describe('autoTrackingPlugin', () => {
         expect(track).toHaveBeenCalledTimes(2);
         expect(track).toHaveBeenNthCalledWith(
           2,
-          '[Amplitude] Element Clicked',
+          'ade_element_clicked',
           expect.objectContaining({
-            '[Amplitude] Element ID': 'container',
+            'element_id': 'container',
           }),
         );
       });
@@ -1657,9 +1657,9 @@ describe('autoTrackingPlugin', () => {
         // Verify that page view ID is not included in the event properties
         expect(track).toHaveBeenNthCalledWith(
           1,
-          '[Amplitude] Element Clicked',
+          'ade_element_clicked',
           expect.not.objectContaining({
-            '[Amplitude] Page View ID': expect.anything(),
+            'page_view_id': expect.anything(),
           }),
         );
 
@@ -1702,9 +1702,9 @@ describe('autoTrackingPlugin', () => {
         // Verify that page view ID is not included in the event properties
         expect(track).toHaveBeenNthCalledWith(
           1,
-          '[Amplitude] Element Clicked',
+          'ade_element_clicked',
           expect.not.objectContaining({
-            '[Amplitude] Page View ID': expect.anything(),
+            'page_view_id': expect.anything(),
           }),
         );
 
@@ -1765,7 +1765,7 @@ describe('autoTrackingPlugin', () => {
       (window as any).IntersectionObserver = undefined;
     });
 
-    test('should track [Amplitude] Viewport Content Updated on beforeunload', async () => {
+    test('should track ade_viewport_content_updated on beforeunload', async () => {
       const config: Partial<BrowserConfig> = {
         defaultTracking: false,
         loggerProvider: loggerProvider,
@@ -1775,16 +1775,16 @@ describe('autoTrackingPlugin', () => {
       window.dispatchEvent(new Event('beforeunload'));
 
       expect(track).toHaveBeenCalledWith(
-        '[Amplitude] Viewport Content Updated',
+        'ade_viewport_content_updated',
         expect.objectContaining({
-          '[Amplitude] Page URL': expect.any(String),
-          '[Amplitude] Viewport Height': expect.any(Number),
-          '[Amplitude] Viewport Width': expect.any(Number),
+          'page_url': expect.any(String),
+          'viewport_height': expect.any(Number),
+          'viewport_width': expect.any(Number),
         }),
       );
     });
 
-    test('should not track duplicate [Amplitude] Viewport Content Updated events on multiple beforeunload', async () => {
+    test('should not track duplicate ade_viewport_content_updated events on multiple beforeunload', async () => {
       const config: Partial<BrowserConfig> = {
         defaultTracking: false,
         loggerProvider: loggerProvider,
@@ -1797,7 +1797,7 @@ describe('autoTrackingPlugin', () => {
       expect(track).toHaveBeenCalledTimes(1);
     });
 
-    test('should track [Amplitude] Viewport Content Updated on history.pushState and reset state', async () => {
+    test('should track ade_viewport_content_updated on history.pushState and reset state', async () => {
       const config: Partial<BrowserConfig> = {
         defaultTracking: false,
         loggerProvider: loggerProvider,
@@ -1807,7 +1807,7 @@ describe('autoTrackingPlugin', () => {
       // history.pushState is proxied.
       history.pushState({}, 'test', '/new-page');
 
-      expect(track).toHaveBeenCalledWith('[Amplitude] Viewport Content Updated', expect.any(Object));
+      expect(track).toHaveBeenCalledWith('ade_viewport_content_updated', expect.any(Object));
 
       jest.advanceTimersByTime(1000);
       //  change scroll depth to trigger a new viewport content updated event
@@ -1820,7 +1820,7 @@ describe('autoTrackingPlugin', () => {
       expect(track).toHaveBeenCalledTimes(2);
     });
 
-    test('should track [Amplitude] Viewport Content Updated on popstate event', async () => {
+    test('should track ade_viewport_content_updated on popstate event', async () => {
       const config: Partial<BrowserConfig> = {
         defaultTracking: false,
         loggerProvider: loggerProvider,
@@ -1830,7 +1830,7 @@ describe('autoTrackingPlugin', () => {
       // Simulate popstate event
       window.dispatchEvent(new Event('popstate'));
 
-      expect(track).toHaveBeenCalledWith('[Amplitude] Viewport Content Updated', expect.any(Object));
+      expect(track).toHaveBeenCalledWith('ade_viewport_content_updated', expect.any(Object));
     });
 
     test('should flush Viewport Content Updated event when exposure buffer limit is reached', async () => {
@@ -1894,7 +1894,7 @@ describe('autoTrackingPlugin', () => {
       // onExposure adds to set and checks size.
 
       // We expect at least one track call
-      expect(track).toHaveBeenCalledWith('[Amplitude] Viewport Content Updated', expect.any(Object));
+      expect(track).toHaveBeenCalledWith('ade_viewport_content_updated', expect.any(Object));
 
       // Cleanup
       elements.forEach((el) => el.remove());
@@ -1918,11 +1918,11 @@ describe('autoTrackingPlugin', () => {
       window.dispatchEvent(new Event('beforeunload'));
 
       expect(track).toHaveBeenCalledWith(
-        '[Amplitude] Viewport Content Updated',
+        'ade_viewport_content_updated',
         expect.objectContaining({
-          '[Amplitude] Max Page X': 100 + 1024,
-          '[Amplitude] Max Page Y': 200 + 768,
-          '[Amplitude] Element Exposed': expect.any(Array),
+          'max_page_x': 100 + 1024,
+          'max_page_y': 200 + 768,
+          'element_exposed': expect.any(Array),
         }),
       );
     });

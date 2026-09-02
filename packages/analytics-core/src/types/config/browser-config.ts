@@ -275,7 +275,7 @@ export interface AttributionOptions {
    */
   trackingMethod?: TrackingMethod | TrackingMethod[];
   /**
-   * Fires an `[Amplitude] Attribution` event as a heartbeat on every page view,
+   * Fires an `ade_attribution` event as a heartbeat on every page view,
    * such as on page load and SPA URL changes.
    * Applies only to `eventProperty` tracking.
    * Ignored by `userProperty` tracking.

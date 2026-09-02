@@ -64,15 +64,15 @@ describe('page actions', () => {
       id: '123',
       definition: [
         {
-          event_type: '[Amplitude] Element Clicked',
+          event_type: 'ade_element_clicked',
           filters: [
             {
-              subprop_key: '[Amplitude] Element Text',
+              subprop_key: 'element_text',
               subprop_op: 'is',
               subprop_value: ['Add to Cart'],
             },
             {
-              subprop_key: '[Amplitude] Element Hierarchy',
+              subprop_key: 'element_hierarchy',
               subprop_op: 'autotrack css match',
               subprop_value: ['#product-card-container .add-to-cart-button'],
             },
@@ -201,9 +201,9 @@ describe('page actions', () => {
 
       expect(instance.track).toHaveBeenNthCalledWith(
         1,
-        '[Amplitude] Element Clicked',
+        'ade_element_clicked',
         expect.objectContaining({
-          '[Amplitude] Element Class': 'add-to-cart-button',
+          'element_class': 'add-to-cart-button',
           'product-name': 'Product 1',
           'product-category': 'Category 1',
           price: '$10.00',
@@ -219,9 +219,9 @@ describe('page actions', () => {
 
       expect(instance.track).toHaveBeenNthCalledWith(
         2,
-        '[Amplitude] Element Clicked',
+        'ade_element_clicked',
         expect.objectContaining({
-          '[Amplitude] Element Class': 'add-to-cart-button',
+          'element_class': 'add-to-cart-button',
           'product-name': 'Product 2',
           'product-category': 'Category 2',
           price: '$20.00',
@@ -256,9 +256,9 @@ describe('page actions', () => {
 
       expect(instance.track).toHaveBeenNthCalledWith(
         1,
-        '[Amplitude] Element Clicked',
+        'ade_element_clicked',
         expect.objectContaining({
-          '[Amplitude] Element Class': 'add-to-cart-button',
+          'element_class': 'add-to-cart-button',
           'product-name': 'Product 3',
           'product-category': 'Category 3',
           price: '*****',
@@ -288,7 +288,7 @@ describe('page actions', () => {
 
       expect(instance.track).toHaveBeenNthCalledWith(
         1,
-        '[Amplitude] Element Clicked',
+        'ade_element_clicked',
         expect.not.objectContaining({
           'product-name': 'Product 1',
           'product-category': 'Category 1',

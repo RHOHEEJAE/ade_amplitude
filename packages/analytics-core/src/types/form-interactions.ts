@@ -4,8 +4,8 @@ export interface FormInteractionsOptions {
    * Use this for custom form validation logic when native HTML5 validation is disabled
    * (e.g., forms with the `novalidate` attribute).
    *
-   * Note: This only controls the `[Amplitude] Form Submitted` event, not the
-   * `[Amplitude] Form Started` event which is tracked on first field change.
+   * Note: This only controls the `ade_form_submitted` event, not the
+   * `ade_form_started` event which is tracked on first field change.
    *
    * @param event - The SubmitEvent triggered by the form submission
    * @returns `true` to track the form submit event, `false` to skip tracking

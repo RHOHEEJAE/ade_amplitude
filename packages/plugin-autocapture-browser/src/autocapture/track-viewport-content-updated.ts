@@ -45,7 +45,7 @@ export function fireViewportContentUpdated({
     [constants.AMPLITUDE_EVENT_PROP_MAX_PAGE_Y]: pageScrollMaxState.maxY + viewportHeight,
     [constants.AMPLITUDE_EVENT_PROP_VIEWPORT_HEIGHT]: viewportHeight,
     [constants.AMPLITUDE_EVENT_PROP_VIEWPORT_WIDTH]: viewportWidth,
-    '[Amplitude] Element Exposed': Array.from(currentElementExposed),
+    'element_exposed': Array.from(currentElementExposed),
   };
 
   const pageViewId = getCurrentPageViewId();
@@ -68,7 +68,7 @@ export function fireViewportContentUpdated({
   }
 
   /* istanbul ignore next */
-  amplitude?.track('[Amplitude] Viewport Content Updated', eventProperties);
+  amplitude?.track('ade_viewport_content_updated', eventProperties);
   lastScroll.maxX = pageScrollMaxState.maxX;
   lastScroll.maxY = pageScrollMaxState.maxY;
 

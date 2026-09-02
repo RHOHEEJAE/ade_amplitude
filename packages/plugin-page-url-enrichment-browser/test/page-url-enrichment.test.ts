@@ -50,7 +50,7 @@ const createMockBrowserClient = (): jest.Mocked<BrowserClient> => {
       code: 200,
       message: '',
       event: {
-        event_type: '[Amplitude] Page Viewed',
+        event_type: 'ade_page_viewed',
       },
     }),
   });
@@ -244,13 +244,13 @@ describe('pageUrlEnrichmentPlugin', () => {
       });
 
       expect(event_1?.event_properties).toStrictEqual({
-        '[Amplitude] Page Domain': '',
-        '[Amplitude] Page Location': '',
-        '[Amplitude] Page Path': '',
-        '[Amplitude] Page Title': '',
-        '[Amplitude] Page URL': '',
-        '[Amplitude] Previous Page Location': '',
-        '[Amplitude] Previous Page Type': 'direct',
+        'page_domain': '',
+        'page_location': '',
+        'page_path': '',
+        'page_title': '',
+        'page_url': '',
+        'previous_page_location': '',
+        'previous_page_type': 'direct',
       });
 
       const firstUrl = new URL('https://www.example.com/home');
@@ -272,13 +272,13 @@ describe('pageUrlEnrichmentPlugin', () => {
       });
 
       expect(event_2?.event_properties).toStrictEqual({
-        '[Amplitude] Page Domain': 'www.example.com',
-        '[Amplitude] Page Location': 'https://www.example.com/about?test=param',
-        '[Amplitude] Page Path': '/about',
-        '[Amplitude] Page Title': 'About - Example',
-        '[Amplitude] Page URL': 'https://www.example.com/about',
-        '[Amplitude] Previous Page Location': 'https://www.example.com/home',
-        '[Amplitude] Previous Page Type': 'internal',
+        'page_domain': 'www.example.com',
+        'page_location': 'https://www.example.com/about?test=param',
+        'page_path': '/about',
+        'page_title': 'About - Example',
+        'page_url': 'https://www.example.com/about',
+        'previous_page_location': 'https://www.example.com/home',
+        'previous_page_type': 'internal',
       });
     });
 
@@ -304,13 +304,13 @@ describe('pageUrlEnrichmentPlugin', () => {
       });
 
       expect(event?.event_properties).toStrictEqual({
-        '[Amplitude] Page Domain': 'www.example.com',
-        '[Amplitude] Page Location': 'https://www.example.com/about?test=param',
-        '[Amplitude] Page Path': '/about',
-        '[Amplitude] Page Title': 'About - Example',
-        '[Amplitude] Page URL': 'https://www.example.com/about',
-        '[Amplitude] Previous Page Location': 'https://www.externalexample.com/home',
-        '[Amplitude] Previous Page Type': 'external',
+        'page_domain': 'www.example.com',
+        'page_location': 'https://www.example.com/about?test=param',
+        'page_path': '/about',
+        'page_title': 'About - Example',
+        'page_url': 'https://www.example.com/about',
+        'previous_page_location': 'https://www.externalexample.com/home',
+        'previous_page_type': 'external',
       });
     });
 
@@ -335,13 +335,13 @@ describe('pageUrlEnrichmentPlugin', () => {
       });
 
       expect(event?.event_properties).toStrictEqual({
-        '[Amplitude] Page Domain': 'www.example.com',
-        '[Amplitude] Page Location': 'https://www.example.com/about?test=param',
-        '[Amplitude] Page Path': '/about',
-        '[Amplitude] Page Title': 'About - Example',
-        '[Amplitude] Page URL': 'https://www.example.com/about',
-        '[Amplitude] Previous Page Location': 'https://www.sub.example.com/home',
-        '[Amplitude] Previous Page Type': 'external',
+        'page_domain': 'www.example.com',
+        'page_location': 'https://www.example.com/about?test=param',
+        'page_path': '/about',
+        'page_title': 'About - Example',
+        'page_url': 'https://www.example.com/about',
+        'previous_page_location': 'https://www.sub.example.com/home',
+        'previous_page_type': 'external',
       });
     });
 
@@ -366,13 +366,13 @@ describe('pageUrlEnrichmentPlugin', () => {
       });
 
       expect(event?.event_properties).toStrictEqual({
-        '[Amplitude] Page Domain': 'www.example.com',
-        '[Amplitude] Page Location': 'https://www.example.com/about?test=param',
-        '[Amplitude] Page Path': '/about',
-        '[Amplitude] Page Title': 'About - Example',
-        '[Amplitude] Page URL': 'https://www.example.com/about',
-        '[Amplitude] Previous Page Location': 'https://www.example.com/home',
-        '[Amplitude] Previous Page Type': 'internal',
+        'page_domain': 'www.example.com',
+        'page_location': 'https://www.example.com/about?test=param',
+        'page_path': '/about',
+        'page_title': 'About - Example',
+        'page_url': 'https://www.example.com/about',
+        'previous_page_location': 'https://www.example.com/home',
+        'previous_page_type': 'internal',
       });
     });
 
@@ -399,13 +399,13 @@ describe('pageUrlEnrichmentPlugin', () => {
       });
 
       expect(event?.event_properties).toStrictEqual({
-        '[Amplitude] Page Domain': 'www.subdomain.test.example.com',
-        '[Amplitude] Page Location': 'https://www.subdomain.test.example.com/about?test=param',
-        '[Amplitude] Page Path': '/about',
-        '[Amplitude] Page Title': 'About - Example',
-        '[Amplitude] Page URL': 'https://www.subdomain.test.example.com/about',
-        '[Amplitude] Previous Page Location': 'https://www.example.com/home',
-        '[Amplitude] Previous Page Type': 'internal',
+        'page_domain': 'www.subdomain.test.example.com',
+        'page_location': 'https://www.subdomain.test.example.com/about?test=param',
+        'page_path': '/about',
+        'page_title': 'About - Example',
+        'page_url': 'https://www.subdomain.test.example.com/about',
+        'previous_page_location': 'https://www.example.com/home',
+        'previous_page_type': 'internal',
       });
 
       // go from subdomain.test.example.com to example.co.uk (internal)
@@ -421,13 +421,13 @@ describe('pageUrlEnrichmentPlugin', () => {
       });
 
       expect(event2?.event_properties).toStrictEqual({
-        '[Amplitude] Page Domain': 'www.example.co.uk',
-        '[Amplitude] Page Location': 'https://www.example.co.uk/contact',
-        '[Amplitude] Page Path': '/contact',
-        '[Amplitude] Page Title': 'Contact - Example',
-        '[Amplitude] Page URL': 'https://www.example.co.uk/contact',
-        '[Amplitude] Previous Page Location': 'https://www.subdomain.test.example.com/about?test=param',
-        '[Amplitude] Previous Page Type': 'internal',
+        'page_domain': 'www.example.co.uk',
+        'page_location': 'https://www.example.co.uk/contact',
+        'page_path': '/contact',
+        'page_title': 'Contact - Example',
+        'page_url': 'https://www.example.co.uk/contact',
+        'previous_page_location': 'https://www.subdomain.test.example.com/about?test=param',
+        'previous_page_type': 'internal',
       });
 
       // go from example.co.uk to example.org (external)
@@ -443,13 +443,13 @@ describe('pageUrlEnrichmentPlugin', () => {
       });
 
       expect(event3?.event_properties).toStrictEqual({
-        '[Amplitude] Page Domain': 'www.example.org',
-        '[Amplitude] Page Location': 'https://www.example.org/home',
-        '[Amplitude] Page Path': '/home',
-        '[Amplitude] Page Title': 'Home - Example',
-        '[Amplitude] Page URL': 'https://www.example.org/home',
-        '[Amplitude] Previous Page Location': 'https://www.example.co.uk/contact',
-        '[Amplitude] Previous Page Type': 'external',
+        'page_domain': 'www.example.org',
+        'page_location': 'https://www.example.org/home',
+        'page_path': '/home',
+        'page_title': 'Home - Example',
+        'page_url': 'https://www.example.org/home',
+        'previous_page_location': 'https://www.example.co.uk/contact',
+        'previous_page_type': 'external',
       });
 
       // go from example.org to example.com (external)
@@ -465,13 +465,13 @@ describe('pageUrlEnrichmentPlugin', () => {
       });
 
       expect(event4?.event_properties).toStrictEqual({
-        '[Amplitude] Page Domain': 'www.example.com',
-        '[Amplitude] Page Location': 'https://www.example.com/about',
-        '[Amplitude] Page Path': '/about',
-        '[Amplitude] Page Title': 'About - Example',
-        '[Amplitude] Page URL': 'https://www.example.com/about',
-        '[Amplitude] Previous Page Location': 'https://www.example.org/home',
-        '[Amplitude] Previous Page Type': 'external',
+        'page_domain': 'www.example.com',
+        'page_location': 'https://www.example.com/about',
+        'page_path': '/about',
+        'page_title': 'About - Example',
+        'page_url': 'https://www.example.com/about',
+        'previous_page_location': 'https://www.example.org/home',
+        'previous_page_type': 'external',
       });
     });
 
@@ -490,13 +490,13 @@ describe('pageUrlEnrichmentPlugin', () => {
       });
 
       expect(event?.event_properties).toStrictEqual({
-        '[Amplitude] Page Domain': 'www.example.com',
-        '[Amplitude] Page Location': 'https://www.example.com/about?test=param',
-        '[Amplitude] Page Path': '/about',
-        '[Amplitude] Page Title': 'About - Example',
-        '[Amplitude] Page URL': 'https://www.example.com/about',
-        '[Amplitude] Previous Page Location': '',
-        '[Amplitude] Previous Page Type': 'direct',
+        'page_domain': 'www.example.com',
+        'page_location': 'https://www.example.com/about?test=param',
+        'page_path': '/about',
+        'page_title': 'About - Example',
+        'page_url': 'https://www.example.com/about',
+        'previous_page_location': '',
+        'previous_page_type': 'direct',
       });
     });
 
@@ -538,9 +538,9 @@ describe('pageUrlEnrichmentPlugin', () => {
       });
 
       expect(event?.event_properties).toMatchObject({
-        '[Amplitude] Page Location': 'https://www.example.com/about',
-        '[Amplitude] Previous Page Location': 'https://www.example.com/home',
-        '[Amplitude] Previous Page Type': 'internal',
+        'page_location': 'https://www.example.com/about',
+        'previous_page_location': 'https://www.example.com/home',
+        'previous_page_type': 'internal',
       });
 
       await newPlugin.teardown?.();
@@ -558,22 +558,22 @@ describe('pageUrlEnrichmentPlugin', () => {
       const event = await plugin.execute?.({
         event_type: 'test_event',
         event_properties: {
-          '[Amplitude] Page Domain': 'www.existingexample.com',
-          '[Amplitude] Page Location': 'https://www.existingexample.com/about?test=param',
-          '[Amplitude] Page Path': '/existingexample',
-          '[Amplitude] Page Title': 'Existing Example',
-          '[Amplitude] Page URL': 'https://www.existingexample.com/about',
+          'page_domain': 'www.existingexample.com',
+          'page_location': 'https://www.existingexample.com/about?test=param',
+          'page_path': '/existingexample',
+          'page_title': 'Existing Example',
+          'page_url': 'https://www.existingexample.com/about',
         },
       });
 
       expect(event?.event_properties).toStrictEqual({
-        '[Amplitude] Page Domain': 'www.existingexample.com',
-        '[Amplitude] Page Location': 'https://www.existingexample.com/about?test=param',
-        '[Amplitude] Page Path': '/existingexample',
-        '[Amplitude] Page Title': 'Existing Example',
-        '[Amplitude] Page URL': 'https://www.existingexample.com/about',
-        '[Amplitude] Previous Page Location': '',
-        '[Amplitude] Previous Page Type': 'direct',
+        'page_domain': 'www.existingexample.com',
+        'page_location': 'https://www.existingexample.com/about?test=param',
+        'page_path': '/existingexample',
+        'page_title': 'Existing Example',
+        'page_url': 'https://www.existingexample.com/about',
+        'previous_page_location': '',
+        'previous_page_type': 'direct',
       });
     });
 
@@ -613,9 +613,9 @@ describe('pageUrlEnrichmentPlugin', () => {
       });
 
       expect(event?.event_properties).toMatchObject({
-        '[Amplitude] Page Location': 'https://www.example.com/about',
-        '[Amplitude] Previous Page Location': 'https://www.google.com/search?q=example',
-        '[Amplitude] Previous Page Type': 'external',
+        'page_location': 'https://www.example.com/about',
+        'previous_page_location': 'https://www.google.com/search?q=example',
+        'previous_page_type': 'external',
       });
 
       await newPlugin.teardown?.();
@@ -659,9 +659,9 @@ describe('pageUrlEnrichmentPlugin', () => {
       });
 
       expect(event?.event_properties).toMatchObject({
-        '[Amplitude] Page Location': 'https://www.example.com/about',
-        '[Amplitude] Previous Page Location': 'https://www.example.com/landing',
-        '[Amplitude] Previous Page Type': 'internal',
+        'page_location': 'https://www.example.com/about',
+        'previous_page_location': 'https://www.example.com/landing',
+        'previous_page_type': 'internal',
       });
 
       await newPlugin.teardown?.();
@@ -683,9 +683,9 @@ describe('pageUrlEnrichmentPlugin', () => {
       });
 
       expect(event?.event_properties).toMatchObject({
-        '[Amplitude] Page Location': 'https://www.example.com/about',
-        '[Amplitude] Previous Page Location': '',
-        '[Amplitude] Previous Page Type': 'direct',
+        'page_location': 'https://www.example.com/about',
+        'previous_page_location': '',
+        'previous_page_type': 'direct',
       });
     });
 
@@ -749,10 +749,10 @@ describe('pageUrlEnrichmentPlugin', () => {
       });
 
       expect(event?.event_properties).toMatchObject({
-        '[Amplitude] Page Domain': 'www.example.com',
-        '[Amplitude] Page Location': 'https://www.example.com/',
-        '[Amplitude] Previous Page Location': '',
-        '[Amplitude] Previous Page Type': 'direct',
+        'page_domain': 'www.example.com',
+        'page_location': 'https://www.example.com/',
+        'previous_page_location': '',
+        'previous_page_type': 'direct',
       });
 
       const urlInfoStr = sessionStorage?.getItem(URL_INFO_STORAGE_KEY) || '';
@@ -786,10 +786,10 @@ describe('pageUrlEnrichmentPlugin', () => {
       });
 
       expect(event?.event_properties).toMatchObject({
-        '[Amplitude] Page Domain': 'www.example.com',
-        '[Amplitude] Page Location': 'https://www.example.com/',
-        '[Amplitude] Previous Page Location': 'https://google.com/search',
-        '[Amplitude] Previous Page Type': 'external',
+        'page_domain': 'www.example.com',
+        'page_location': 'https://www.example.com/',
+        'previous_page_location': 'https://google.com/search',
+        'previous_page_type': 'external',
       });
 
       const urlInfoStr = sessionStorage?.getItem(URL_INFO_STORAGE_KEY) || '';
@@ -825,8 +825,8 @@ describe('pageUrlEnrichmentPlugin', () => {
       });
 
       expect(event?.event_properties).toMatchObject({
-        '[Amplitude] Previous Page Location': '',
-        '[Amplitude] Previous Page Type': 'direct',
+        'previous_page_location': '',
+        'previous_page_type': 'direct',
       });
 
       await newPlugin.teardown?.();

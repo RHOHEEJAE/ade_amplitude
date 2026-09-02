@@ -192,15 +192,15 @@
         type: 'enrichment',
         setup: async () => {},
         execute: async (event) => {
-          if (event.event_type === '[Amplitude] Dead Click') {
+          if (event.event_type === 'ade_dead_click') {
             deadClickCount += 1;
           }
-          if (event.event_type === '[Amplitude] Rage Click') {
+          if (event.event_type === 'ade_rage_click') {
             rageClickCount += 1;
           }
-          if (event.event_type === '[Amplitude] Dead Click' || event.event_type === '[Amplitude] Rage Click') {
+          if (event.event_type === 'ade_dead_click' || event.event_type === 'ade_rage_click') {
             const properties = event.event_properties ?? {};
-            eventStatus.textContent = `Dead clicks: ${deadClickCount} | Rage clicks: ${rageClickCount} | last: ${event.event_type} | tag: ${properties['[Amplitude] Element Tag']}`;
+            eventStatus.textContent = `Dead clicks: ${deadClickCount} | Rage clicks: ${rageClickCount} | last: ${event.event_type} | tag: ${properties['element_tag']}`;
           }
           return event;
         },

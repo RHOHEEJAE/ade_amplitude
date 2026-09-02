@@ -54,7 +54,7 @@ describe('groupLabeledEventIdsByEventType', () => {
         definition: [
           {
             event_type: AMPLITUDE_ELEMENT_CLICKED_EVENT,
-            filters: [{ subprop_key: '[Amplitude] Element Text', subprop_op: 'is', subprop_value: ['v'] }],
+            filters: [{ subprop_key: 'element_text', subprop_op: 'is', subprop_value: ['v'] }],
           },
         ],
       },
@@ -201,20 +201,20 @@ describe('groupLabeledEventIdsByEventType', () => {
   });
 
   // Test 12: Should ignore unknown Amplitude event types
-  test('should ignore unknown Amplitude event types like "[Amplitude] Random Event"', () => {
+  test('should ignore unknown Amplitude event types like "random_event"', () => {
     const labeledEvents: LabeledEvent[] = [
       { id: 'validClick', definition: [{ event_type: AMPLITUDE_ELEMENT_CLICKED_EVENT, filters: [] }] },
       { id: 'validChange', definition: [{ event_type: AMPLITUDE_ELEMENT_CHANGED_EVENT, filters: [] }] },
       {
         id: 'randomEvent',
         definition: [
-          { event_type: '[Amplitude] Random Event' as unknown as typeof AMPLITUDE_ELEMENT_CLICKED_EVENT, filters: [] },
+          { event_type: 'random_event' as unknown as typeof AMPLITUDE_ELEMENT_CLICKED_EVENT, filters: [] },
         ],
       },
       {
         id: 'mixedEvent',
         definition: [
-          { event_type: '[Amplitude] Unknown Event' as unknown as typeof AMPLITUDE_ELEMENT_CLICKED_EVENT, filters: [] }, // Should be ignored
+          { event_type: 'unknown_event' as unknown as typeof AMPLITUDE_ELEMENT_CLICKED_EVENT, filters: [] }, // Should be ignored
           { event_type: AMPLITUDE_ELEMENT_CLICKED_EVENT, filters: [] }, // Should be processed
         ],
       },
@@ -287,7 +287,7 @@ describe('matchEventToLabeledEvents', () => {
             event_type: AMPLITUDE_ELEMENT_CLICKED_EVENT,
             filters: [
               {
-                subprop_key: '[Amplitude] Element Text',
+                subprop_key: 'element_text',
                 subprop_op: 'is',
                 subprop_value: ['Button A'],
               },
@@ -313,7 +313,7 @@ describe('matchEventToLabeledEvents', () => {
             event_type: AMPLITUDE_ELEMENT_CLICKED_EVENT,
             filters: [
               {
-                subprop_key: '[Amplitude] Element Hierarchy',
+                subprop_key: 'element_hierarchy',
                 subprop_op: 'contains',
                 subprop_value: ['div > span'],
               },
@@ -328,7 +328,7 @@ describe('matchEventToLabeledEvents', () => {
             event_type: AMPLITUDE_ELEMENT_CHANGED_EVENT,
             filters: [
               {
-                subprop_key: '[Amplitude] Element Text',
+                subprop_key: 'element_text',
                 subprop_op: 'is',
                 subprop_value: ['Input Field'],
               },
@@ -354,7 +354,7 @@ describe('matchEventToLabeledEvents', () => {
             event_type: AMPLITUDE_ELEMENT_CLICKED_EVENT,
             filters: [
               {
-                subprop_key: '[Amplitude] Element Text',
+                subprop_key: 'element_text',
                 subprop_op: 'is',
                 subprop_value: ['Link 1'],
               },
@@ -369,7 +369,7 @@ describe('matchEventToLabeledEvents', () => {
             event_type: AMPLITUDE_ELEMENT_CLICKED_EVENT,
             filters: [
               {
-                subprop_key: '[Amplitude] Element Hierarchy',
+                subprop_key: 'element_hierarchy',
                 subprop_op: 'contains',
                 subprop_value: ['a.some-class'],
               },
@@ -384,7 +384,7 @@ describe('matchEventToLabeledEvents', () => {
             event_type: AMPLITUDE_ELEMENT_CHANGED_EVENT,
             filters: [
               {
-                subprop_key: '[Amplitude] Element Text',
+                subprop_key: 'element_text',
                 subprop_op: 'is',
                 subprop_value: ['Dropdown'],
               },
@@ -407,7 +407,7 @@ describe('matchEventToLabeledEvents', () => {
           event_type: AMPLITUDE_ELEMENT_CLICKED_EVENT, // This definition will not match `mockEvent.type`
           filters: [
             {
-              subprop_key: '[Amplitude] Element Text',
+              subprop_key: 'element_text',
               subprop_op: 'is',
               subprop_value: ['Some other text'],
             },
@@ -417,7 +417,7 @@ describe('matchEventToLabeledEvents', () => {
           event_type: AMPLITUDE_ELEMENT_CLICKED_EVENT, // This definition will match
           filters: [
             {
-              subprop_key: '[Amplitude] Element Hierarchy',
+              subprop_key: 'element_hierarchy',
               subprop_op: 'autotrack css match',
               subprop_value: ['body > div'],
             },
@@ -446,7 +446,7 @@ describe('matchEventToLabeledEvents', () => {
           event_type: AMPLITUDE_ELEMENT_CLICKED_EVENT,
           filters: [
             {
-              subprop_key: '[Amplitude] Element Text',
+              subprop_key: 'element_text',
               subprop_op: 'is',
               subprop_value: ['Text 1'],
             },
@@ -456,7 +456,7 @@ describe('matchEventToLabeledEvents', () => {
           event_type: AMPLITUDE_ELEMENT_CLICKED_EVENT,
           filters: [
             {
-              subprop_key: '[Amplitude] Element Hierarchy',
+              subprop_key: 'element_hierarchy',
               subprop_op: 'autotrack css match',
               subprop_value: ['path2'],
             },
@@ -480,12 +480,12 @@ describe('matchEventToLabeledEvents', () => {
           event_type: AMPLITUDE_ELEMENT_CLICKED_EVENT,
           filters: [
             {
-              subprop_key: '[Amplitude] Element Text',
+              subprop_key: 'element_text',
               subprop_op: 'is',
               subprop_value: ['Primary Button'],
             },
             {
-              subprop_key: '[Amplitude] Element Hierarchy',
+              subprop_key: 'element_hierarchy',
               subprop_op: 'autotrack css match',
               subprop_value: ['button'],
             },
@@ -509,12 +509,12 @@ describe('matchEventToLabeledEvents', () => {
           event_type: AMPLITUDE_ELEMENT_CLICKED_EVENT,
           filters: [
             {
-              subprop_key: '[Amplitude] Element Text',
+              subprop_key: 'element_text',
               subprop_op: 'is',
               subprop_value: ['Matching Text'],
             },
             {
-              subprop_key: '[Amplitude] Element Hierarchy',
+              subprop_key: 'element_hierarchy',
               subprop_op: 'autotrack css match',
               subprop_value: ['non-matching-path'],
             },
@@ -590,7 +590,7 @@ describe('TriggerEvaluator', () => {
       definition: [
         {
           event_type: AMPLITUDE_ELEMENT_CLICKED_EVENT,
-          filters: [{ subprop_key: '[Amplitude] Element Text', subprop_op: 'is', subprop_value: ['value'] }],
+          filters: [{ subprop_key: 'element_text', subprop_op: 'is', subprop_value: ['value'] }],
         },
       ],
     },
@@ -783,7 +783,7 @@ describe('autocapturePlugin recomputePageActionsData functionality', () => {
           event_type: AMPLITUDE_ELEMENT_CLICKED_EVENT,
           filters: [
             {
-              subprop_key: '[Amplitude] Element Text',
+              subprop_key: 'element_text',
               subprop_op: 'is',
               subprop_value: ['Local Button'],
             },
@@ -798,7 +798,7 @@ describe('autocapturePlugin recomputePageActionsData functionality', () => {
           event_type: AMPLITUDE_ELEMENT_CHANGED_EVENT,
           filters: [
             {
-              subprop_key: '[Amplitude] Element Text',
+              subprop_key: 'element_text',
               subprop_op: 'is',
               subprop_value: ['Local Input'],
             },
@@ -844,7 +844,7 @@ describe('autocapturePlugin recomputePageActionsData functionality', () => {
           event_type: AMPLITUDE_ELEMENT_CLICKED_EVENT,
           filters: [
             {
-              subprop_key: '[Amplitude] Element Text',
+              subprop_key: 'element_text',
               subprop_op: 'is',
               subprop_value: ['Remote Button'],
             },
@@ -859,7 +859,7 @@ describe('autocapturePlugin recomputePageActionsData functionality', () => {
           event_type: AMPLITUDE_ELEMENT_CHANGED_EVENT,
           filters: [
             {
-              subprop_key: '[Amplitude] Element Text',
+              subprop_key: 'element_text',
               subprop_op: 'is',
               subprop_value: ['Remote Input'],
             },

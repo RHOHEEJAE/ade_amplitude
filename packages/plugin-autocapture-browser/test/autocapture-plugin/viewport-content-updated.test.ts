@@ -96,9 +96,9 @@ describe('autocapturePlugin - Viewport Content Updated (Exposure)', () => {
     // Should trigger track
     expect(fireViewportContentUpdatedMock).toHaveBeenCalledTimes(1);
     expect(track).toHaveBeenCalledWith(
-      '[Amplitude] Viewport Content Updated',
+      'ade_viewport_content_updated',
       expect.objectContaining({
-        '[Amplitude] Element Exposed': expect.arrayContaining(['small-element', largeString]),
+        'element_exposed': expect.arrayContaining(['small-element', largeString]),
       }),
     );
 
@@ -120,9 +120,9 @@ describe('autocapturePlugin - Viewport Content Updated (Exposure)', () => {
 
     expect(fireViewportContentUpdatedMock).toHaveBeenCalledTimes(1);
     expect(track).toHaveBeenCalledWith(
-      '[Amplitude] Viewport Content Updated',
+      'ade_viewport_content_updated',
       expect.objectContaining({
-        '[Amplitude] Element Exposed': expect.arrayContaining(['another-small-element']),
+        'element_exposed': expect.arrayContaining(['another-small-element']),
       }),
     );
   });
@@ -139,9 +139,9 @@ describe('autocapturePlugin - Viewport Content Updated (Exposure)', () => {
 
     // Should only be in the array once
     expect(track).toHaveBeenCalledWith(
-      '[Amplitude] Viewport Content Updated',
+      'ade_viewport_content_updated',
       expect.objectContaining({
-        '[Amplitude] Element Exposed': ['element-1'],
+        'element_exposed': ['element-1'],
       }),
     );
   });
@@ -156,10 +156,10 @@ describe('autocapturePlugin - Viewport Content Updated (Exposure)', () => {
     window.dispatchEvent(new Event('beforeunload'));
 
     expect(track).toHaveBeenCalledWith(
-      '[Amplitude] Viewport Content Updated',
+      'ade_viewport_content_updated',
       expect.objectContaining({
-        '[Amplitude] Element Exposed': ['element-1'],
-        '[Amplitude] Page View ID': 'pv-test-123',
+        'element_exposed': ['element-1'],
+        'page_view_id': 'pv-test-123',
       }),
     );
   });
@@ -171,15 +171,15 @@ describe('autocapturePlugin - Viewport Content Updated (Exposure)', () => {
     window.dispatchEvent(new Event('beforeunload'));
 
     expect(track).toHaveBeenCalledWith(
-      '[Amplitude] Viewport Content Updated',
+      'ade_viewport_content_updated',
       expect.objectContaining({
-        '[Amplitude] Element Exposed': ['element-1'],
+        'element_exposed': ['element-1'],
       }),
     );
 
     // Verify Page View ID is NOT in the event properties
     const trackCall = track.mock.calls[0];
-    expect(trackCall[1]).not.toHaveProperty('[Amplitude] Page View ID');
+    expect(trackCall[1]).not.toHaveProperty('page_view_id');
   });
 
   test('should call handleViewportContentUpdated with isPageEnd=true on beforeunload', async () => {
@@ -395,9 +395,9 @@ describe('fireViewportContentUpdated - early return when no changes', () => {
 
     // Should call track because there are exposed elements
     expect(trackSpy).toHaveBeenCalledWith(
-      '[Amplitude] Viewport Content Updated',
+      'ade_viewport_content_updated',
       expect.objectContaining({
-        '[Amplitude] Element Exposed': ['element-1'],
+        'element_exposed': ['element-1'],
       }),
     );
   });
@@ -418,9 +418,9 @@ describe('fireViewportContentUpdated - early return when no changes', () => {
 
     // Should call track because maxX changed
     expect(trackSpy).toHaveBeenCalledWith(
-      '[Amplitude] Viewport Content Updated',
+      'ade_viewport_content_updated',
       expect.objectContaining({
-        '[Amplitude] Element Exposed': [],
+        'element_exposed': [],
       }),
     );
   });
@@ -441,9 +441,9 @@ describe('fireViewportContentUpdated - early return when no changes', () => {
 
     // Should call track because maxY changed
     expect(trackSpy).toHaveBeenCalledWith(
-      '[Amplitude] Viewport Content Updated',
+      'ade_viewport_content_updated',
       expect.objectContaining({
-        '[Amplitude] Element Exposed': [],
+        'element_exposed': [],
       }),
     );
   });
@@ -475,7 +475,7 @@ describe('fireViewportContentUpdated - early return when no changes', () => {
       });
 
       expect(trackSpy).toHaveBeenCalledWith(
-        '[Amplitude] Viewport Content Updated',
+        'ade_viewport_content_updated',
         expect.objectContaining({
           [constants.AMPLITUDE_EVENT_PROP_PAGE_URL]: 'https://www.test.com/path',
         }),
@@ -520,7 +520,7 @@ describe('fireViewportContentUpdated - early return when no changes', () => {
       });
 
       expect(trackSpy).toHaveBeenCalledWith(
-        '[Amplitude] Viewport Content Updated',
+        'ade_viewport_content_updated',
         expect.objectContaining({
           [constants.AMPLITUDE_EVENT_PROP_PAGE_URL]:
             'https://www.topps.com/products/2025-bowman-chrome®-baseball-mega-box',
@@ -562,7 +562,7 @@ describe('fireViewportContentUpdated - early return when no changes', () => {
       });
 
       expect(trackSpy).toHaveBeenCalledWith(
-        '[Amplitude] Viewport Content Updated',
+        'ade_viewport_content_updated',
         expect.objectContaining({
           [constants.AMPLITUDE_EVENT_PROP_PAGE_URL]: 'https://www.test.com/path',
         }),
@@ -592,9 +592,9 @@ describe('fireViewportContentUpdated - early return when no changes', () => {
 
     // Should call track because undefined !== 100 and undefined !== 200
     expect(trackSpy).toHaveBeenCalledWith(
-      '[Amplitude] Viewport Content Updated',
+      'ade_viewport_content_updated',
       expect.objectContaining({
-        '[Amplitude] Element Exposed': [],
+        'element_exposed': [],
       }),
     );
   });

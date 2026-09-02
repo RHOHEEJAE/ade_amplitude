@@ -64,10 +64,10 @@ This plugin adds Page URL properties to all events based on your configuration
 
 | Property                               | Description                                                                                                                                                          |
 | -------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `'[Amplitude] Page Domain'`            | The website's hostname or `location.hostname`                                                                                                                        |
-| `'[Amplitude] Page Location'`          | The website's full url or `location.href`                                                                                                                            |
-| `'[Amplitude] Page Path'`              | The website's pathname or `location.pathname`                                                                                                                        |
-| `'[Amplitude] Page Title'`             | The website's title or `document.title`                                                                                                                              |
-| `'[Amplitude] Page URL'`               | The website's url excluding query parameters                                                                                                                         |
-| `'[Amplitude] Previous Page Location'` | The URL of the previous page the user visited; document.referrer if coming from an external domain; and using the sessionStorage which tracks the last url otherwise |
+| `'page_domain'`            | The website's hostname or `location.hostname`                                                                                                                        |
+| `'page_location'`          | The website's full url or `location.href`                                                                                                                            |
+| `'page_path'`              | The website's pathname or `location.pathname`                                                                                                                        |
+| `'page_title'`             | The website's title or `document.title`                                                                                                                              |
+| `'page_url'`               | The website's url excluding query parameters                                                                                                                         |
+| `'previous_page_location'` | The URL of the previous page the user visited; document.referrer if coming from an external domain; and using the sessionStorage which tracks the last url otherwise |
 | `'Amplitude] Previous Page Type'`      | A classification of the previous page (e.g., 'Internal', 'External', 'Direct'), typically derived from a custom function that analyzes the previous page's URL       |

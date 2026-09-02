@@ -62,7 +62,7 @@ const createMockBrowserClient = (): jest.Mocked<BrowserClient> => {
       code: 200,
       message: '',
       event: {
-        event_type: '[Amplitude] Page Viewed',
+        event_type: 'ade_page_viewed',
       },
     }),
   });
@@ -135,7 +135,7 @@ describe('pageViewTrackingPlugin', () => {
           code: 200,
           message: '',
           event: {
-            event_type: '[Amplitude] Page Viewed',
+            event_type: 'ade_page_viewed',
           },
         }),
       });
@@ -161,14 +161,14 @@ describe('pageViewTrackingPlugin', () => {
 
       expect(track).toHaveBeenNthCalledWith(2, {
         event_properties: {
-          '[Amplitude] Page Domain': newURL.hostname,
-          '[Amplitude] Page Location': newURL.toString(),
-          '[Amplitude] Page Path': newURL.pathname,
-          '[Amplitude] Page Title': '',
-          '[Amplitude] Page URL': newURL.toString(),
-          '[Amplitude] Page View ID': pageViewIdSessionStorage,
+          'page_domain': newURL.hostname,
+          'page_location': newURL.toString(),
+          'page_path': newURL.pathname,
+          'page_title': '',
+          'page_url': newURL.toString(),
+          'page_view_id': pageViewIdSessionStorage,
         },
-        event_type: '[Amplitude] Page Viewed',
+        event_type: 'ade_page_viewed',
       });
       expect(track).toHaveBeenCalledTimes(2);
     });
@@ -196,7 +196,7 @@ describe('pageViewTrackingPlugin', () => {
           code: 200,
           message: '',
           event: {
-            event_type: '[Amplitude] Page Viewed',
+            event_type: 'ade_page_viewed',
           },
         }),
       });
@@ -204,19 +204,19 @@ describe('pageViewTrackingPlugin', () => {
       await plugin.setup?.(mockConfig, amplitude);
       expect(track).toHaveBeenCalledWith({
         event_properties: {
-          '[Amplitude] Page Domain': hostname,
-          '[Amplitude] Page Location': url.toString(),
-          '[Amplitude] Page Path': pathname,
-          '[Amplitude] Page Title': '',
-          '[Amplitude] Page URL': `https://${hostname}${pathname}`,
-          '[Amplitude] Page View ID': expect.any(String),
+          'page_domain': hostname,
+          'page_location': url.toString(),
+          'page_path': pathname,
+          'page_title': '',
+          'page_url': `https://${hostname}${pathname}`,
+          'page_view_id': expect.any(String),
           utm_source: 'google',
           utm_medium: 'cpc',
           utm_campaign: 'brand',
           utm_term: 'keyword',
           utm_content: 'adcopy',
         },
-        event_type: options?.eventType ?? '[Amplitude] Page Viewed',
+        event_type: options?.eventType ?? 'ade_page_viewed',
       });
       expect(track).toHaveBeenCalledTimes(1);
     });
@@ -257,7 +257,7 @@ describe('pageViewTrackingPlugin', () => {
         promise: Promise.resolve({
           code: 200,
           message: '',
-          event: { event_type: '[Amplitude] Page Viewed' },
+          event: { event_type: 'ade_page_viewed' },
         }),
       });
 
@@ -284,7 +284,7 @@ describe('pageViewTrackingPlugin', () => {
           code: 200,
           message: '',
           event: {
-            event_type: '[Amplitude] Page Viewed',
+            event_type: 'ade_page_viewed',
           },
         }),
       });
@@ -315,7 +315,7 @@ describe('pageViewTrackingPlugin', () => {
           code: 200,
           message: '',
           event: {
-            event_type: '[Amplitude] Page Viewed',
+            event_type: 'ade_page_viewed',
           },
         }),
       });
@@ -336,26 +336,26 @@ describe('pageViewTrackingPlugin', () => {
 
       expect(track).toHaveBeenNthCalledWith(1, {
         event_properties: {
-          '[Amplitude] Page Domain': oldURL.hostname,
-          '[Amplitude] Page Location': oldURL.toString(),
-          '[Amplitude] Page Path': oldURL.pathname,
-          '[Amplitude] Page Title': '',
-          '[Amplitude] Page URL': oldURL.toString(),
-          '[Amplitude] Page View ID': expect.any(String),
+          'page_domain': oldURL.hostname,
+          'page_location': oldURL.toString(),
+          'page_path': oldURL.pathname,
+          'page_title': '',
+          'page_url': oldURL.toString(),
+          'page_view_id': expect.any(String),
         },
-        event_type: '[Amplitude] Page Viewed',
+        event_type: 'ade_page_viewed',
       });
 
       expect(track).toHaveBeenNthCalledWith(2, {
         event_properties: {
-          '[Amplitude] Page Domain': newURL.hostname,
-          '[Amplitude] Page Location': 'https://www.example.com/home-шеллы?x=test',
-          '[Amplitude] Page Path': '/home-шеллы',
-          '[Amplitude] Page Title': '',
-          '[Amplitude] Page URL': 'https://www.example.com/home-шеллы',
-          '[Amplitude] Page View ID': expect.any(String),
+          'page_domain': newURL.hostname,
+          'page_location': 'https://www.example.com/home-шеллы?x=test',
+          'page_path': '/home-шеллы',
+          'page_title': '',
+          'page_url': 'https://www.example.com/home-шеллы',
+          'page_view_id': expect.any(String),
         },
-        event_type: '[Amplitude] Page Viewed',
+        event_type: 'ade_page_viewed',
       });
 
       expect(track).toHaveBeenCalledTimes(2);
@@ -370,7 +370,7 @@ describe('pageViewTrackingPlugin', () => {
           code: 200,
           message: '',
           event: {
-            event_type: '[Amplitude] Page Viewed',
+            event_type: 'ade_page_viewed',
           },
         }),
       });
@@ -393,26 +393,26 @@ describe('pageViewTrackingPlugin', () => {
 
       expect(track).toHaveBeenNthCalledWith(1, {
         event_properties: {
-          '[Amplitude] Page Domain': oldURL.hostname,
-          '[Amplitude] Page Location': oldURL.toString(),
-          '[Amplitude] Page Path': oldURL.pathname,
-          '[Amplitude] Page Title': '',
-          '[Amplitude] Page URL': oldURL.toString(),
-          '[Amplitude] Page View ID': expect.any(String),
+          'page_domain': oldURL.hostname,
+          'page_location': oldURL.toString(),
+          'page_path': oldURL.pathname,
+          'page_title': '',
+          'page_url': oldURL.toString(),
+          'page_view_id': expect.any(String),
         },
-        event_type: '[Amplitude] Page Viewed',
+        event_type: 'ade_page_viewed',
       });
 
       expect(track).toHaveBeenNthCalledWith(2, {
         event_properties: {
-          '[Amplitude] Page Domain': newURL.hostname,
-          '[Amplitude] Page Location': malformedLocation,
-          '[Amplitude] Page Path': malformedPath,
-          '[Amplitude] Page Title': '',
-          '[Amplitude] Page URL': malformedURL,
-          '[Amplitude] Page View ID': expect.any(String),
+          'page_domain': newURL.hostname,
+          'page_location': malformedLocation,
+          'page_path': malformedPath,
+          'page_title': '',
+          'page_url': malformedURL,
+          'page_view_id': expect.any(String),
         },
-        event_type: '[Amplitude] Page Viewed',
+        event_type: 'ade_page_viewed',
       });
 
       expect(track).toHaveBeenCalledTimes(2);
@@ -427,7 +427,7 @@ describe('pageViewTrackingPlugin', () => {
           code: 200,
           message: '',
           event: {
-            event_type: '[Amplitude] Page Viewed',
+            event_type: 'ade_page_viewed',
           },
         }),
       });
@@ -448,26 +448,26 @@ describe('pageViewTrackingPlugin', () => {
 
       expect(track).toHaveBeenNthCalledWith(1, {
         event_properties: {
-          '[Amplitude] Page Domain': oldURL.hostname,
-          '[Amplitude] Page Location': oldURL.toString(),
-          '[Amplitude] Page Path': oldURL.pathname,
-          '[Amplitude] Page Title': '',
-          '[Amplitude] Page URL': oldURL.toString(),
-          '[Amplitude] Page View ID': expect.any(String),
+          'page_domain': oldURL.hostname,
+          'page_location': oldURL.toString(),
+          'page_path': oldURL.pathname,
+          'page_title': '',
+          'page_url': oldURL.toString(),
+          'page_view_id': expect.any(String),
         },
-        event_type: '[Amplitude] Page Viewed',
+        event_type: 'ade_page_viewed',
       });
 
       expect(track).toHaveBeenNthCalledWith(2, {
         event_properties: {
-          '[Amplitude] Page Domain': newURL.hostname,
-          '[Amplitude] Page Location': newURL.toString(),
-          '[Amplitude] Page Path': newURL.pathname,
-          '[Amplitude] Page Title': '',
-          '[Amplitude] Page URL': newBaseURL,
-          '[Amplitude] Page View ID': expect.any(String),
+          'page_domain': newURL.hostname,
+          'page_location': newURL.toString(),
+          'page_path': newURL.pathname,
+          'page_title': '',
+          'page_url': newBaseURL,
+          'page_view_id': expect.any(String),
         },
-        event_type: '[Amplitude] Page Viewed',
+        event_type: 'ade_page_viewed',
       });
 
       expect(track).toHaveBeenCalledTimes(2);
@@ -530,7 +530,7 @@ describe('pageViewTrackingPlugin', () => {
           },
         },
       });
-      expect(event?.event_type).toBe('[Amplitude] Page Viewed');
+      expect(event?.event_type).toBe('ade_page_viewed');
     });
 
     test('should track attribution page view when session storage is unavailable', async () => {
@@ -596,8 +596,8 @@ describe('pageViewTrackingPlugin', () => {
         },
       });
 
-      expect(event?.event_type).toBe('[Amplitude] Page Viewed');
-      expect(event?.event_properties).not.toHaveProperty('[Amplitude] Page View ID');
+      expect(event?.event_type).toBe('ade_page_viewed');
+      expect(event?.event_properties).not.toHaveProperty('page_view_id');
       (getGlobalScope as jest.Mock).mockImplementation(orig);
     });
 
@@ -661,8 +661,8 @@ describe('pageViewTrackingPlugin', () => {
         },
       });
 
-      expect(event?.event_type).toBe('[Amplitude] Page Viewed');
-      expect(event?.event_properties).not.toHaveProperty('[Amplitude] Page View ID');
+      expect(event?.event_type).toBe('ade_page_viewed');
+      expect(event?.event_properties).not.toHaveProperty('page_view_id');
     });
 
     test('should return same event if it is not attribution event', async () => {
@@ -695,7 +695,7 @@ describe('pageViewTrackingPlugin', () => {
       });
 
       const sentEvent = {
-        event_type: '[Amplitude] Page Viewed',
+        event_type: 'ade_page_viewed',
       };
       const event = await plugin.execute?.(sentEvent);
       expect(event).toBe(sentEvent);

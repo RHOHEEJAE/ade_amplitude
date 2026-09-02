@@ -17,7 +17,7 @@ import {
 } from '@amplitude/analytics-core';
 import { CreatePageViewTrackingPlugin, Options } from './typings/page-view-tracking';
 
-export const defaultPageViewEvent = '[Amplitude] Page Viewed';
+export const defaultPageViewEvent = 'ade_page_viewed';
 export const PAGE_VIEW_SESSION_STORAGE_KEY = 'AMP_PAGE_VIEW';
 
 type PageViewSessionStorage = {
@@ -52,14 +52,14 @@ export const pageViewTrackingPlugin: CreatePageViewTrackingPlugin = (options: Op
       event_type: eventType,
       event_properties: {
         ...(await getCampaignParams()),
-        '[Amplitude] Page Domain':
+        'page_domain':
           /* istanbul ignore next */ (typeof location !== 'undefined' && location.hostname) || '',
-        '[Amplitude] Page Location': locationHREF,
-        '[Amplitude] Page Path':
+        'page_location': locationHREF,
+        'page_path':
           /* istanbul ignore next */ (typeof location !== 'undefined' && getDecodeURI(location.pathname)) || '',
-        '[Amplitude] Page Title': /* istanbul ignore next */ getPageTitle(replaceSensitiveString),
-        '[Amplitude] Page URL': locationHREF.split('?')[0],
-        '[Amplitude] Page View ID': pageViewId,
+        'page_title': /* istanbul ignore next */ getPageTitle(replaceSensitiveString),
+        'page_url': locationHREF.split('?')[0],
+        'page_view_id': pageViewId,
       },
     };
   };
@@ -174,7 +174,7 @@ export const pageViewTrackingPlugin: CreatePageViewTrackingPlugin = (options: Op
         localConfig.pageCounter = !localConfig.pageCounter ? 1 : localConfig.pageCounter + 1;
         event.event_properties = {
           ...event.event_properties,
-          '[Amplitude] Page Counter': localConfig.pageCounter,
+          'page_counter': localConfig.pageCounter,
         };
       }
       return event;

@@ -38,7 +38,7 @@ describe('fileDownloadTracking', () => {
 
     // assert file download event was tracked
     expect(amplitude.track).toHaveBeenCalledTimes(1);
-    expect(amplitude.track).toHaveBeenNthCalledWith(1, '[Amplitude] File Downloaded', {
+    expect(amplitude.track).toHaveBeenNthCalledWith(1, 'ade_file_downloaded', {
       [FILE_EXTENSION]: 'pdf',
       [FILE_NAME]: '/files/my-file.pdf',
       [LINK_ID]: 'my-link-id',
@@ -78,7 +78,7 @@ describe('fileDownloadTracking', () => {
 
     // assert file download event was tracked
     expect(amplitude.track).toHaveBeenCalledTimes(1);
-    expect(amplitude.track).toHaveBeenNthCalledWith(1, '[Amplitude] File Downloaded', {
+    expect(amplitude.track).toHaveBeenNthCalledWith(1, 'ade_file_downloaded', {
       [FILE_EXTENSION]: 'pdf',
       [FILE_NAME]: '/files/my-file-2.pdf',
       [LINK_ID]: 'my-link-2-id',
@@ -133,7 +133,7 @@ describe('fileDownloadTracking', () => {
 
     // assert file download event was tracked
     expect(amplitude.track).toHaveBeenCalledTimes(1);
-    expect(amplitude.track).toHaveBeenNthCalledWith(1, '[Amplitude] File Downloaded', {
+    expect(amplitude.track).toHaveBeenNthCalledWith(1, 'ade_file_downloaded', {
       [FILE_EXTENSION]: 'pdf',
       [FILE_NAME]: '/files/my-file-2.pdf',
       [LINK_ID]: 'my-link-2-id',
@@ -192,12 +192,12 @@ describe('fileDownloadTracking', () => {
       expect(amplitude.track).toHaveBeenCalledTimes(2);
       expect(amplitude.track).toHaveBeenNthCalledWith(
         1,
-        '[Amplitude] File Downloaded',
+        'ade_file_downloaded',
         expectedEventProperties('early-link-id'),
       );
       expect(amplitude.track).toHaveBeenNthCalledWith(
         2,
-        '[Amplitude] File Downloaded',
+        'ade_file_downloaded',
         expectedEventProperties('late-link-id'),
       );
 
@@ -237,7 +237,7 @@ describe('fileDownloadTracking', () => {
       expect(amplitude.track).toHaveBeenCalledTimes(1);
       expect(amplitude.track).toHaveBeenNthCalledWith(
         1,
-        '[Amplitude] File Downloaded',
+        'ade_file_downloaded',
         expectedEventProperties('late-link-id'),
       );
 

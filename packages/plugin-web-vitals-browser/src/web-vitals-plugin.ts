@@ -22,16 +22,16 @@ type WebVitalsMetricPayload = {
 };
 
 type WebVitalsEventPayload = {
-  '[Amplitude] LCP'?: WebVitalsMetricPayload;
-  '[Amplitude] FCP'?: WebVitalsMetricPayload;
-  '[Amplitude] INP'?: WebVitalsMetricPayload;
-  '[Amplitude] CLS'?: WebVitalsMetricPayload;
-  '[Amplitude] TTFB'?: WebVitalsMetricPayload;
-  '[Amplitude] Page Domain'?: string;
-  '[Amplitude] Page Location'?: string;
-  '[Amplitude] Page Path'?: string;
-  '[Amplitude] Page Title'?: string;
-  '[Amplitude] Page URL'?: string;
+  'lcp'?: WebVitalsMetricPayload;
+  'fcp'?: WebVitalsMetricPayload;
+  'inp'?: WebVitalsMetricPayload;
+  'cls'?: WebVitalsMetricPayload;
+  'ttfb'?: WebVitalsMetricPayload;
+  'page_domain'?: string;
+  'page_location'?: string;
+  'page_path'?: string;
+  'page_title'?: string;
+  'page_url'?: string;
 };
 
 function getMetricStartTime(metric: Metric) {
@@ -63,31 +63,31 @@ export const webVitalsPlugin = (): BrowserEnrichmentPlugin => {
     }
     const locationHref = getDecodeURI(/* istanbul ignore next */ location?.href || '', config.loggerProvider);
     const webVitalsPayload: WebVitalsEventPayload = {
-      '[Amplitude] Page Domain': /* istanbul ignore next */ location?.hostname || '',
-      '[Amplitude] Page Location': locationHref,
-      '[Amplitude] Page Path': getDecodeURI(/* istanbul ignore next */ location?.pathname || '', config.loggerProvider),
-      '[Amplitude] Page Title': /* istanbul ignore next */ (typeof document !== 'undefined' && document.title) || '',
-      '[Amplitude] Page URL': getDecodeURI(locationHref.split('?')[0], config.loggerProvider),
+      'page_domain': /* istanbul ignore next */ location?.hostname || '',
+      'page_location': locationHref,
+      'page_path': getDecodeURI(/* istanbul ignore next */ location?.pathname || '', config.loggerProvider),
+      'page_title': /* istanbul ignore next */ (typeof document !== 'undefined' && document.title) || '',
+      'page_url': getDecodeURI(locationHref.split('?')[0], config.loggerProvider),
     };
 
     onLCP((metric) => {
-      webVitalsPayload['[Amplitude] LCP'] = processMetric(metric);
+      webVitalsPayload['lcp'] = processMetric(metric);
     });
 
     onFCP((metric) => {
-      webVitalsPayload['[Amplitude] FCP'] = processMetric(metric);
+      webVitalsPayload['fcp'] = processMetric(metric);
     });
 
     onINP((metric) => {
-      webVitalsPayload['[Amplitude] INP'] = processMetric(metric);
+      webVitalsPayload['inp'] = processMetric(metric);
     });
 
     onCLS((metric) => {
-      webVitalsPayload['[Amplitude] CLS'] = processMetric(metric);
+      webVitalsPayload['cls'] = processMetric(metric);
     });
 
     onTTFB((metric) => {
-      webVitalsPayload['[Amplitude] TTFB'] = processMetric(metric);
+      webVitalsPayload['ttfb'] = processMetric(metric);
     });
 
     visibilityListener = () => {

@@ -56,12 +56,12 @@ export function trackErrorClicks({
 
     if (event.type === 'error' && latestClickEvent) {
       amplitude.track(AMPLITUDE_ELEMENT_ERROR_CLICKED_EVENT, {
-        ['[Amplitude] Kind']: event.event.kind,
-        ['[Amplitude] Message']: event.event.message,
-        ['[Amplitude] Stack']: event.event.stack,
-        ['[Amplitude] Filename']: event.event.filename,
-        ['[Amplitude] Line Number']: event.event.lineNumber,
-        ['[Amplitude] Column Number']: event.event.columnNumber,
+        ['kind']: event.event.kind,
+        ['message']: event.event.message,
+        ['stack']: event.event.stack,
+        ['filename']: event.event.filename,
+        ['line_number']: event.event.lineNumber,
+        ['column_number']: event.event.columnNumber,
         ...latestClickEvent.targetElementProperties,
       });
       clearClickTimer();

@@ -182,7 +182,7 @@ describe('targeting', () => {
         event: {
           event_type: 'Purchase',
           event_properties: {
-            '[Amplitude] Page URL': 'http://localhost:3000/tasks-app',
+            'page_url': 'http://localhost:3000/tasks-app',
           },
         },
       });

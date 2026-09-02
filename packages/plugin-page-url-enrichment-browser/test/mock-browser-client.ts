@@ -39,7 +39,7 @@ export const createMockBrowserClient = (): jest.Mocked<BrowserClient> => {
       code: 200,
       message: '',
       event: {
-        event_type: '[Amplitude] Page Viewed',
+        event_type: 'ade_page_viewed',
       },
     }),
   });

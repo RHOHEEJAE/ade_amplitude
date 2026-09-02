@@ -254,7 +254,7 @@ export function shouldTrackNetworkEvent(networkEvent: NetworkRequestEvent, optio
     }
   }
 
-  // skip Amplitude network requests to "[Amplitude] Network Request" to avoid infinite loop
+  // skip Amplitude network requests to "ade_network_request" to avoid infinite loop
   if (networkEvent.requestWrapper && isAmplitudeNetworkRequestEvent(host, networkEvent.requestWrapper)) {
     return false;
   }
@@ -263,21 +263,21 @@ export function shouldTrackNetworkEvent(networkEvent: NetworkRequestEvent, optio
 }
 
 export type NetworkAnalyticsEvent = {
-  ['[Amplitude] URL']: string;
-  ['[Amplitude] URL Query']?: string;
-  ['[Amplitude] URL Fragment']?: string;
-  ['[Amplitude] Request Method']: string;
-  ['[Amplitude] Status Code']?: number;
-  ['[Amplitude] Start Time']?: number; // unix timestamp
-  ['[Amplitude] Completion Time']?: number; // unix timestamp
-  ['[Amplitude] Duration']?: number; // completionTime - startTime (millis)
-  ['[Amplitude] Request Body Size']?: number;
-  ['[Amplitude] Request Headers']?: Record<string, string>;
-  ['[Amplitude] Request Body']?: string;
-  ['[Amplitude] Response Body Size']?: number;
-  ['[Amplitude] Response Headers']?: Record<string, string>;
-  ['[Amplitude] Response Body']?: string;
-  ['[Amplitude] Request Type']?: 'xhr' | 'fetch';
+  ['url']: string;
+  ['url_query']?: string;
+  ['url_fragment']?: string;
+  ['request_method']: string;
+  ['status_code']?: number;
+  ['start_time']?: number; // unix timestamp
+  ['completion_time']?: number; // unix timestamp
+  ['duration']?: number; // completionTime - startTime (millis)
+  ['request_body_size']?: number;
+  ['request_headers']?: Record<string, string>;
+  ['request_body']?: string;
+  ['response_body_size']?: number;
+  ['response_headers']?: Record<string, string>;
+  ['response_body']?: string;
+  ['request_type']?: 'xhr' | 'fetch';
 };
 
 export async function logNetworkAnalyticsEvent(
@@ -290,7 +290,7 @@ export async function logNetworkAnalyticsEvent(
     const [requestBody, responseBody] = await Promise.all([request.requestBodyJson, request.responseBodyJson]);
     if (requestBody) {
       try {
-        networkAnalyticsEvent['[Amplitude] Request Body'] = JSON.stringify(requestBody);
+        networkAnalyticsEvent['request_body'] = JSON.stringify(requestBody);
       } catch (e) {
         /* istanbul ignore next */
         loggerProvider?.debug('Failed to stringify request body', e);
@@ -298,7 +298,7 @@ export async function logNetworkAnalyticsEvent(
     }
     if (responseBody) {
       try {
-        networkAnalyticsEvent['[Amplitude] Response Body'] = JSON.stringify(responseBody);
+        networkAnalyticsEvent['response_body'] = JSON.stringify(responseBody);
       } catch (e) {
         /* istanbul ignore next */
         loggerProvider?.debug('Failed to stringify response body');
@@ -346,19 +346,19 @@ export function trackNetworkEvents({
     const requestBodySize = request.requestWrapper?.bodySize;
 
     const networkAnalyticsEvent: NetworkAnalyticsEvent = {
-      ['[Amplitude] URL']: urlObj.hrefWithoutQueryOrHash,
-      ['[Amplitude] URL Query']: urlObj.query,
-      ['[Amplitude] URL Fragment']: urlObj.fragment,
-      ['[Amplitude] Request Method']: request.method,
-      ['[Amplitude] Status Code']: request.status,
-      ['[Amplitude] Start Time']: request.startTime,
-      ['[Amplitude] Completion Time']: request.endTime,
-      ['[Amplitude] Duration']: request.duration,
-      ['[Amplitude] Request Body Size']: requestBodySize,
-      ['[Amplitude] Response Body Size']: responseBodySize,
-      ['[Amplitude] Request Type']: request.type,
-      ['[Amplitude] Request Headers']: request.requestHeaders,
-      ['[Amplitude] Response Headers']: request.responseHeaders,
+      ['url']: urlObj.hrefWithoutQueryOrHash,
+      ['url_query']: urlObj.query,
+      ['url_fragment']: urlObj.fragment,
+      ['request_method']: request.method,
+      ['status_code']: request.status,
+      ['start_time']: request.startTime,
+      ['completion_time']: request.endTime,
+      ['duration']: request.duration,
+      ['request_body_size']: requestBodySize,
+      ['response_body_size']: responseBodySize,
+      ['request_type']: request.type,
+      ['request_headers']: request.requestHeaders,
+      ['response_headers']: request.responseHeaders,
     };
 
     // fire-and-forget promise that tracks the event

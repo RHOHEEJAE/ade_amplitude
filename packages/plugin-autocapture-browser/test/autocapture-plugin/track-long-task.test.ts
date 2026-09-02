@@ -76,17 +76,17 @@ describe('trackMainThreadBlock', () => {
       ]);
 
       expect(amplitude.track).toHaveBeenCalledWith(AMPLITUDE_MAIN_THREAD_BLOCK_EVENT, {
-        '[Amplitude] Main Thread Block Source': 'long-animation-frame',
-        '[Amplitude] Main Thread Block Duration': 150,
-        '[Amplitude] Main Thread Block Blocking Duration': 120,
-        '[Amplitude] Main Thread Block Start Time': 1000,
-        '[Amplitude] Main Thread Block Render Start': 1050,
-        '[Amplitude] Main Thread Block Style And Layout Start': 1080,
-        '[Amplitude] Main Thread Block Script Count': 1,
-        '[Amplitude] Main Thread Block Script URLs': ['app.js'],
-        '[Amplitude] Main Thread Block Script Functions': ['onClick'],
-        '[Amplitude] Main Thread Block Invoker Types': ['event-listener'],
-        '[Amplitude] Main Thread Block Invokers': ['click'],
+        'main_thread_block_source': 'long-animation-frame',
+        'main_thread_block_duration': 150,
+        'main_thread_block_blocking_duration': 120,
+        'main_thread_block_start_time': 1000,
+        'main_thread_block_render_start': 1050,
+        'main_thread_block_style_and_layout_start': 1080,
+        'main_thread_block_script_count': 1,
+        'main_thread_block_script_urls': ['app.js'],
+        'main_thread_block_script_functions': ['onClick'],
+        'main_thread_block_invoker_types': ['event-listener'],
+        'main_thread_block_invokers': ['click'],
       });
     });
 
@@ -105,11 +105,11 @@ describe('trackMainThreadBlock', () => {
       ]);
 
       const call = (amplitude.track as jest.Mock).mock.calls[0][1];
-      expect(call['[Amplitude] Main Thread Block Script URLs']).toBeUndefined();
-      expect(call['[Amplitude] Main Thread Block Script Functions']).toBeUndefined();
-      expect(call['[Amplitude] Main Thread Block Script Positions']).toBeUndefined();
-      expect(call['[Amplitude] Main Thread Block Invoker Types']).toBeUndefined();
-      expect(call['[Amplitude] Main Thread Block Invokers']).toBeUndefined();
+      expect(call['main_thread_block_script_urls']).toBeUndefined();
+      expect(call['main_thread_block_script_functions']).toBeUndefined();
+      expect(call['main_thread_block_script_positions']).toBeUndefined();
+      expect(call['main_thread_block_invoker_types']).toBeUndefined();
+      expect(call['main_thread_block_invokers']).toBeUndefined();
     });
 
     it('should include script positions when sourceCharPosition is present', () => {
@@ -143,7 +143,7 @@ describe('trackMainThreadBlock', () => {
       ]);
 
       const call = (amplitude.track as jest.Mock).mock.calls[0][1];
-      expect(call['[Amplitude] Main Thread Block Script Positions']).toEqual([1234, 0]);
+      expect(call['main_thread_block_script_positions']).toEqual([1234, 0]);
     });
 
     it('should omit script positions when sourceCharPosition is missing on all scripts', () => {
@@ -163,7 +163,7 @@ describe('trackMainThreadBlock', () => {
       ]);
 
       const call = (amplitude.track as jest.Mock).mock.calls[0][1];
-      expect(call['[Amplitude] Main Thread Block Script Positions']).toBeUndefined();
+      expect(call['main_thread_block_script_positions']).toBeUndefined();
     });
 
     it('should filter out -1 sentinel values from sourceCharPosition', () => {
@@ -196,7 +196,7 @@ describe('trackMainThreadBlock', () => {
       ]);
 
       const call = (amplitude.track as jest.Mock).mock.calls[0][1];
-      expect(call['[Amplitude] Main Thread Block Script Positions']).toEqual([42]);
+      expect(call['main_thread_block_script_positions']).toEqual([42]);
     });
 
     it('should include overlapping measures', () => {
@@ -218,7 +218,7 @@ describe('trackMainThreadBlock', () => {
       ]);
 
       const call = (amplitude.track as jest.Mock).mock.calls[0][1];
-      expect(call['[Amplitude] Main Thread Block Measures']).toEqual(['my-measure']);
+      expect(call['main_thread_block_measures']).toEqual(['my-measure']);
     });
 
     it('should not include non-overlapping measures', () => {
@@ -239,7 +239,7 @@ describe('trackMainThreadBlock', () => {
       ]);
 
       const call = (amplitude.track as jest.Mock).mock.calls[0][1];
-      expect(call['[Amplitude] Main Thread Block Measures']).toBeUndefined();
+      expect(call['main_thread_block_measures']).toBeUndefined();
     });
 
     it('should not track when duration is below threshold', () => {
@@ -295,7 +295,7 @@ describe('trackMainThreadBlock', () => {
       ]);
 
       const call = (amplitude.track as jest.Mock).mock.calls[0][1];
-      expect(call['[Amplitude] Main Thread Block Script Count']).toBe(0);
+      expect(call['main_thread_block_script_count']).toBe(0);
     });
   });
 
@@ -316,11 +316,11 @@ describe('trackMainThreadBlock', () => {
       ]);
 
       expect(amplitude.track).toHaveBeenCalledWith(AMPLITUDE_MAIN_THREAD_BLOCK_EVENT, {
-        '[Amplitude] Main Thread Block Source': 'long-task',
-        '[Amplitude] Main Thread Block Duration': 150,
-        '[Amplitude] Main Thread Block Blocking Duration': 150,
-        '[Amplitude] Main Thread Block Start Time': 1000,
-        '[Amplitude] Main Thread Block Attribution': ['same-origin'],
+        'main_thread_block_source': 'long-task',
+        'main_thread_block_duration': 150,
+        'main_thread_block_blocking_duration': 150,
+        'main_thread_block_start_time': 1000,
+        'main_thread_block_attribution': ['same-origin'],
       });
     });
 
@@ -330,7 +330,7 @@ describe('trackMainThreadBlock', () => {
       getBlockObserver().fire([{ duration: 150, startTime: 1000, attribution: [] } as any]);
 
       const call = (amplitude.track as jest.Mock).mock.calls[0][1];
-      expect(call['[Amplitude] Main Thread Block Attribution']).toBeUndefined();
+      expect(call['main_thread_block_attribution']).toBeUndefined();
     });
 
     it('should handle undefined attribution', () => {
@@ -339,7 +339,7 @@ describe('trackMainThreadBlock', () => {
       getBlockObserver().fire([{ duration: 150, startTime: 1000, attribution: undefined } as any]);
 
       const call = (amplitude.track as jest.Mock).mock.calls[0][1];
-      expect(call['[Amplitude] Main Thread Block Attribution']).toBeUndefined();
+      expect(call['main_thread_block_attribution']).toBeUndefined();
     });
 
     it('should include overlapping measures for longtask entries', () => {
@@ -350,7 +350,7 @@ describe('trackMainThreadBlock', () => {
       getBlockObserver().fire([{ duration: 150, startTime: 1000, attribution: [] } as any]);
 
       const call = (amplitude.track as jest.Mock).mock.calls[0][1];
-      expect(call['[Amplitude] Main Thread Block Measures']).toEqual(['my-measure']);
+      expect(call['main_thread_block_measures']).toEqual(['my-measure']);
     });
   });
 
@@ -374,7 +374,7 @@ describe('trackMainThreadBlock', () => {
       ]);
 
       const call = (amplitude.track as jest.Mock).mock.calls[0][1];
-      expect(call['[Amplitude] Main Thread Block Measures']).toBeUndefined();
+      expect(call['main_thread_block_measures']).toBeUndefined();
       jest.restoreAllMocks();
     });
   });

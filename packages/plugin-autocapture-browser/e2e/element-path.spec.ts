@@ -2,8 +2,8 @@ import { test, expect, Page, Request } from '@playwright/test';
 import { gunzipSync } from 'zlib';
 
 const TRACK_ENDPOINT = 'https://api2.amplitude.com/2/httpapi';
-const ELEMENT_CLICKED = '[Amplitude] Element Clicked';
-const ELEMENT_PATH_PROP = '[Amplitude] Element Path';
+const ELEMENT_CLICKED = 'ade_element_clicked';
+const ELEMENT_PATH_PROP = 'element_path';
 
 interface AmplitudeEvent {
   event_type: string;
@@ -29,7 +29,7 @@ function parseRequestBody(request: Request): Record<string, unknown> | undefined
  * `cssPath`, including the real `CSS.escape` and real layout/sibling structure.
  *
  * The engine ships dormant (default config, `enabled: false`), so the emitted
- * `[Amplitude] Element Path` must match the legacy walker output exactly. These
+ * `element_path` must match the legacy walker output exactly. These
  * tests guard that the swap from the local `cssPath` to the engine did not
  * change production selectors.
  */

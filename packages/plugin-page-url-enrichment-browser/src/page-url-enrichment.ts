@@ -207,25 +207,25 @@ export const pageUrlEnrichmentPlugin = ({ internalDomains = [] }: PageUrlEnrichm
 
         event.event_properties = {
           ...(event.event_properties || {}),
-          '[Amplitude] Page Domain': addIfNotExist(
+          'page_domain': addIfNotExist(
             event,
-            '[Amplitude] Page Domain',
+            'page_domain',
             (typeof location !== 'undefined' && location.hostname) || '',
           ),
-          '[Amplitude] Page Location': addIfNotExist(event, '[Amplitude] Page Location', locationHREF),
-          '[Amplitude] Page Path': addIfNotExist(
+          'page_location': addIfNotExist(event, 'page_location', locationHREF),
+          'page_path': addIfNotExist(
             event,
-            '[Amplitude] Page Path',
+            'page_path',
             (typeof location !== 'undefined' && getDecodeURI(location.pathname)) || '',
           ),
-          '[Amplitude] Page Title': addIfNotExist(
+          'page_title': addIfNotExist(
             event,
-            '[Amplitude] Page Title',
+            'page_title',
             getPageTitle(replaceSensitiveString),
           ),
-          '[Amplitude] Page URL': addIfNotExist(event, '[Amplitude] Page URL', locationHREF.split('?')[0]),
-          '[Amplitude] Previous Page Location': previousPage,
-          '[Amplitude] Previous Page Type': getPrevPageType(previousPage),
+          'page_url': addIfNotExist(event, 'page_url', locationHREF.split('?')[0]),
+          'previous_page_location': previousPage,
+          'previous_page_type': getPrevPageType(previousPage),
         };
       }
 

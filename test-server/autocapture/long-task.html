@@ -14,10 +14,10 @@
   <body>
     <h1>Main Thread Block Test</h1>
     <div id="source-badge">Detecting API support...</div>
-    <p>Open the Network tab or Amplitude debugger to see <strong>[Amplitude] Main Thread Block</strong> events. The on-page log below also mirrors each event.</p>
+    <p>Open the Network tab or Amplitude debugger to see <strong>ade_main_thread_block</strong> events. The on-page log below also mirrors each event.</p>
 
     <h2>1. Basic block (no measure)</h2>
-    <p>Blocks for 200ms. Expect: event with no <code>[Amplitude] Main Thread Block Measures</code>.</p>
+    <p>Blocks for 200ms. Expect: event with no <code>main_thread_block_measures</code>.</p>
     <button id="basic">Trigger 200ms block</button>
 
     <h2>2. Block with measure correlation</h2>
@@ -105,23 +105,23 @@
         name: 'main-thread-block-logger',
         type: 'enrichment',
         execute: async (event) => {
-          if (event.event_type === '[Amplitude] Main Thread Block') {
+          if (event.event_type === 'ade_main_thread_block') {
             const p = event.event_properties ?? {};
             const parts = [
-              `source: ${p['[Amplitude] Main Thread Block Source']}`,
-              `duration: ${Math.round(p['[Amplitude] Main Thread Block Duration'])}ms`,
-              `blocking: ${Math.round(p['[Amplitude] Main Thread Block Blocking Duration'])}ms`,
+              `source: ${p['main_thread_block_source']}`,
+              `duration: ${Math.round(p['main_thread_block_duration'])}ms`,
+              `blocking: ${Math.round(p['main_thread_block_blocking_duration'])}ms`,
             ];
-            const measures = p['[Amplitude] Main Thread Block Measures'];
+            const measures = p['main_thread_block_measures'];
             if (measures?.length) parts.push(`measures: [${measures.join(', ')}]`);
-            const scripts = p['[Amplitude] Main Thread Block Script Count'];
+            const scripts = p['main_thread_block_script_count'];
             if (scripts != null) parts.push(`scripts: ${scripts}`);
-            const invokers = p['[Amplitude] Main Thread Block Invokers'];
+            const invokers = p['main_thread_block_invokers'];
             if (invokers?.length) parts.push(`invokers: [${invokers.join(', ')}]`);
-            const attribution = p['[Amplitude] Main Thread Block Attribution'];
+            const attribution = p['main_thread_block_attribution'];
             if (attribution?.length) parts.push(`attribution: [${attribution.join(', ')}]`);
             document.getElementById('log').textContent =
-              new Date().toISOString().slice(11, 23) + '  [Amplitude] Main Thread Block — ' + parts.join(' | ') + '\n' +
+              new Date().toISOString().slice(11, 23) + '  ade_main_thread_block — ' + parts.join(' | ') + '\n' +
               document.getElementById('log').textContent;
           }
           return event;

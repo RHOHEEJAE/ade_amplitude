@@ -45,8 +45,8 @@ describe('autocapture.screenViews', () => {
   it('captures Screen Viewed events', async () => {
     void client.trackScreenView('Screen 1');
     await capture.waitForEvents(1);
-    expect(capture.events[0]?.event_type).toBe('[Amplitude] Screen Viewed');
-    expect(capture.events[0]?.event_properties?.[`[Amplitude] Screen Name`]).toBe('Screen 1');
+    expect(capture.events[0]?.event_type).toBe('screen_viewed');
+    expect(capture.events[0]?.event_properties?.[`screen_name`]).toBe('Screen 1');
   });
 
   it('captures Screen Viewed events from NavigationState events', async () => {
@@ -55,8 +55,8 @@ describe('autocapture.screenViews', () => {
       index: 0,
     });
     await capture.waitForEvents(1);
-    expect(capture.events[0]?.event_type).toBe('[Amplitude] Screen Viewed');
-    expect(capture.events[0]?.event_properties?.[`[Amplitude] Screen Name`]).toBe('Screen abc');
+    expect(capture.events[0]?.event_type).toBe('screen_viewed');
+    expect(capture.events[0]?.event_properties?.[`screen_name`]).toBe('Screen abc');
   });
 
   it('captures the focused leaf screen from nested NavigationState', async () => {
@@ -73,8 +73,8 @@ describe('autocapture.screenViews', () => {
       ],
     });
     await capture.waitForEvents(1);
-    expect(capture.events[0]?.event_type).toBe('[Amplitude] Screen Viewed');
-    expect(capture.events[0]?.event_properties?.[`[Amplitude] Screen Name`]).toBe('Settings');
+    expect(capture.events[0]?.event_type).toBe('screen_viewed');
+    expect(capture.events[0]?.event_properties?.[`screen_name`]).toBe('Settings');
   });
 
   it('does not duplicate Screen Viewed for the same focused route', async () => {
@@ -87,7 +87,7 @@ describe('autocapture.screenViews', () => {
     await capture.waitForEvents(1);
     await new Promise((resolve) => setTimeout(resolve, 200));
     expect(capture.events).toHaveLength(1);
-    expect(capture.events[0]?.event_properties?.[`[Amplitude] Screen Name`]).toBe('Home');
+    expect(capture.events[0]?.event_properties?.[`screen_name`]).toBe('Home');
   });
 });
 

@@ -20,11 +20,11 @@ type Click = {
 };
 
 type EventRageClick = {
-  '[Amplitude] Begin Time': string; // ISO-8601
-  '[Amplitude] End Time': string; // ISO-8601
-  '[Amplitude] Duration': number;
-  '[Amplitude] Clicks': Array<Click>;
-  '[Amplitude] Click Count': number;
+  'begin_time': string; // ISO-8601
+  'end_time': string; // ISO-8601
+  'duration': number;
+  'clicks': Array<Click>;
+  'click_count': number;
 };
 
 type ClickEvent = {
@@ -67,15 +67,15 @@ function getRageClickAnalyticsEvent(clickWindow: ClickEvent[]) {
   const lastClick = clickWindow[clickWindow.length - 1];
 
   const rageClickEvent: EventRageClick = {
-    '[Amplitude] Begin Time': new Date(firstClick.timestamp).toISOString(),
-    '[Amplitude] End Time': new Date(lastClick.timestamp).toISOString(),
-    '[Amplitude] Duration': lastClick.timestamp - firstClick.timestamp,
-    '[Amplitude] Clicks': clickWindow.map((click) => ({
+    'begin_time': new Date(firstClick.timestamp).toISOString(),
+    'end_time': new Date(lastClick.timestamp).toISOString(),
+    'duration': lastClick.timestamp - firstClick.timestamp,
+    'clicks': clickWindow.map((click) => ({
       X: (click.event as MouseEvent).pageX,
       Y: (click.event as MouseEvent).pageY,
       Time: click.timestamp,
     })),
-    '[Amplitude] Click Count': clickWindow.length,
+    'click_count': clickWindow.length,
     ...firstClick.targetElementProperties,
   };
 

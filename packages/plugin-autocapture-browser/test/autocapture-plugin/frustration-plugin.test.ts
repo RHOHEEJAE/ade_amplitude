@@ -378,14 +378,14 @@ describe('frustrationPlugin', () => {
       expect(props).toBeDefined();
 
       // Verify that only attributes with the custom prefix are captured
-      expect(props['[Amplitude] Element Attributes']).toEqual({
+      expect(props['element_attributes']).toEqual({
         click: 'custom-click-value',
         user: 'custom-user-value',
       });
 
       // Verify that attributes with other prefixes are not captured
-      expect(props['[Amplitude] Element Attributes']).not.toHaveProperty('amplitude-ignored');
-      expect(props['[Amplitude] Element Attributes']).not.toHaveProperty('other');
+      expect(props['element_attributes']).not.toHaveProperty('amplitude-ignored');
+      expect(props['element_attributes']).not.toHaveProperty('other');
     });
 
     it('should unsubscribe from all subscriptions on teardown', async () => {

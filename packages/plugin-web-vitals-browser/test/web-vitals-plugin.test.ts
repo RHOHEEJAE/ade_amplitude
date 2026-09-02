@@ -171,11 +171,11 @@ describe('webVitalsPlugin', () => {
       timestamp: expect.any(Number),
       navigationStart: expect.any(Number),
     };
-    expect(eventObject['[Amplitude] LCP']).toMatchObject(expectedMetric);
-    expect(eventObject['[Amplitude] FCP']).toMatchObject(expectedMetric);
-    expect(eventObject['[Amplitude] INP']).toMatchObject(expectedMetric);
-    expect(eventObject['[Amplitude] CLS']).toMatchObject(expectedMetric);
-    expect(eventObject['[Amplitude] TTFB']).toMatchObject(expectedMetric);
+    expect(eventObject['lcp']).toMatchObject(expectedMetric);
+    expect(eventObject['fcp']).toMatchObject(expectedMetric);
+    expect(eventObject['inp']).toMatchObject(expectedMetric);
+    expect(eventObject['cls']).toMatchObject(expectedMetric);
+    expect(eventObject['ttfb']).toMatchObject(expectedMetric);
   });
 
   it('should cleanup event listeners on teardown', async () => {

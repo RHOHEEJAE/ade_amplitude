@@ -5,8 +5,8 @@ import { executeActions } from './actions';
 import type { DataExtractor } from '../data-extractor';
 
 const eventTypeToBrowserEventMap = {
-  '[Amplitude] Element Clicked': 'click',
-  '[Amplitude] Element Changed': 'change',
+  'ade_element_clicked': 'click',
+  'ade_element_changed': 'change',
 } as const;
 // groups labeled events by event type
 // skips any labeled events with malformed definitions or unexpected event_type

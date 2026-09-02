@@ -26,10 +26,10 @@ interface InitializeVisualTaggingSelectorData {
 }
 
 interface ElementSelectedData {
-  '[Amplitude] Element Hierarchy'?: string;
-  '[Amplitude] Element Tag'?: string;
-  '[Amplitude] Element Text'?: string;
-  '[Amplitude] Page URL'?: string;
+  'element_hierarchy'?: string;
+  'element_tag'?: string;
+  'element_text'?: string;
+  'page_url'?: string;
   elementScreenshot?: Blob;
 }
 

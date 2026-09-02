@@ -574,9 +574,9 @@ describe('data extractor', () => {
 
       const inner = document.getElementById('inner');
       expect(dataExtractor.getEventTagProps(inner as HTMLElement)).toEqual({
-        '[Amplitude] Element Tag': 'div',
-        '[Amplitude] Element Text': 'xxx',
-        '[Amplitude] Page URL': 'https://www.amplitude.com/unit-test',
+        'element_tag': 'div',
+        'element_text': 'xxx',
+        'page_url': 'https://www.amplitude.com/unit-test',
       });
     });
 
@@ -595,9 +595,9 @@ describe('data extractor', () => {
 
       const inner = document.getElementsByClassName('amp-visual-tagging-selector-highlight')[0];
       expect(dataExtractor.getEventTagProps(inner as HTMLElement)).toEqual({
-        '[Amplitude] Element Tag': 'div',
-        '[Amplitude] Element Text': 'xxx',
-        '[Amplitude] Page URL': 'https://www.amplitude.com/unit-test',
+        'element_tag': 'div',
+        'element_text': 'xxx',
+        'page_url': 'https://www.amplitude.com/unit-test',
       });
     });
   });
@@ -660,10 +660,10 @@ describe('data extractor', () => {
 
       const result = dataExtractor.getEventProperties('click', element, 'data-amp-track-');
 
-      expect(result['[Amplitude] Element ID']).toBe('secret-id'); // ID should NOT be masked
-      expect(result['[Amplitude] Element Class']).toBe('secret-class'); // Class should NOT be masked
-      expect(result['[Amplitude] Element Tag']).toBe('button');
-      expect(result['[Amplitude] Element Text']).toBe('Click me');
+      expect(result['element_id']).toBe('secret-id'); // ID should NOT be masked
+      expect(result['element_class']).toBe('secret-class'); // Class should NOT be masked
+      expect(result['element_tag']).toBe('button');
+      expect(result['element_text']).toBe('Click me');
 
       document.body.removeChild(container);
     });
@@ -680,9 +680,9 @@ describe('data extractor', () => {
 
       const result = dataExtractor.getEventProperties('click', element, 'data-amp-track-');
 
-      expect(result['[Amplitude] Element ID']).toBe('test-id'); // ID should NEVER be masked
-      expect(result['[Amplitude] Element Class']).toBe('test-class'); // Class should NEVER be masked
-      expect(result['[Amplitude] Element Aria Label']).toBe(MASKED_TEXT_VALUE);
+      expect(result['element_id']).toBe('test-id'); // ID should NEVER be masked
+      expect(result['element_class']).toBe('test-class'); // Class should NEVER be masked
+      expect(result['element_aria_label']).toBe(MASKED_TEXT_VALUE);
 
       document.body.removeChild(element);
     });
@@ -700,8 +700,8 @@ describe('data extractor', () => {
 
       const result = dataExtractor.getEventProperties('click', element, 'data-amp-track-');
 
-      expect(result['[Amplitude] Element Aria Label']).toBe(MASKED_TEXT_VALUE);
-      expect(result['[Amplitude] Element Text']).toBe('Click me');
+      expect(result['element_aria_label']).toBe(MASKED_TEXT_VALUE);
+      expect(result['element_text']).toBe('Click me');
 
       document.body.removeChild(container);
     });
@@ -719,8 +719,8 @@ describe('data extractor', () => {
 
       const result = dataExtractor.getEventProperties('click', element, 'data-amp-track-');
 
-      expect(result['[Amplitude] Element Href']).toBe('https://secret-url.com/');
-      expect(result['[Amplitude] Element Text']).toBe('Secret link');
+      expect(result['element_href']).toBe('https://secret-url.com/');
+      expect(result['element_text']).toBe('Secret link');
 
       document.body.removeChild(container);
     });
@@ -761,9 +761,9 @@ describe('data extractor', () => {
 
       const result = dataExtractor.getEventProperties('click', element, 'data-amp-track-');
 
-      expect(result['[Amplitude] Element ID']).toBe('test-id');
-      expect(result['[Amplitude] Element Class']).toBe('test-class');
-      expect(result['[Amplitude] Element Aria Label']).toBe('Test button');
+      expect(result['element_id']).toBe('test-id');
+      expect(result['element_class']).toBe('test-class');
+      expect(result['element_aria_label']).toBe('Test button');
 
       document.body.removeChild(container);
     });
@@ -782,7 +782,7 @@ describe('data extractor', () => {
 
       const result = dataExtractor.getEventProperties('click', element, 'data-amp-track-');
 
-      expect(result['[Amplitude] Element Attributes']).toEqual({ 'user-id': '12345', 'user-name': MASKED_TEXT_VALUE });
+      expect(result['element_attributes']).toEqual({ 'user-id': '12345', 'user-name': MASKED_TEXT_VALUE });
 
       document.body.removeChild(container);
     });
@@ -802,9 +802,9 @@ describe('data extractor', () => {
 
       const result = dataExtractor.getEventProperties('click', element, 'data-amp-track-');
 
-      expect(result['[Amplitude] Element ID']).toBe('important-id'); // ID should NEVER be masked
-      expect(result['[Amplitude] Element Class']).toBe('secret-class'); // Class should NEVER be masked
-      expect(result['[Amplitude] Element Aria Label']).toBe(MASKED_TEXT_VALUE); // Aria-label should be masked
+      expect(result['element_id']).toBe('important-id'); // ID should NEVER be masked
+      expect(result['element_class']).toBe('secret-class'); // Class should NEVER be masked
+      expect(result['element_aria_label']).toBe(MASKED_TEXT_VALUE); // Aria-label should be masked
 
       document.body.removeChild(container);
     });
@@ -923,7 +923,7 @@ describe('data extractor', () => {
       document.body.removeChild(element);
     });
 
-    describe('[Amplitude] Element Hierarchy property:', () => {
+    describe('element_hierarchy property:', () => {
       test('should cut off hierarchy output nodes to stay less than or equal to 1024 chars', () => {
         document.getElementsByTagName('body')[0].innerHTML = `
         <div id="parent2">

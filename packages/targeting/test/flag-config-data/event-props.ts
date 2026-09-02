@@ -34,7 +34,7 @@ export const flagEventProps: TargetingFlag = {
       conditions: [
         [
           {
-            selector: ['context', 'event', 'event_properties', '[Amplitude] Page URL'],
+            selector: ['context', 'event', 'event_properties', 'page_url'],
             op: 'is',
             values: ['http://localhost:3000/tasks-app'],
           },

@@ -52,19 +52,19 @@ function buildLoAFProperties(entry: PerformanceLongAnimationFrameTiming, measure
   const invokers = scripts.map((s) => s.invoker).filter(Boolean);
 
   return {
-    '[Amplitude] Main Thread Block Source': 'long-animation-frame',
-    '[Amplitude] Main Thread Block Duration': entry.duration,
-    '[Amplitude] Main Thread Block Blocking Duration': entry.blockingDuration,
-    '[Amplitude] Main Thread Block Start Time': entry.startTime,
-    ...(overlappingMeasures.length > 0 && { '[Amplitude] Main Thread Block Measures': overlappingMeasures }),
-    '[Amplitude] Main Thread Block Render Start': entry.renderStart,
-    '[Amplitude] Main Thread Block Style And Layout Start': entry.styleAndLayoutStart,
-    '[Amplitude] Main Thread Block Script Count': scripts.length,
-    ...(scriptURLs.length > 0 && { '[Amplitude] Main Thread Block Script URLs': scriptURLs }),
-    ...(scriptFunctions.length > 0 && { '[Amplitude] Main Thread Block Script Functions': scriptFunctions }),
-    ...(scriptPositions.length > 0 && { '[Amplitude] Main Thread Block Script Positions': scriptPositions }),
-    ...(invokerTypes.length > 0 && { '[Amplitude] Main Thread Block Invoker Types': invokerTypes }),
-    ...(invokers.length > 0 && { '[Amplitude] Main Thread Block Invokers': invokers }),
+    'main_thread_block_source': 'long-animation-frame',
+    'main_thread_block_duration': entry.duration,
+    'main_thread_block_blocking_duration': entry.blockingDuration,
+    'main_thread_block_start_time': entry.startTime,
+    ...(overlappingMeasures.length > 0 && { 'main_thread_block_measures': overlappingMeasures }),
+    'main_thread_block_render_start': entry.renderStart,
+    'main_thread_block_style_and_layout_start': entry.styleAndLayoutStart,
+    'main_thread_block_script_count': scripts.length,
+    ...(scriptURLs.length > 0 && { 'main_thread_block_script_urls': scriptURLs }),
+    ...(scriptFunctions.length > 0 && { 'main_thread_block_script_functions': scriptFunctions }),
+    ...(scriptPositions.length > 0 && { 'main_thread_block_script_positions': scriptPositions }),
+    ...(invokerTypes.length > 0 && { 'main_thread_block_invoker_types': invokerTypes }),
+    ...(invokers.length > 0 && { 'main_thread_block_invokers': invokers }),
   };
 }
 
@@ -73,13 +73,13 @@ function buildLongTaskProperties(entry: PerformanceLongTaskTiming, measures: Per
   const attribution = entry.attribution ?? [];
 
   return {
-    '[Amplitude] Main Thread Block Source': 'long-task',
-    '[Amplitude] Main Thread Block Duration': entry.duration,
-    '[Amplitude] Main Thread Block Blocking Duration': entry.duration,
-    '[Amplitude] Main Thread Block Start Time': entry.startTime,
-    ...(overlappingMeasures.length > 0 && { '[Amplitude] Main Thread Block Measures': overlappingMeasures }),
+    'main_thread_block_source': 'long-task',
+    'main_thread_block_duration': entry.duration,
+    'main_thread_block_blocking_duration': entry.duration,
+    'main_thread_block_start_time': entry.startTime,
+    ...(overlappingMeasures.length > 0 && { 'main_thread_block_measures': overlappingMeasures }),
     ...(attribution.length > 0 && {
-      '[Amplitude] Main Thread Block Attribution': attribution.map((a: TaskAttributionTiming) => a.name),
+      'main_thread_block_attribution': attribution.map((a: TaskAttributionTiming) => a.name),
     }),
   };
 }

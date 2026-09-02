@@ -12,7 +12,7 @@ import {
   SpecialEventType,
 } from '@amplitude/analytics-core';
 
-const ATTRIBUTION_EVENT_TYPE = '[Amplitude] Attribution';
+const ATTRIBUTION_EVENT_TYPE = 'ade_attribution';
 const EVENT_PROPERTY_EXCLUDED_EVENT_TYPES = new Set<string>([
   SpecialEventType.IDENTIFY,
   SpecialEventType.GROUP_IDENTIFY,

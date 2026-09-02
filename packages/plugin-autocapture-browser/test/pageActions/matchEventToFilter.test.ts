@@ -24,7 +24,7 @@ const createEventForTesting = (
   timestamp: Date.now(),
   closestTrackedAncestor: trackedElement, // This is the element .closest() will be called on
   targetElementProperties: {
-    '[Amplitude] Element Text': text,
+    'element_text': text,
   },
 });
 
@@ -42,9 +42,9 @@ describe('matchEventToFilter', () => {
     document.body.removeChild(testContainer);
   });
 
-  // --- Test Suite for '[Amplitude] Element Text' ---
-  describe('when filter.subprop_key is "[Amplitude] Element Text"', () => {
-    const textFilterKey = '[Amplitude] Element Text';
+  // --- Test Suite for 'element_text' ---
+  describe('when filter.subprop_key is "element_text"', () => {
+    const textFilterKey = 'element_text';
     let dummyElement: HTMLElement;
 
     beforeEach(() => {
@@ -114,9 +114,9 @@ describe('matchEventToFilter', () => {
     });
   });
 
-  // --- Test Suite for '[Amplitude] Element Hierarchy' ---
-  describe('when filter.subprop_key is "[Amplitude] Element Hierarchy"', () => {
-    const hierarchyFilterKey = '[Amplitude] Element Hierarchy';
+  // --- Test Suite for 'element_hierarchy' ---
+  describe('when filter.subprop_key is "element_hierarchy"', () => {
+    const hierarchyFilterKey = 'element_hierarchy';
 
     test('should return true if subprop_op is "autotrack css match" and element matches CSS selector', () => {
       // DOM Structure: <div> <button class="my-button"></button> </div>
@@ -229,7 +229,7 @@ describe('matchEventToFilter', () => {
       testContainer.appendChild(dummyElement);
       const event = createEventForTesting('Some Text', dummyElement);
       const filter: Filter = {
-        subprop_key: '[Amplitude] Unknown Key' as EventSubpropKey, // Intentionally unknown
+        subprop_key: 'unknown_key' as EventSubpropKey, // Intentionally unknown
         subprop_op: 'is',
         subprop_value: ['Some Text'],
       };

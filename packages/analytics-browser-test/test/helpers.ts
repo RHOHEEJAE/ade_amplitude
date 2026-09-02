@@ -167,13 +167,13 @@ const generatePageViewEventProps = (
   const campaign = parseQueryString(urlString);
 
   return {
-    '[Amplitude] Page Counter': pageCounter,
-    '[Amplitude] Page Domain': url.hostname,
-    '[Amplitude] Page Location': url.href,
-    '[Amplitude] Page Path': url.pathname,
-    '[Amplitude] Page Title': '',
-    '[Amplitude] Page URL': url.href.split('?')[0],
-    '[Amplitude] Page View ID': uuid,
+    'page_counter': pageCounter,
+    'page_domain': url.hostname,
+    'page_location': url.href,
+    'page_path': url.pathname,
+    'page_title': '',
+    'page_url': url.href.split('?')[0],
+    'page_view_id': uuid,
     ...(options?.withPageURLEnrichmentProperties
       ? addPageUrlEnrichmentPreviousPageProperties(url.href, previousUrl.href || '')
       : {}),
@@ -193,7 +193,7 @@ export const generatePageViewEvent = (
     };
   },
 ) => {
-  const generatePageViewEvent = generateEvent(event_id, '[Amplitude] Page Viewed');
+  const generatePageViewEvent = generateEvent(event_id, 'ade_page_viewed');
   generatePageViewEvent.event_properties = generatePageViewEventProps(pageCounter, url, referrer, {
     withPageURLEnrichmentProperties: options?.withPageURLEnrichmentProperties,
   });
@@ -224,11 +224,11 @@ export const addPageUrlEnrichmentProperties = (event: BaseEvent, urlString: stri
 
   event.event_properties = {
     ...event.event_properties,
-    '[Amplitude] Page Domain': url.hostname,
-    '[Amplitude] Page Location': url.href,
-    '[Amplitude] Page Path': url.pathname,
-    '[Amplitude] Page Title': '',
-    '[Amplitude] Page URL': url.href.split('?')[0],
+    'page_domain': url.hostname,
+    'page_location': url.href,
+    'page_path': url.pathname,
+    'page_title': '',
+    'page_url': url.href.split('?')[0],
     ...addPageUrlEnrichmentPreviousPageProperties(url.href, previousUrl.href),
   };
   return event;
@@ -237,8 +237,8 @@ export const addPageUrlEnrichmentProperties = (event: BaseEvent, urlString: stri
 export const addPageUrlEnrichmentPreviousPageProperties = (current: string, previous: string) => {
   // note that the five duplicate properties with the page viewed are skipped here
   return {
-    '[Amplitude] Previous Page Location': previous,
-    '[Amplitude] Previous Page Type': getPreviousPageType(current, previous),
+    'previous_page_location': previous,
+    'previous_page_type': getPreviousPageType(current, previous),
   };
 };
 

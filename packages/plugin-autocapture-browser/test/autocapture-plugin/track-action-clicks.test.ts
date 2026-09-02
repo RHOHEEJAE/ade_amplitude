@@ -141,8 +141,8 @@ describe('action clicks:', () => {
       await new Promise((r) => setTimeout(r, TESTING_DEBOUNCE_TIME + 503));
 
       expect(track).toHaveBeenCalledTimes(1);
-      expect(track).toHaveBeenNthCalledWith(1, '[Amplitude] Element Clicked', {
-        '[Amplitude] Element Hierarchy': [
+      expect(track).toHaveBeenNthCalledWith(1, 'ade_element_clicked', {
+        'element_hierarchy': [
           {
             id: 'addDivButton',
             index: 0,
@@ -173,15 +173,15 @@ describe('action clicks:', () => {
             tag: 'body',
           },
         ],
-        '[Amplitude] Element ID': 'addDivButton',
-        '[Amplitude] Element Parent Label': 'Card Title',
-        '[Amplitude] Element Path': 'div#addDivButton',
-        '[Amplitude] Element Position Left': 0,
-        '[Amplitude] Element Position Top': 0,
-        '[Amplitude] Element Tag': 'div',
-        '[Amplitude] Element Text': 'Add div',
-        '[Amplitude] Viewport Height': 768,
-        '[Amplitude] Viewport Width': 1024,
+        'element_id': 'addDivButton',
+        'element_parent_label': 'Card Title',
+        'element_path': 'div#addDivButton',
+        'element_position_left': 0,
+        'element_position_top': 0,
+        'element_tag': 'div',
+        'element_text': 'Add div',
+        'viewport_height': 768,
+        'viewport_width': 1024,
       });
     });
 
@@ -196,11 +196,11 @@ describe('action clicks:', () => {
       expect(track).toHaveBeenCalledTimes(1);
       expect(track).toHaveBeenNthCalledWith(
         1,
-        '[Amplitude] Element Clicked',
+        'ade_element_clicked',
         expect.objectContaining({
-          '[Amplitude] Element ID': 'real-button',
-          '[Amplitude] Element Tag': 'button',
-          '[Amplitude] Element Text': 'Click me',
+          'element_id': 'real-button',
+          'element_tag': 'button',
+          'element_text': 'Click me',
         }),
       );
     });
@@ -216,11 +216,11 @@ describe('action clicks:', () => {
       expect(track).toHaveBeenCalledTimes(1);
       expect(track).toHaveBeenNthCalledWith(
         1,
-        '[Amplitude] Element Clicked',
+        'ade_element_clicked',
         expect.objectContaining({
-          '[Amplitude] Element ID': 'inner-div-button-text',
-          '[Amplitude] Element Parent Label': 'Add div',
-          '[Amplitude] Element Tag': 'span',
+          'element_id': 'inner-div-button-text',
+          'element_parent_label': 'Add div',
+          'element_tag': 'span',
         }),
       );
     });
@@ -246,11 +246,11 @@ describe('action clicks:', () => {
         expect(track).toHaveBeenCalledTimes(1);
         expect(track).toHaveBeenNthCalledWith(
           1,
-          '[Amplitude] Element Clicked',
+          'ade_element_clicked',
           expect.objectContaining({
-            '[Amplitude] Element ID': 'card-title',
-            '[Amplitude] Element Parent Label': 'Card Title',
-            '[Amplitude] Element Tag': 'h1',
+            'element_id': 'card-title',
+            'element_parent_label': 'Card Title',
+            'element_tag': 'h1',
           }),
         );
         expect(document.querySelectorAll('.new-div').length).toBe(2);
@@ -318,7 +318,7 @@ describe('action clicks:', () => {
 
         // once for the page view end event, once for the click event
         expect(track).toHaveBeenCalledTimes(2);
-        expect(track).toHaveBeenNthCalledWith(2, '[Amplitude] Element Clicked', expect.objectContaining({}));
+        expect(track).toHaveBeenNthCalledWith(2, 'ade_element_clicked', expect.objectContaining({}));
       });
     });
   });

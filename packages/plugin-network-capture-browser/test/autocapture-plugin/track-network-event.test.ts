@@ -229,17 +229,17 @@ describe('track-network-event', () => {
       const [eventName, eventProperties] = networkEventCall;
       expect(eventName).toBe(AMPLITUDE_NETWORK_REQUEST_EVENT);
       expect(eventProperties).toEqual({
-        '[Amplitude] URL': 'https://example.com/track',
-        '[Amplitude] URL Query': 'hello=world',
-        '[Amplitude] URL Fragment': 'hash',
-        '[Amplitude] Request Method': 'POST',
-        '[Amplitude] Status Code': 500,
-        '[Amplitude] Start Time': expect.any(Number),
-        '[Amplitude] Completion Time': expect.any(Number),
-        '[Amplitude] Duration': expect.any(Number),
-        '[Amplitude] Request Body Size': 10,
-        '[Amplitude] Response Body Size': 100,
-        '[Amplitude] Request Type': 'fetch',
+        'url': 'https://example.com/track',
+        'url_query': 'hello=world',
+        'url_fragment': 'hash',
+        'request_method': 'POST',
+        'status_code': 500,
+        'start_time': expect.any(Number),
+        'completion_time': expect.any(Number),
+        'duration': expect.any(Number),
+        'request_body_size': 10,
+        'response_body_size': 100,
+        'request_type': 'fetch',
       });
     });
 
@@ -267,17 +267,17 @@ describe('track-network-event', () => {
       const [eventName, eventProperties] = networkEventCall;
       expect(eventName).toBe(AMPLITUDE_NETWORK_REQUEST_EVENT);
       expect(eventProperties).toEqual({
-        '[Amplitude] URL': 'https://example.com/track',
-        '[Amplitude] URL Query': 'hello=world',
-        '[Amplitude] URL Fragment': 'hash',
-        '[Amplitude] Request Method': 'POST',
-        '[Amplitude] Status Code': 500,
-        '[Amplitude] Start Time': expect.any(Number),
-        '[Amplitude] Completion Time': expect.any(Number),
-        '[Amplitude] Duration': expect.any(Number),
-        '[Amplitude] Request Body Size': undefined,
-        '[Amplitude] Response Body Size': undefined,
-        '[Amplitude] Request Type': 'xhr',
+        'url': 'https://example.com/track',
+        'url_query': 'hello=world',
+        'url_fragment': 'hash',
+        'request_method': 'POST',
+        'status_code': 500,
+        'start_time': expect.any(Number),
+        'completion_time': expect.any(Number),
+        'duration': expect.any(Number),
+        'request_body_size': undefined,
+        'response_body_size': undefined,
+        'request_type': 'xhr',
       });
     });
 
@@ -418,10 +418,10 @@ describe('track-network-event', () => {
   });
 
   describe('shouldTrackNetworkEvent returns false when', () => {
-    test('network request body contains "[Amplitude] Network Request"', () => {
+    test('network request body contains "ade_network_request"', () => {
       networkEvent.url = 'https://api2.amplitude.com/track';
       const body =
-        '{"api_key":"*****","events":[{"user_id":"****","device_id":"a1c372c9-e8bb-4be2-9865-1ba97787d485","session_id":1747961537096,"time":1747963021841,"platform":"Web","language":"en-US","ip":"$remote","insert_id":"22c2c614-ca7c-4668-9ad4-1576f3372bc0","event_type":"[Amplitude] Page Viewed","event_properties":{"referrer":"http://localhost:5173/browser-sdk/fetch.html","referring_domain":"localhost:5173","[Amplitude] Page Domain":"localhost","[Amplitude] Page Location":"http://localhost:5173/browser-sdk/fetch.html","[Amplitude] Page Path":"/browser-sdk/fetch.html","[Amplitude] Page Title":"Fetch & XHR Network Tracking Test","[Amplitude] Page URL":"http://localhost:5173/browser-sdk/fetch.html","[Amplitude] Page Counter":24},"event_id":14683,"library":"amplitude-ts/2.17.6","user_agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36"},{"user_id":"daniel.graham.dev","device_id":"a1c372c9-e8bb-4be2-9865-1ba97787d485","session_id":1747961537096,"time":1747963022828,"platform":"Web","language":"en-US","ip":"$remote","insert_id":"d5c71b76-22d5-4bbf-9b44-79a8b315a47f","event_type":"[Amplitude] Network Request","event_properties":{"[Amplitude] URL":"https://httpstat.us/200","[Amplitude] URL Query":"","[Amplitude] URL Fragment":"","[Amplitude] Request Method":"POST","[Amplitude] Status Code":0,"[Amplitude] Start Time":1747963022814,"[Amplitude] Completion Time":1747963022825,"[Amplitude] Duration":11,"[Amplitude] Request Body Size":28,"[Amplitude] Request Type":"fetch"},"event_id":14684,"library":"amplitude-ts/2.17.6","user_agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36"}],"options":{},"client_upload_time":"2025-05-23T01:17:02.843Z","request_metadata":{"sdk":{"metrics":{"histogram":{"remote_config_fetch_time_API_success":6}}}}}';
+        '{"api_key":"*****","events":[{"user_id":"****","device_id":"a1c372c9-e8bb-4be2-9865-1ba97787d485","session_id":1747961537096,"time":1747963021841,"platform":"Web","language":"en-US","ip":"$remote","insert_id":"22c2c614-ca7c-4668-9ad4-1576f3372bc0","event_type":"ade_page_viewed","event_properties":{"referrer":"http://localhost:5173/browser-sdk/fetch.html","referring_domain":"localhost:5173","page_domain":"localhost","page_location":"http://localhost:5173/browser-sdk/fetch.html","page_path":"/browser-sdk/fetch.html","page_title":"Fetch & XHR Network Tracking Test","page_url":"http://localhost:5173/browser-sdk/fetch.html","page_counter":24},"event_id":14683,"library":"amplitude-ts/2.17.6","user_agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36"},{"user_id":"daniel.graham.dev","device_id":"a1c372c9-e8bb-4be2-9865-1ba97787d485","session_id":1747961537096,"time":1747963022828,"platform":"Web","language":"en-US","ip":"$remote","insert_id":"d5c71b76-22d5-4bbf-9b44-79a8b315a47f","event_type":"ade_network_request","event_properties":{"url":"https://httpstat.us/200","url_query":"","url_fragment":"","request_method":"POST","status_code":0,"start_time":1747963022814,"completion_time":1747963022825,"duration":11,"request_body_size":28,"request_type":"fetch"},"event_id":14684,"library":"amplitude-ts/2.17.6","user_agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36"}],"options":{},"client_upload_time":"2025-05-23T01:17:02.843Z","request_metadata":{"sdk":{"metrics":{"histogram":{"remote_config_fetch_time_API_success":6}}}}}';
       networkEvent.requestWrapper.body = body;
       const networkTracking = {
         ignoreAmplitudeRequests: false,
@@ -917,11 +917,11 @@ describe('track-network-event', () => {
   describe('logNetworkAnalyticsEvent', () => {
     test('should log network analytics event with request and response body', async () => {
       const networkAnalyticsEvent: NetworkAnalyticsEvent = {
-        '[Amplitude] URL': 'https://example.com/track',
-        '[Amplitude] URL Query': 'hello=world',
-        '[Amplitude] URL Fragment': 'hash',
-        '[Amplitude] Request Method': 'POST',
-        '[Amplitude] Status Code': 500,
+        'url': 'https://example.com/track',
+        'url_query': 'hello=world',
+        'url_fragment': 'hash',
+        'request_method': 'POST',
+        'status_code': 500,
       };
       const request = new MockNetworkRequestEvent();
       request.requestBodyJson = Promise.resolve({ message: 'hello' });

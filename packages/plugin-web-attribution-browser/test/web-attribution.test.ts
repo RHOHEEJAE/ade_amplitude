@@ -266,7 +266,7 @@ describe('webAttributionPlugin', () => {
           page_path: '',
           page_title: '',
         },
-        event_type: '[Amplitude] Page Viewed',
+        event_type: 'ade_page_viewed',
       };
       const result = await plugin.execute?.(event);
 

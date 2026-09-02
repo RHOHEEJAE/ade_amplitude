@@ -22,7 +22,7 @@ const createMockBrowserClient = (): jest.Mocked<BrowserClient> =>
         code: 200,
         message: '',
         event: {
-          event_type: '[Amplitude] Attribution',
+          event_type: 'ade_attribution',
         },
       }),
     }),
@@ -455,7 +455,7 @@ describe('eventPropertyTrackingPlugin', () => {
 
     expect(trackCalls).toHaveLength(1);
     expect(trackCalls[0]).toEqual([
-      '[Amplitude] Attribution',
+      'ade_attribution',
       expect.objectContaining({
         utm_source: 'google',
       }),
@@ -465,7 +465,7 @@ describe('eventPropertyTrackingPlugin', () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     expect(trackCalls).toHaveLength(2);
-    expect(trackCalls[1]).toEqual(['[Amplitude] Attribution', {}]);
+    expect(trackCalls[1]).toEqual(['ade_attribution', {}]);
     expect(parseSpy).toHaveBeenCalledTimes(2);
 
     window.history.pushState(undefined, '', '/campaign');
@@ -473,7 +473,7 @@ describe('eventPropertyTrackingPlugin', () => {
 
     expect(trackCalls).toHaveLength(3);
     expect(trackCalls[2]).toEqual([
-      '[Amplitude] Attribution',
+      'ade_attribution',
       expect.objectContaining({
         utm_source: 'bing',
       }),

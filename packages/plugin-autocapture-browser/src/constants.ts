@@ -2,36 +2,36 @@ export const PLUGIN_NAME = '@amplitude/plugin-autocapture-browser';
 export const FRUSTRATION_PLUGIN_NAME = '@amplitude/plugin-frustration-browser';
 export const PERFORMANCE_PLUGIN_NAME = '@amplitude/plugin-performance-browser';
 
-export const AMPLITUDE_ELEMENT_CLICKED_EVENT = '[Amplitude] Element Clicked';
-export const AMPLITUDE_ELEMENT_DEAD_CLICKED_EVENT = '[Amplitude] Dead Click';
-export const AMPLITUDE_ELEMENT_RAGE_CLICKED_EVENT = '[Amplitude] Rage Click';
-export const AMPLITUDE_ELEMENT_ERROR_CLICKED_EVENT = '[Amplitude] Error Click';
-export const AMPLITUDE_ELEMENT_CHANGED_EVENT = '[Amplitude] Element Changed';
-export const AMPLITUDE_PAGE_SCROLLED_EVENT = '[Amplitude] Page Scrolled';
-export const AMPLITUDE_THRASHED_CURSOR_EVENT = '[Amplitude] Thrashed Cursor';
-export const AMPLITUDE_MAIN_THREAD_BLOCK_EVENT = '[Amplitude] Main Thread Block';
+export const AMPLITUDE_ELEMENT_CLICKED_EVENT = 'ade_element_clicked';
+export const AMPLITUDE_ELEMENT_DEAD_CLICKED_EVENT = 'ade_dead_click';
+export const AMPLITUDE_ELEMENT_RAGE_CLICKED_EVENT = 'ade_rage_click';
+export const AMPLITUDE_ELEMENT_ERROR_CLICKED_EVENT = 'ade_error_click';
+export const AMPLITUDE_ELEMENT_CHANGED_EVENT = 'ade_element_changed';
+export const AMPLITUDE_PAGE_SCROLLED_EVENT = 'ade_page_scrolled';
+export const AMPLITUDE_THRASHED_CURSOR_EVENT = 'ade_thrashed_cursor';
+export const AMPLITUDE_MAIN_THREAD_BLOCK_EVENT = 'ade_main_thread_block';
 
-export const AMPLITUDE_EVENT_PROP_ELEMENT_ID = '[Amplitude] Element ID';
-export const AMPLITUDE_EVENT_PROP_ELEMENT_CLASS = '[Amplitude] Element Class';
-export const AMPLITUDE_EVENT_PROP_ELEMENT_TAG = '[Amplitude] Element Tag';
-export const AMPLITUDE_EVENT_PROP_ELEMENT_TEXT = '[Amplitude] Element Text';
-export const AMPLITUDE_EVENT_PROP_ELEMENT_HIERARCHY = '[Amplitude] Element Hierarchy';
-export const AMPLITUDE_EVENT_PROP_ELEMENT_HREF = '[Amplitude] Element Href';
-export const AMPLITUDE_EVENT_PROP_ELEMENT_POSITION_LEFT = '[Amplitude] Element Position Left';
-export const AMPLITUDE_EVENT_PROP_ELEMENT_POSITION_TOP = '[Amplitude] Element Position Top';
-export const AMPLITUDE_EVENT_PROP_ELEMENT_ARIA_LABEL = '[Amplitude] Element Aria Label';
-export const AMPLITUDE_EVENT_PROP_ELEMENT_ATTRIBUTES = '[Amplitude] Element Attributes';
-export const AMPLITUDE_EVENT_PROP_ELEMENT_PATH = '[Amplitude] Element Path';
+export const AMPLITUDE_EVENT_PROP_ELEMENT_ID = 'element_id';
+export const AMPLITUDE_EVENT_PROP_ELEMENT_CLASS = 'element_class';
+export const AMPLITUDE_EVENT_PROP_ELEMENT_TAG = 'element_tag';
+export const AMPLITUDE_EVENT_PROP_ELEMENT_TEXT = 'element_text';
+export const AMPLITUDE_EVENT_PROP_ELEMENT_HIERARCHY = 'element_hierarchy';
+export const AMPLITUDE_EVENT_PROP_ELEMENT_HREF = 'element_href';
+export const AMPLITUDE_EVENT_PROP_ELEMENT_POSITION_LEFT = 'element_position_left';
+export const AMPLITUDE_EVENT_PROP_ELEMENT_POSITION_TOP = 'element_position_top';
+export const AMPLITUDE_EVENT_PROP_ELEMENT_ARIA_LABEL = 'element_aria_label';
+export const AMPLITUDE_EVENT_PROP_ELEMENT_ATTRIBUTES = 'element_attributes';
+export const AMPLITUDE_EVENT_PROP_ELEMENT_PATH = 'element_path';
 
-export const AMPLITUDE_EVENT_PROP_ELEMENT_PARENT_LABEL = '[Amplitude] Element Parent Label';
-export const AMPLITUDE_EVENT_PROP_PAGE_URL = '[Amplitude] Page URL';
-export const AMPLITUDE_EVENT_PROP_PAGE_TITLE = '[Amplitude] Page Title';
-export const AMPLITUDE_EVENT_PROP_VIEWPORT_HEIGHT = '[Amplitude] Viewport Height';
-export const AMPLITUDE_EVENT_PROP_VIEWPORT_WIDTH = '[Amplitude] Viewport Width';
-export const AMPLITUDE_EVENT_PROP_MAX_PAGE_X = '[Amplitude] Max Page X';
-export const AMPLITUDE_EVENT_PROP_MAX_PAGE_Y = '[Amplitude] Max Page Y';
+export const AMPLITUDE_EVENT_PROP_ELEMENT_PARENT_LABEL = 'element_parent_label';
+export const AMPLITUDE_EVENT_PROP_PAGE_URL = 'page_url';
+export const AMPLITUDE_EVENT_PROP_PAGE_TITLE = 'page_title';
+export const AMPLITUDE_EVENT_PROP_VIEWPORT_HEIGHT = 'viewport_height';
+export const AMPLITUDE_EVENT_PROP_VIEWPORT_WIDTH = 'viewport_width';
+export const AMPLITUDE_EVENT_PROP_MAX_PAGE_X = 'max_page_x';
+export const AMPLITUDE_EVENT_PROP_MAX_PAGE_Y = 'max_page_y';
 
-export const AMPLITUDE_EVENT_PROP_PAGE_VIEW_ID = '[Amplitude] Page View ID';
+export const AMPLITUDE_EVENT_PROP_PAGE_VIEW_ID = 'page_view_id';
 
 // Origin constants are now shared via analytics-core; re-export for backwards compatibility
 export {

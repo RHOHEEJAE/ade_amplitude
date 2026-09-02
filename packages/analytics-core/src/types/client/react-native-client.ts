@@ -58,8 +58,8 @@ export interface ReactNativeClient extends Client {
    *
    * Equivalent to:
    * ```typescript
-   * track('[Amplitude] Screen Viewed', {
-   *   ['[Amplitude] Screen Name']: screenName,
+   * track('screen_viewed', {
+   *   ['screen_name']: screenName,
    *   ...eventProperties,
    * }, eventOptions);
    * ```

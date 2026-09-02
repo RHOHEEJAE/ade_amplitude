@@ -175,7 +175,7 @@ export type DataSource = {
     }
 );
 
-export type EventSubpropKey = '[Amplitude] Element Text' | '[Amplitude] Element Hierarchy';
+export type EventSubpropKey = 'element_text' | 'element_hierarchy';
 
 export type Filter = {
   subprop_key: EventSubpropKey;
@@ -186,7 +186,7 @@ export type Filter = {
 export type LabeledEvent = {
   id: string;
   definition: {
-    event_type: '[Amplitude] Element Clicked' | '[Amplitude] Element Changed';
+    event_type: 'ade_element_clicked' | 'ade_element_changed';
     filters: Filter[];
   }[];
 };
